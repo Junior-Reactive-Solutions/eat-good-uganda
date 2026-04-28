@@ -22,7 +22,7 @@ export function normalizeUgandaPhone(input: string): string {
 
 export const passwordSchema = z
   .string()
-  .min(8)
+  .min(10, 'password must be at least 10 characters')
   .max(72)
   .regex(/[A-Z]/, 'password must contain an uppercase letter')
   .regex(/[a-z]/, 'password must contain a lowercase letter')
@@ -93,5 +93,8 @@ export const bakeryLoginSchema = z.object({
 export const adminLoginSchema = z.object({
   email: z.email(),
   password: z.string().min(1),
-  totp_code: z.string().length(6).regex(/^\d{6}$/, 'TOTP code must be 6 digits'),
+  totp_code: z
+    .string()
+    .length(6)
+    .regex(/^\d{6}$/, 'TOTP code must be 6 digits'),
 })
