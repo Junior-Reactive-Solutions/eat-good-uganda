@@ -1,0 +1,40 @@
+name: Keep Alive
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping API Health
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Ping API health
+        run: |
+          URL="${{ secrets.KEEPALIVE_PING_URL }}"
+          if [ -z "$URL" ]; then
+            echo "KEEPALIVE_PING_URL not set; skipping."
+            exit 0
+          fi
+          echo "Pinging $URL"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$URL")
+          echo "HTTP $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::Non-200 response from health endpoint"
+            exit 1
+          fi
+
+  notify-on-failure:
+    name: Notify on Failure
+    needs: ping
+    runs-on: ubuntu-latest
+    if: failure()
+
+    steps:
+      - name: Send failure notification
+        run: |
+          echo "Keepalive ping failed. API may be down."
+          # Add Slack notification or email here if configured

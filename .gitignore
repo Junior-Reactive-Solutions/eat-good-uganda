@@ -1,0 +1,227 @@
+# =============================================================================
+# Eat Good Uganda — .gitignore
+# Covers: Node, pnpm, TypeScript, Vite, React, Express, Playwright, Vitest,
+# Jest, Postgres dumps, IDE files, OS cruft, secrets, deployment artifacts.
+# =============================================================================
+
+# ---------- Dependencies ----------
+node_modules/
+.pnpm-store/
+.yarn/
+.yarn-integrity
+jspm_packages/
+bower_components/
+
+# Package manager lock files from alternate managers (we use pnpm)
+package-lock.json
+yarn.lock
+
+# ---------- Environment / secrets ----------
+# Never commit real environment values. Only .env.example is tracked.
+.env
+.env.*
+!.env.example
+!.env.*.example
+.envrc
+
+# Any file whose name screams "credential"
+**/credentials.json
+**/service-account*.json
+**/*.pem
+**/*.key
+**/*.pfx
+**/*.p12
+**/*.crt
+**/*.cer
+**/secrets.json
+**/secrets/*.json
+
+# Neon / Postgres connection strings saved to disk
+neon.json
+database-url.txt
+.pgpass
+
+# MTN MoMo & Airtel Money credential caches
+.momo-cache/
+.airtel-cache/
+momo-user-id.json
+airtel-token.json
+
+# Session / cookie dumps (HAIQ has a cookie.txt — do not do that here)
+cookie.txt
+cookies.txt
+session.json
+
+# ---------- Build output ----------
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.turbo/
+.cache/
+.parcel-cache/
+.vite/
+.rollup.cache/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# ---------- Logs ----------
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm/
+
+# ---------- Test / coverage output ----------
+coverage/
+.nyc_output/
+*.lcov
+test-results/
+playwright-report/
+playwright/.cache/
+playwright/.auth/
+test-storage-state.json
+junit.xml
+reports/
+.vitest-reports/
+*.tap
+
+# ---------- Runtime / PID / lock ----------
+pids/
+*.pid
+*.seed
+*.pid.lock
+.lock-wscript
+
+# ---------- Database artifacts ----------
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+pgdata/
+postgres-data/
+*.sql.bak
+*.dump
+dump.rdb
+*.backup
+
+# Migration scratch / locally generated SQL not meant for commit
+backend/src/db/migrations/_scratch/
+**/_scratch/
+
+# ---------- Uploads / user-generated content ----------
+# Production images live in Cloudinary. Nothing user-generated is tracked.
+uploads/
+public/uploads/
+apps/*/public/uploads/
+tmp/
+temp/
+.tmp/
+
+# ---------- IDE / editor ----------
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.history/
+*.swp
+*.swo
+*~
+.vim/
+.nvim/
+
+# JetBrains shelf
+.idea_modules/
+atlassian-ide-plugin.xml
+
+# ---------- OS cruft ----------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ---------- Misc tooling ----------
+.eslintcache
+.stylelintcache
+.prettiercache
+.tsc-cache/
+.sass-cache/
+.python-version
+.ruby-version
+.tool-versions
+
+# Storybook
+storybook-static/
+
+# ---------- Deployment / infra ----------
+# Vercel
+.vercel/
+
+# Render
+.render/
+
+# Docker local state (Dockerfiles themselves ARE tracked)
+docker-compose.override.yml
+docker-data/
+
+# Terraform (if we ever use it)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# ---------- AI tool caches / scratch ----------
+.aider*
+.cursor/scratch/
+.claude/cache/
+.copilot-cache/
+
+# Do keep rule files
+!.cursor/rules/
+!.cursor/rules/**
+!.github/copilot-instructions.md
+!CLAUDE.md
+
+# ---------- Generated API specs ----------
+# Swagger JSON is built at runtime, do not commit
+openapi-generated.json
+swagger-generated.json
+
+# ---------- MacOS Finder icon ----------
+Icon?
+
+# ---------- Windows installer noise ----------
+*.stackdump
+
+# ---------- Misc ----------
+*.pyc
+__pycache__/
+
+# Local notes — use if you like, but they never ship
+NOTES.md
+TODO.local.md
+scratch.md
+progress.md
+.scratch/
+
+
+#SKILLS/

@@ -1,0 +1,2 @@
+# This project is a pnpm/TypeScript monorepo.
+# Python package installation is not required for runtime.
