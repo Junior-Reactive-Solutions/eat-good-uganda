@@ -1,7 +1,7 @@
+import { pool, listPublicBakeries } from '@eatgood/db'
 import { Router } from 'express'
 import { z } from 'zod'
 
-import { pool, listPublicBakeries } from '@eatgood/db'
 import { TtlCache } from '../../lib/cache'
 
 const router = Router()
@@ -26,7 +26,7 @@ function buildCacheKey(
 ): string {
   const rlat = lat !== undefined ? (Math.round(lat * 1000) / 1000).toFixed(3) : '_'
   const rlng = lng !== undefined ? (Math.round(lng * 1000) / 1000).toFixed(3) : '_'
-  return `${rlat}:${rlng}:${search ?? ''}:${page}`
+  return `${rlat}:${rlng}:${search ?? ''}:${String(page)}`
 }
 
 router.get('/', async (req, res) => {
@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
     const body: CacheBody = { bakeries }
     cache.set(key, body)
     res.json(body)
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Failed to fetch bakeries' })
   }
 })

@@ -1,15 +1,15 @@
-import { useForm } from 'react-hook-form'
+import { customerLoginSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate, useSearchParams, Link } from 'react-router-dom'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import toast from 'react-hot-toast'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import type { z } from 'zod'
 
-import { customerLoginSchema } from '@eatgood/shared'
-import { api } from '../../lib/api'
 import { Button } from '../../components/Button'
-import { Input } from '../../components/Input'
 import { FormError } from '../../components/FormError'
+import { Input } from '../../components/Input'
+import { api } from '../../lib/api'
 
 type FormValues = z.infer<typeof customerLoginSchema>
 
@@ -30,7 +30,7 @@ export function LoginForm() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['me'] })
       const redirect = params.get('redirect')
-      navigate(redirect && redirect.startsWith('/') ? redirect : '/', { replace: true })
+      void navigate(redirect && redirect.startsWith('/') ? redirect : '/', { replace: true })
     },
     onError: (err: unknown) => {
       const status = (err as { response?: { status?: number } }).response?.status
@@ -44,9 +44,13 @@ export function LoginForm() {
     },
   })
 
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
+    login.mutate(data)
+  }
+
   return (
     <form
-      onSubmit={handleSubmit((data) => login.mutate(data))}
+      onSubmit={handleSubmit(onSubmit) as React.SubmitEventHandler}
       className="flex flex-col gap-4"
       noValidate
     >

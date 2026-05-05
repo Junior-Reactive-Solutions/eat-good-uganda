@@ -1,8 +1,8 @@
+import type { Customer } from '@eatgood/shared'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 
 import { api, setUnauthorizedHandler } from '../../lib/api'
-import type { Customer } from '@eatgood/shared'
 
 export type MeResponse = Pick<
   Customer,
@@ -31,6 +31,6 @@ export function useAuthSetup() {
 
   setUnauthorizedHandler(() => {
     queryClient.setQueryData(['me'], null)
-    navigate('/login')
+    void navigate('/login')
   })
 }

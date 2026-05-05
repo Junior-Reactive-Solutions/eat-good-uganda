@@ -1,5 +1,5 @@
-import { useMe } from '../features/auth/hooks'
 import { PageHeader } from '../components/PageHeader'
+import { useMe } from '../features/auth/hooks'
 
 export default function AccountPage() {
   const { data: me } = useMe()

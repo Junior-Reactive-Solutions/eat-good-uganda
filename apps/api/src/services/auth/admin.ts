@@ -10,7 +10,7 @@ import {
 } from '@eatgood/db'
 import * as otplib from 'otplib'
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
 const authenticator = (otplib as any).authenticator
 
 import { verifyPassword } from '../../lib/password'

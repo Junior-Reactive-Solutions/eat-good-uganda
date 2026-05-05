@@ -1,7 +1,8 @@
 import { Navigate, useLocation } from 'react-router-dom'
 
-import { useMe } from './hooks'
 import { LoadingSpinner } from '../../components/LoadingSpinner'
+
+import { useMe } from './hooks'
 
 type Props = { children: React.ReactNode }
 

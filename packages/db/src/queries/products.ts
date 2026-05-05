@@ -11,10 +11,7 @@ const PRODUCT_COLS = sql`
   sort_order, tags, created_at, updated_at, deleted_at
 `
 
-export async function listProductsForBakery(
-  db: Database,
-  bakeryId: string,
-): Promise<Product[]> {
+export async function listProductsForBakery(db: Database, bakeryId: string): Promise<Product[]> {
   const result = await query<Product>(
     db,
     sql`SELECT ${PRODUCT_COLS} FROM products
@@ -91,7 +88,9 @@ export async function createProduct(
         )
         RETURNING ${PRODUCT_COLS}`,
   )
-  return result.rows[0]!
+  const product = result.rows[0]
+  if (!product) throw new Error('failed to create product')
+  return product
 }
 
 export type UpdateProductInput = Partial<CreateProductInput>

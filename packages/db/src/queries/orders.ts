@@ -15,13 +15,6 @@ const ORDER_COLS = sql`
   confirmed_at, delivered_at, cancelled_at, cancelled_reason
 `
 
-const ORDER_ITEM_COLS = sql`
-  id, order_id, bakery_id, product_id, variant_id,
-  product_name, variant_name,
-  unit_price_minor, quantity, line_total_minor,
-  item_notes, created_at
-`
-
 export async function listOrdersForBakery(
   db: Database,
   bakeryId: string,
@@ -146,7 +139,8 @@ export async function createOrder(
         )
         RETURNING ${ORDER_COLS}`,
   )
-  const order = orderResult.rows[0]!
+  const order = orderResult.rows[0]
+  if (!order) throw new Error('failed to create order')
 
   for (const item of input.items) {
     await query<OrderItem>(
@@ -188,16 +182,17 @@ export async function updateOrderStatus(
 
   const allowed = VALID_TRANSITIONS[current.status] ?? []
   if (!allowed.includes(newStatus)) {
-    throw new Error(
-      `Invalid status transition from '${current.status}' to '${newStatus}'`,
-    )
+    throw new Error(`Invalid status transition from '${current.status}' to '${newStatus}'`)
   }
 
   const timestampField =
-    newStatus === 'confirmed' ? sql`, confirmed_at = now()` :
-    newStatus === 'delivered' ? sql`, delivered_at = now()` :
-    newStatus === 'cancelled' ? sql`, cancelled_at = now()` :
-    sql``
+    newStatus === 'confirmed'
+      ? sql`, confirmed_at = now()`
+      : newStatus === 'delivered'
+        ? sql`, delivered_at = now()`
+        : newStatus === 'cancelled'
+          ? sql`, cancelled_at = now()`
+          : sql``
 
   const result = await query<Order>(
     db,

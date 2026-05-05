@@ -16,10 +16,7 @@ const BAKERY_COLS = sql`
   created_at, updated_at, deleted_at, approved_at, approved_by
 `
 
-export async function adminListAllBakeries(
-  db: Database,
-  _reason: string,
-): Promise<Bakery[]> {
+export async function adminListAllBakeries(db: Database): Promise<Bakery[]> {
   const result = await query<Bakery>(
     db,
     sql`SELECT ${BAKERY_COLS} FROM bakeries
@@ -29,10 +26,7 @@ export async function adminListAllBakeries(
   return result.rows
 }
 
-export async function adminListPendingBakeries(
-  db: Database,
-  _reason: string,
-): Promise<Bakery[]> {
+export async function adminListPendingBakeries(db: Database): Promise<Bakery[]> {
   const result = await query<Bakery>(
     db,
     sql`SELECT ${BAKERY_COLS} FROM bakeries
@@ -46,7 +40,6 @@ export async function adminApproveBakery(
   db: Database,
   bakeryId: string,
   approvedBy: string,
-  _reason: string,
 ): Promise<Bakery | null> {
   const result = await query<Bakery>(
     db,

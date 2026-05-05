@@ -1,15 +1,15 @@
-import { useForm } from 'react-hook-form'
+import { customerSignupSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { useNavigate, Link } from 'react-router-dom'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import toast from 'react-hot-toast'
+import { useNavigate, Link } from 'react-router-dom'
 import type { z } from 'zod'
 
-import { customerSignupSchema } from '@eatgood/shared'
-import { api } from '../../lib/api'
 import { Button } from '../../components/Button'
-import { Input } from '../../components/Input'
 import { FormError } from '../../components/FormError'
+import { Input } from '../../components/Input'
+import { api } from '../../lib/api'
 
 type FormValues = z.infer<typeof customerSignupSchema>
 
@@ -27,7 +27,7 @@ export function SignupForm() {
     mutationFn: (data: FormValues) => api.post('/v1/customer/auth/signup', data),
     onSuccess: () => {
       toast.success('Account created! Check your email to verify.')
-      navigate('/verify-email')
+      void navigate('/verify-email')
     },
     onError: (err: unknown) => {
       const status = (err as { response?: { status?: number } }).response?.status
@@ -39,9 +39,13 @@ export function SignupForm() {
     },
   })
 
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
+    signup.mutate(data)
+  }
+
   return (
     <form
-      onSubmit={handleSubmit((data) => signup.mutate(data))}
+      onSubmit={handleSubmit(onSubmit) as React.SubmitEventHandler}
       className="flex flex-col gap-4"
       noValidate
     >

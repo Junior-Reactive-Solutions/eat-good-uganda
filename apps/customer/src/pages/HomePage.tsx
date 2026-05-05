@@ -1,10 +1,10 @@
-import { useState } from 'react'
 import { Search, MapPin, Loader2, X, AlertCircle } from 'lucide-react'
+import { useState } from 'react'
 
-import { useCurrentLocation } from '../features/geolocation/useCurrentLocation'
-import { usePublicBakeries } from '../features/bakery/api'
 import { BakeryCard } from '../components/BakeryCard'
 import { Button } from '../components/Button'
+import { usePublicBakeries } from '../features/bakery/api'
+import { useCurrentLocation } from '../features/geolocation/useCurrentLocation'
 import { useDebounce } from '../hooks/useDebounce'
 
 export default function HomePage() {
@@ -14,10 +14,13 @@ export default function HomePage() {
   const search = useDebounce(searchInput, 400)
   const geo = useCurrentLocation()
 
-  const geoParams =
-    geo.status === 'granted' ? { lat: geo.lat, lng: geo.lng } : {}
+  const geoParams = geo.status === 'granted' ? { lat: geo.lat, lng: geo.lng } : {}
 
-  const { data: bakeries, isLoading, isError } = usePublicBakeries({
+  const {
+    data: bakeries,
+    isLoading,
+    isError,
+  } = usePublicBakeries({
     ...geoParams,
     search: search || undefined,
   })
@@ -52,7 +55,9 @@ export default function HomePage() {
                 type="search"
                 placeholder="Search bakeries…"
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                onChange={(e) => {
+                  setSearchInput(e.target.value)
+                }}
                 aria-label="Search bakeries"
                 className="w-full rounded-lg border border-platform-border bg-platform-surface py-3 pl-10 pr-4 text-sm text-platform-fg placeholder:text-platform-fg-muted focus:outline-none focus:ring-2 focus:ring-platform-primary focus:ring-offset-1"
               />
@@ -76,15 +81,17 @@ export default function HomePage() {
         <div role="status" className="border-b border-platform-border bg-platform-accent px-4 py-3">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
             <p className="text-sm text-platform-fg-muted">
-              <span className="font-medium text-platform-fg">Sort by distance?</span>{' '}
-              Grant location access to see the nearest bakeries first.
+              <span className="font-medium text-platform-fg">Sort by distance?</span> Grant location
+              access to see the nearest bakeries first.
             </p>
             <div className="flex shrink-0 items-center gap-2">
               <Button size="sm" onClick={geo.request} loading={geo.status === 'prompting'}>
                 Grant access
               </Button>
               <button
-                onClick={() => setBannerDismissed(true)}
+                onClick={() => {
+                  setBannerDismissed(true)
+                }}
                 aria-label="Dismiss location banner"
                 className="rounded p-1 text-platform-fg-muted transition-colors hover:text-platform-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platform-primary"
               >
@@ -114,7 +121,8 @@ export default function HomePage() {
             {geo.status === 'granted' && !search && 'Showing bakeries nearest to you.'}
             {geo.status === 'granted' && search && (
               <>
-                Results for <span className="font-medium text-platform-fg">"{search}"</span>, sorted by distance.
+                Results for <span className="font-medium text-platform-fg">"{search}"</span>, sorted
+                by distance.
               </>
             )}
             {geo.status !== 'granted' && search && (
@@ -136,7 +144,10 @@ export default function HomePage() {
         )}
 
         {isError && (
-          <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-platform-error">
+          <div
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-platform-error"
+          >
             Failed to load bakeries. Please refresh to try again.
           </div>
         )}
@@ -151,7 +162,12 @@ export default function HomePage() {
                 : 'No active bakeries yet. Check back soon!'}
             </p>
             {search && (
-              <Button variant="secondary" onClick={() => setSearchInput('')}>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setSearchInput('')
+                }}
+              >
                 Clear search
               </Button>
             )}

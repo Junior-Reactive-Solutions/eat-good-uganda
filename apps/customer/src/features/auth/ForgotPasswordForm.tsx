@@ -1,19 +1,23 @@
-import { useForm } from 'react-hook-form'
+import { forgotPasswordSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 import type { z } from 'zod'
 
-import { forgotPasswordSchema } from '@eatgood/shared'
-import { api } from '../../lib/api'
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
+import { api } from '../../lib/api'
 
 type FormValues = z.infer<typeof forgotPasswordSchema>
 
 export function ForgotPasswordForm() {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
     resolver: zodResolver(forgotPasswordSchema),
   })
 
@@ -23,8 +27,16 @@ export function ForgotPasswordForm() {
     onError: () => toast.error('Something went wrong. Try again.'),
   })
 
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
+    forgot.mutate(data)
+  }
+
   return (
-    <form onSubmit={handleSubmit((data) => forgot.mutate(data))} className="flex flex-col gap-4" noValidate>
+    <form
+      onSubmit={handleSubmit(onSubmit) as React.SubmitEventHandler}
+      className="flex flex-col gap-4"
+      noValidate
+    >
       <Input
         label="Email"
         type="email"
@@ -36,7 +48,9 @@ export function ForgotPasswordForm() {
         Send reset link
       </Button>
       <p className="text-center text-sm text-platform-fg-muted">
-        <Link to="/login" className="text-platform-primary hover:underline">Back to sign in</Link>
+        <Link to="/login" className="text-platform-primary hover:underline">
+          Back to sign in
+        </Link>
       </p>
     </form>
   )

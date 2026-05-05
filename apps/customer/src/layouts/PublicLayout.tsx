@@ -1,10 +1,9 @@
-import { Link, Outlet, useMatch } from 'react-router-dom'
 import { ShoppingCart, User, UtensilsCrossed } from 'lucide-react'
-
-import { useMe } from '../features/auth/hooks'
-import { BakeryThemeProvider } from '../features/bakery/BakeryThemeProvider'
+import { Link, Outlet, useMatch } from 'react-router-dom'
 
 import logo from '../assets/brand/logo.svg'
+import { useMe } from '../features/auth/hooks'
+import { BakeryThemeProvider } from '../features/bakery/BakeryThemeProvider'
 
 function Nav() {
   const { data: me } = useMe()
@@ -12,7 +11,10 @@ function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-platform-border bg-platform-surface/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link to="/" className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platform-primary rounded-lg">
+        <Link
+          to="/"
+          className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platform-primary rounded-lg"
+        >
           <img src={logo} alt="Eat Good Uganda" className="h-8 w-auto" />
         </Link>
 
@@ -58,11 +60,22 @@ function Footer() {
             <UtensilsCrossed className="h-5 w-5 text-platform-primary" aria-hidden="true" />
             <span className="font-semibold text-platform-fg">Eat Good Uganda</span>
           </div>
-          <nav aria-label="Footer navigation" className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-platform-fg-muted">
-            <Link to="/about" className="hover:text-platform-fg transition-colors">About</Link>
-            <Link to="/contact" className="hover:text-platform-fg transition-colors">Contact</Link>
-            <Link to="/privacy" className="hover:text-platform-fg transition-colors">Privacy</Link>
-            <Link to="/terms" className="hover:text-platform-fg transition-colors">Terms</Link>
+          <nav
+            aria-label="Footer navigation"
+            className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-platform-fg-muted"
+          >
+            <Link to="/about" className="hover:text-platform-fg transition-colors">
+              About
+            </Link>
+            <Link to="/contact" className="hover:text-platform-fg transition-colors">
+              Contact
+            </Link>
+            <Link to="/privacy" className="hover:text-platform-fg transition-colors">
+              Privacy
+            </Link>
+            <Link to="/terms" className="hover:text-platform-fg transition-colors">
+              Terms
+            </Link>
           </nav>
         </div>
         <p className="mt-6 text-xs text-platform-fg-muted">

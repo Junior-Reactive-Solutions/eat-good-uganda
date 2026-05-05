@@ -1,15 +1,15 @@
-import { useForm } from 'react-hook-form'
+import { resetPasswordSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import toast from 'react-hot-toast'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { z } from 'zod'
 
-import { resetPasswordSchema } from '@eatgood/shared'
-import { api } from '../../lib/api'
 import { Button } from '../../components/Button'
-import { Input } from '../../components/Input'
 import { FormError } from '../../components/FormError'
+import { Input } from '../../components/Input'
+import { api } from '../../lib/api'
 
 type FormValues = z.infer<typeof resetPasswordSchema>
 
@@ -18,7 +18,11 @@ export function ResetPasswordForm() {
   const [params] = useSearchParams()
   const token = params.get('token') ?? ''
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: { token },
   })
@@ -27,15 +31,23 @@ export function ResetPasswordForm() {
     mutationFn: (data: FormValues) => api.post('/v1/customer/auth/reset-password', data),
     onSuccess: () => {
       toast.success('Password updated. You can now sign in.')
-      navigate('/login')
+      void navigate('/login')
     },
     onError: () => {
       toast.error('Reset link expired or invalid. Request a new one.')
     },
   })
 
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
+    reset.mutate(data)
+  }
+
   return (
-    <form onSubmit={handleSubmit((data) => reset.mutate(data))} className="flex flex-col gap-4" noValidate>
+    <form
+      onSubmit={handleSubmit(onSubmit) as React.SubmitEventHandler}
+      className="flex flex-col gap-4"
+      noValidate
+    >
       <FormError message={errors.root?.message} />
       <input type="hidden" {...register('token')} />
       <Input

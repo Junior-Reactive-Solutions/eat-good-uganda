@@ -1,10 +1,9 @@
- 
 import crypto from 'crypto'
 
-import type { AnyToken } from '@eatgood/shared'
-import { bakeryTokenSchema, customerTokenSchema, superAdminTokenSchema } from '@eatgood/shared'
 import type { Database } from '@eatgood/db'
 import { getRefreshToken, insertRefreshToken, revokeRefreshToken } from '@eatgood/db'
+import type { AnyToken } from '@eatgood/shared'
+import { bakeryTokenSchema, customerTokenSchema, superAdminTokenSchema } from '@eatgood/shared'
 import * as jwt from 'jsonwebtoken'
 
 import { env } from '../env'
@@ -56,7 +55,11 @@ export async function createRefreshToken(
   db: Database,
   subjectType: 'customer' | 'bakery_user' | 'super_admin',
   subjectId: string,
-  opts: { bakeryId?: string | null; ip?: string | null; userAgent?: string | null } = {},
+  opts: {
+    bakeryId?: string | undefined
+    ip?: string | undefined
+    userAgent?: string | undefined
+  } = {},
 ): Promise<{ raw: string; expiresAt: Date }> {
   const raw = crypto.randomBytes(32).toString('hex')
   const tokenHash = crypto.createHash('sha256').update(raw).digest('hex')
@@ -79,7 +82,7 @@ export async function createRefreshToken(
 export async function rotateRefreshToken(
   db: Database,
   raw: string,
-  opts: { ip?: string | null; userAgent?: string | null } = {},
+  opts: { ip?: string | undefined; userAgent?: string | undefined } = {},
 ): Promise<{
   raw: string
   payload: { subject_type: string; subject_id: string; bakery_id: string | null }
@@ -103,7 +106,7 @@ export async function rotateRefreshToken(
     oldToken.subject_type,
     oldToken.subject_id,
     {
-      bakeryId: oldToken.bakery_id,
+      bakeryId: oldToken.bakery_id ?? undefined,
       ip: opts.ip,
       userAgent: opts.userAgent,
     },

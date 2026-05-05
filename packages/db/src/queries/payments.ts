@@ -39,7 +39,9 @@ export async function createPayment(
         )
         RETURNING ${PAYMENT_COLS}`,
   )
-  return result.rows[0]!
+  const payment = result.rows[0]
+  if (!payment) throw new Error('failed to create payment')
+  return payment
 }
 
 export async function getPaymentById(

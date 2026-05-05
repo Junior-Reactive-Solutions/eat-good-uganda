@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:4000',
+  baseURL: (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:4000',
   withCredentials: true,
 })
 
@@ -24,10 +24,10 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (res) => res,
-  (error) => {
+  (error: unknown) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
       _onUnauthorized?.()
     }
-    return Promise.reject(error)
+    return Promise.reject(error instanceof Error ? error : new Error(String(error)))
   },
 )

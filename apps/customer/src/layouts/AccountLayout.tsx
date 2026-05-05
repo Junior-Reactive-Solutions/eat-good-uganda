@@ -1,11 +1,11 @@
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { Heart, LogOut, Package, User } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Heart, LogOut, Package, User } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 
-import { api } from '../lib/api'
-import { useMe } from '../features/auth/hooks'
 import logo from '../assets/brand/logo.svg'
+import { useMe } from '../features/auth/hooks'
+import { api } from '../lib/api'
 
 const navItems = [
   { to: '/account', label: 'Profile', icon: User, end: true },
@@ -30,7 +30,7 @@ export function AccountLayout() {
     mutationFn: () => api.post('/v1/customer/auth/logout'),
     onSuccess: () => {
       queryClient.setQueryData(['me'], null)
-      navigate('/')
+      void navigate('/')
     },
     onError: () => toast.error('Logout failed. Try again.'),
   })
@@ -43,9 +43,7 @@ export function AccountLayout() {
             <img src={logo} alt="Eat Good Uganda" className="h-7 w-auto" />
           </Link>
         </div>
-        {me && (
-          <p className="mb-4 truncate text-sm text-platform-fg-muted">{me.email}</p>
-        )}
+        {me && <p className="mb-4 truncate text-sm text-platform-fg-muted">{me.email}</p>}
         <nav className="flex flex-col gap-1">
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end} className={navLinkClass}>
@@ -54,7 +52,9 @@ export function AccountLayout() {
             </NavLink>
           ))}
           <button
-            onClick={() => logout.mutate()}
+            onClick={() => {
+              logout.mutate()
+            }}
             disabled={logout.isPending}
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-platform-fg-muted hover:bg-platform-accent hover:text-platform-fg transition-colors disabled:opacity-50"
           >

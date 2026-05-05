@@ -17,19 +17,21 @@ export function useCurrentLocation(): LocationState & { request: () => void } {
     }
     setState({ status: 'prompting' })
     navigator.geolocation.getCurrentPosition(
-      (pos) =>
+      (pos) => {
         setState({
           status: 'granted',
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           accuracy: pos.coords.accuracy,
-        }),
-      (err) =>
+        })
+      },
+      (err) => {
         setState(
           err.code === err.PERMISSION_DENIED
             ? { status: 'denied' }
             : { status: 'error', message: err.message },
-        ),
+        )
+      },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 },
     )
   }, [])

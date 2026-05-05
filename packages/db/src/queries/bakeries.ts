@@ -80,7 +80,9 @@ export async function createBakery(db: Database, input: CreateBakeryInput): Prom
         )
         RETURNING ${BAKERY_COLS}`,
   )
-  return result.rows[0]!
+  const bakery = result.rows[0]
+  if (!bakery) throw new Error('failed to create bakery')
+  return bakery
 }
 
 export type PublicBakery = {
