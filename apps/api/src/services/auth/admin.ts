@@ -8,7 +8,10 @@ import {
   getSuperAdminByEmail,
   updateSuperAdminLastLogin,
 } from '@eatgood/db'
-import { authenticator } from 'otplib'
+import * as otplib from 'otplib'
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const authenticator = (otplib as any).authenticator
 
 import { verifyPassword } from '../../lib/password'
 import { createRefreshToken, signAccessToken, rotateRefreshToken } from '../../lib/tokens'
@@ -16,7 +19,7 @@ import { createRefreshToken, signAccessToken, rotateRefreshToken } from '../../l
 export async function loginAdmin(
   db: Database,
   input: { email: string; password: string; totp_code: string },
-  opts: { ip?: string; userAgent?: string } = {},
+  opts: { ip?: string | undefined; userAgent?: string | undefined } = {},
 ): Promise<{ accessToken: string; refreshToken: string; csrfToken: string; expiresAt: Date }> {
   const admin = await getSuperAdminByEmail(db, input.email)
 
@@ -66,7 +69,7 @@ export async function logoutAdmin(db: Database, refreshTokenRaw: string): Promis
 export async function refreshAdminSession(
   db: Database,
   refreshTokenRaw: string,
-  opts: { ip?: string; userAgent?: string } = {},
+  opts: { ip?: string | undefined; userAgent?: string | undefined } = {},
 ): Promise<{ accessToken: string; refreshToken: string; csrfToken: string; expiresAt: Date }> {
   const {
     raw: newRefreshToken,

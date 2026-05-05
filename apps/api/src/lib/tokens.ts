@@ -1,9 +1,10 @@
  
 import crypto from 'crypto'
 
+import type { AnyToken } from '@eatgood/shared'
+import { bakeryTokenSchema, customerTokenSchema, superAdminTokenSchema } from '@eatgood/shared'
 import type { Database } from '@eatgood/db'
 import { getRefreshToken, insertRefreshToken, revokeRefreshToken } from '@eatgood/db'
-import { bakeryTokenSchema, customerTokenSchema, superAdminTokenSchema } from '@eatgood/shared'
 import * as jwt from 'jsonwebtoken'
 
 import { env } from '../env'
@@ -66,9 +67,9 @@ export async function createRefreshToken(
     token_hash: tokenHash,
     subject_type: subjectType,
     subject_id: subjectId,
-    bakery_id: opts.bakeryId ?? undefined,
-    ip_address: opts.ip ?? undefined,
-    user_agent: opts.userAgent ?? undefined,
+    bakery_id: opts.bakeryId ?? null,
+    ip_address: opts.ip ?? null,
+    user_agent: opts.userAgent ?? null,
     expires_at: expiresAt,
   })
 
@@ -103,8 +104,8 @@ export async function rotateRefreshToken(
     oldToken.subject_id,
     {
       bakeryId: oldToken.bakery_id,
-      ip: opts.ip ?? null,
-      userAgent: opts.userAgent ?? null,
+      ip: opts.ip,
+      userAgent: opts.userAgent,
     },
   )
 

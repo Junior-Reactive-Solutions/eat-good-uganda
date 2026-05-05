@@ -61,7 +61,7 @@ export async function signupCustomer(
 export async function loginCustomer(
   db: Database,
   input: { email: string; password: string },
-  opts: { ip?: string; userAgent?: string } = {},
+  opts: { ip?: string | undefined; userAgent?: string | undefined } = {},
 ): Promise<{
   customer: Customer
   accessToken: string
@@ -109,7 +109,7 @@ export async function logoutCustomer(db: Database, refreshTokenRaw: string): Pro
 export async function refreshCustomerSession(
   db: Database,
   refreshTokenRaw: string,
-  opts: { ip?: string; userAgent?: string } = {},
+  opts: { ip?: string | undefined; userAgent?: string | undefined } = {},
 ): Promise<{ accessToken: string; refreshToken: string; csrfToken: string; expiresAt: Date }> {
   const {
     raw: newRefreshToken,

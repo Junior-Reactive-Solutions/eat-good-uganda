@@ -34,7 +34,7 @@ export async function signupBakery(
     email: string
     password: string
     full_name: string
-    phone?: string
+    phone?: string | undefined
     bakery_slug: string
     bakery_legal_name: string
     bakery_display_name: string
@@ -98,7 +98,7 @@ export async function signupBakery(
 export async function loginBakery(
   db: Database,
   input: { email: string; password: string },
-  opts: { ip?: string; userAgent?: string } = {},
+  opts: { ip?: string | undefined; userAgent?: string | undefined } = {},
 ): Promise<{
   user: BakeryUser
   accessToken: string
@@ -152,7 +152,7 @@ export async function logoutBakery(db: Database, refreshTokenRaw: string): Promi
 export async function refreshBakerySession(
   db: Database,
   refreshTokenRaw: string,
-  opts: { ip?: string; userAgent?: string } = {},
+  opts: { ip?: string | undefined; userAgent?: string | undefined } = {},
 ): Promise<{ accessToken: string; refreshToken: string; csrfToken: string; expiresAt: Date }> {
   const {
     raw: newRefreshToken,

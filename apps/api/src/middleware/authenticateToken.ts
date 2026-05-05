@@ -9,6 +9,12 @@ const COOKIE_NAMES = {
   admin: 'eg_admin_at',
 }
 
+const TOKEN_KIND_MAP = {
+  customer: 'customer' as const,
+  bakery: 'bakery_user' as const,
+  admin: 'super_admin' as const,
+}
+
 export function authenticateToken(namespace: 'customer' | 'bakery' | 'admin'): RequestHandler {
   return (req, res, next) => {
     const cookieName = COOKIE_NAMES[namespace]
@@ -21,7 +27,8 @@ export function authenticateToken(namespace: 'customer' | 'bakery' | 'admin'): R
     }
 
     try {
-      const decoded = verifyAccessToken(namespace, token as string)
+      const tokenKind = TOKEN_KIND_MAP[namespace]
+      const decoded = verifyAccessToken(tokenKind, token as string)
       req.auth = decoded
     } catch {
       req.auth = null
