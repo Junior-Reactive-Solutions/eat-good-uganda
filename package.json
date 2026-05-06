@@ -18,9 +18,14 @@
     "*.{ts,tsx,js,jsx,json,md,yml,yaml}": [
       "prettier --write"
     ],
-    "*.{ts,tsx,js,jsx}": [
+    "*.{ts,tsx,jsx}": [
       "eslint --fix"
-    ]
+    ],
+    "*.test.ts": [],
+    "*.test.tsx": [],
+    "*.spec.ts": [],
+    "*.spec.tsx": [],
+    "*.config.ts": []
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",

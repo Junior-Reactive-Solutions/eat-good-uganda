@@ -8,12 +8,25 @@ import tseslint from 'typescript-eslint'
 
 export default [
   {
-    ignores: ['**/dist/**', '**/build/**', '**/coverage/**', '**/node_modules/**'],
+    ignores: [
+      '**/dist/**',
+      '**/build/**',
+      '**/coverage/**',
+      '**/node_modules/**',
+      '**/*.config.js',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   {
-    files: ['**/*.{ts,tsx}'],
+    files: [
+      '**/*.{ts,tsx}',
+      '!**/*.test.ts',
+      '!**/*.test.tsx',
+      '!**/*.spec.ts',
+      '!**/*.spec.tsx',
+      '!**/*.config.ts',
+    ],
     languageOptions: {
       parserOptions: { projectService: true },
       globals: { ...globals.browser, ...globals.node },
@@ -53,6 +66,12 @@ export default [
           alphabetize: { order: 'asc', caseInsensitive: true },
         },
       ],
+    },
+  },
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/*.config.ts'],
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
     },
   },
   {
