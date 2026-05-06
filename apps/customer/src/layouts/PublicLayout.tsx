@@ -1,11 +1,20 @@
-import { ShoppingCart, User, UtensilsCrossed } from 'lucide-react'
+import { User, UtensilsCrossed } from 'lucide-react'
+import { useState } from 'react'
 import { Link, Outlet, useMatch } from 'react-router-dom'
 
 import logo from '../assets/brand/logo.svg'
+import CartDrawer from '../components/CartDrawer'
+import CartIcon from '../components/CartIcon'
 import { useMe } from '../features/auth/hooks'
 import { BakeryThemeProvider } from '../features/bakery/BakeryThemeProvider'
+import { useCart } from '../features/cart/hooks'
 
-function Nav() {
+interface NavProps {
+  onOpenCart: () => void
+  cartItemCount: number
+}
+
+function Nav({ onOpenCart, cartItemCount }: NavProps) {
   const { data: me } = useMe()
 
   return (
@@ -38,13 +47,7 @@ function Nav() {
           >
             <User className="h-5 w-5" aria-hidden="true" />
           </Link>
-          <Link
-            to="/b/cart"
-            aria-label="Shopping cart"
-            className="rounded-lg p-2 text-platform-fg-muted hover:bg-platform-accent hover:text-platform-fg transition-colors"
-          >
-            <ShoppingCart className="h-5 w-5" aria-hidden="true" />
-          </Link>
+          <CartIcon onOpen={onOpenCart} itemCount={cartItemCount} />
         </nav>
       </div>
     </header>
@@ -87,11 +90,18 @@ function Footer() {
 }
 
 export function PublicLayout() {
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false)
   const isBakeryRoute = useMatch('/b/:slug/*')
+  const { items, bakerySlug } = useCart()
 
   return (
     <div className="flex min-h-screen flex-col bg-platform-bg">
-      <Nav />
+      <Nav
+        onOpenCart={() => {
+          setCartDrawerOpen(true)
+        }}
+        cartItemCount={items.length}
+      />
       <main className="flex-1">
         {isBakeryRoute ? (
           <BakeryThemeProvider>
@@ -102,6 +112,13 @@ export function PublicLayout() {
         )}
       </main>
       <Footer />
+      <CartDrawer
+        isOpen={cartDrawerOpen}
+        onClose={() => {
+          setCartDrawerOpen(false)
+        }}
+        bakerySlug={bakerySlug}
+      />
     </div>
   )
 }
