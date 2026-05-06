@@ -123,3 +123,96 @@ export async function updateProduct(
   )
   return result.rows[0] ?? null
 }
+
+export type ListProductsResult = {
+  products: Product[]
+  total: number
+}
+
+export async function listProductsByCategory(
+  db: Database,
+  bakeryId: string,
+  categoryId: string | undefined,
+  page = 1,
+  pageSize = 20,
+): Promise<ListProductsResult> {
+  const offset = (page - 1) * pageSize
+
+  const products = await query<Product>(
+    db,
+    sql`SELECT ${PRODUCT_COLS} FROM products
+        WHERE bakery_id = ${bakeryId}
+          AND is_published = true
+          AND is_available = true
+          AND deleted_at IS NULL
+          ${categoryId ? sql`AND category_id = ${categoryId}` : sql``}
+        ORDER BY sort_order ASC, name ASC
+        LIMIT ${pageSize} OFFSET ${offset}`,
+  )
+
+  const countResult = await query<{ total: number }>(
+    db,
+    sql`SELECT COUNT(*) as total FROM products
+        WHERE bakery_id = ${bakeryId}
+          AND is_published = true
+          AND is_available = true
+          AND deleted_at IS NULL
+          ${categoryId ? sql`AND category_id = ${categoryId}` : sql``}`,
+  )
+
+  const total = countResult.rows[0]?.total ?? 0
+
+  return {
+    products: products.rows,
+    total,
+  }
+}
+
+export type ProductDetail = Product & {
+  variants: Array<{
+    id: string
+    name: string
+    price_minor: number
+    sku: string
+    sort_order: number
+    is_available: boolean
+  }>
+}
+
+export async function getProductBySlugWithVariants(
+  db: Database,
+  bakeryId: string,
+  slug: string,
+): Promise<ProductDetail | null> {
+  const result = await query<Product>(
+    db,
+    sql`SELECT ${PRODUCT_COLS} FROM products
+        WHERE slug = ${slug}
+          AND bakery_id = ${bakeryId}
+          AND is_published = true
+          AND deleted_at IS NULL
+        LIMIT 1`,
+  )
+
+  const product = result.rows[0]
+  if (!product) return null
+
+  const variantsResult = await query<{
+    id: string
+    name: string
+    price_minor: number
+    sku: string
+    sort_order: number
+    is_available: boolean
+  }>(
+    db,
+    sql`SELECT id, name, price_minor, sku, sort_order, is_available FROM product_variants
+        WHERE product_id = ${product.id} AND bakery_id = ${bakeryId}
+        ORDER BY sort_order ASC`,
+  )
+
+  return {
+    ...product,
+    variants: variantsResult.rows,
+  }
+}

@@ -8,7 +8,8 @@ import { PublicLayout } from './layouts/PublicLayout'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
 const BakeryPage = lazy(() => import('./pages/BakeryPage'))
-const ProductPage = lazy(() => import('./pages/ProductPage'))
+const BakeryMenuPage = lazy(() => import('./pages/BakeryMenuPage'))
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'))
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const SignupPage = lazy(() => import('./pages/SignupPage'))
@@ -49,10 +50,18 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'b/:slug/menu',
+        element: (
+          <Lazy>
+            <BakeryMenuPage />
+          </Lazy>
+        ),
+      },
+      {
         path: 'b/:slug/products/:productSlug',
         element: (
           <Lazy>
-            <ProductPage />
+            <ProductDetailPage />
           </Lazy>
         ),
       },

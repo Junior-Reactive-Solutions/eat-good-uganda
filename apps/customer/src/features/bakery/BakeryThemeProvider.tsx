@@ -1,40 +1,21 @@
-import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { api } from '../../lib/api'
-
-type BakeryTheme = {
-  primary_color: string
-  accent_color: string | null
-}
-
-function useBakeryTheme(slug: string | undefined) {
-  return useQuery<BakeryTheme | null>({
-    queryKey: ['bakery', slug, 'theme'],
-    queryFn: async () => {
-      if (!slug) return null
-      const res = await api.get<BakeryTheme>(`/v1/public/bakeries/${slug}/theme`)
-      return res.data
-    },
-    enabled: !!slug,
-    staleTime: 5 * 60_000,
-  })
-}
+import { usePublicBakery } from './api'
 
 type Props = { children: React.ReactNode }
 
 export function BakeryThemeProvider({ children }: Props) {
   const { slug } = useParams<{ slug: string }>()
-  const { data: theme } = useBakeryTheme(slug)
+  const { data: bakery } = usePublicBakery(slug ?? '')
 
   useEffect(() => {
     const root = document.documentElement
-    if (theme?.primary_color) {
-      root.style.setProperty('--bakery-primary', theme.primary_color)
+    if (bakery?.primary_color) {
+      root.style.setProperty('--bakery-primary', bakery.primary_color)
       root.style.setProperty('--bakery-primary-foreground', '#ffffff')
-      if (theme.accent_color) {
-        root.style.setProperty('--bakery-accent', theme.accent_color)
+      if (bakery.accent_color) {
+        root.style.setProperty('--bakery-accent', bakery.accent_color)
       }
     }
     return () => {
@@ -42,7 +23,7 @@ export function BakeryThemeProvider({ children }: Props) {
       root.style.removeProperty('--bakery-primary-foreground')
       root.style.removeProperty('--bakery-accent')
     }
-  }, [theme])
+  }, [bakery])
 
   return <>{children}</>
 }
