@@ -1,3 +1,0 @@
-# AI Agent Execution
-
-Rules for AI agents...
