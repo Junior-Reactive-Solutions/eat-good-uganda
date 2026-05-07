@@ -216,3 +216,60 @@ export async function getProductBySlugWithVariants(
     variants: variantsResult.rows,
   }
 }
+
+/**
+ * Soft delete a product (set deleted_at timestamp)
+ * Product remains in database but is hidden from listings
+ */
+export async function softDeleteProduct(
+  db: Database,
+  bakeryId: string,
+  productId: string,
+): Promise<Product | null> {
+  const result = await query<Product>(
+    db,
+    sql`UPDATE products SET deleted_at = now(), updated_at = now()
+        WHERE id = ${productId} AND bakery_id = ${bakeryId} AND deleted_at IS NULL
+        RETURNING ${PRODUCT_COLS}`,
+  )
+  return result.rows[0] ?? null
+}
+
+/**
+ * List products for bakery admin (includes unpublished, paginated)
+ * Excludes soft-deleted products
+ */
+export type ListProductsForAdminResult = {
+  products: Product[]
+  total: number
+}
+
+export async function listProductsForBakeryAdmin(
+  db: Database,
+  bakeryId: string,
+  page = 1,
+  pageSize = 20,
+): Promise<ListProductsForAdminResult> {
+  const offset = (page - 1) * pageSize
+
+  const products = await query<Product>(
+    db,
+    sql`SELECT ${PRODUCT_COLS} FROM products
+        WHERE bakery_id = ${bakeryId} AND deleted_at IS NULL
+        ORDER BY sort_order ASC, name ASC
+        LIMIT ${pageSize} OFFSET ${offset}`,
+  )
+
+  const countResult = await query<{ total: number }>(
+    db,
+    sql`SELECT COUNT(*) as total FROM products
+        WHERE bakery_id = ${bakeryId} AND deleted_at IS NULL`,
+  )
+
+  const total = countResult.rows[0]?.total ?? 0
+
+  return {
+    products: products.rows,
+    total,
+  }
+}

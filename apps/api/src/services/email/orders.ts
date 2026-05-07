@@ -1,4 +1,4 @@
-import { logger } from '../../utils/logger'
+import { logger } from '../../lib/logger'
 
 export interface SendOrderConfirmationEmailParams {
   to: string
@@ -12,18 +12,14 @@ export interface SendOrderConfirmationEmailParams {
 /**
  * Send order confirmation email to customer
  * Currently logs to console - will be integrated with real email service (SendGrid, SMTP, etc.)
+ *
+ * Note: Marked as async for future integration with async email services
  */
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function sendOrderConfirmationEmail(
   params: SendOrderConfirmationEmailParams,
 ): Promise<void> {
-  const {
-    to,
-    orderNumber,
-    orderId,
-    claimToken,
-    orderLink,
-    total,
-  } = params
+  const { to, orderNumber, orderId, claimToken, orderLink, total } = params
 
   // Validate parameters
   if (!to || !orderNumber || !orderId || !orderLink) {
@@ -73,7 +69,9 @@ export async function sendOrderConfirmationEmail(
       to,
     })
     // Re-throw to prevent order creation if email fails
-    throw new Error(`Failed to send confirmation email: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    throw new Error(
+      `Failed to send confirmation email: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    )
   }
 }
 
@@ -88,9 +86,7 @@ function buildOrderConfirmationEmailText(params: {
   total?: number
 }): string {
   const { orderNumber, claimToken, orderLink, total } = params
-  const viewOrderLink = claimToken
-    ? `${orderLink}?claim=${claimToken}`
-    : orderLink
+  const viewOrderLink = claimToken ? `${orderLink}?claim=${claimToken}` : orderLink
 
   const totalDisplay = total ? `UGX ${(total / 100).toLocaleString()}` : 'TBD'
 

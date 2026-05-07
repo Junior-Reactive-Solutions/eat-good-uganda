@@ -8,6 +8,8 @@ import { csrf } from './middleware/csrf'
 import { generalRateLimit } from './middleware/rateLimit'
 import { adminAuthRouter } from './routes/admin/auth'
 import { bakeryAuthRouter } from './routes/bakery/auth'
+import { bakeryCategoriesRouter } from './routes/bakery/categories'
+import { bakeryProductsRouter } from './routes/bakery/products'
 import { customerAuthRouter } from './routes/customer/auth'
 import { customerOrdersRouter } from './routes/customer/orders'
 import { publicBakeriesRouter } from './routes/public/bakeries'
@@ -33,4 +35,6 @@ app.use('/v1/public/orders', publicOrdersRouter)
 app.use('/v1/customer/auth', customerAuthRouter)
 app.use('/v1/customer/orders', customerOrdersRouter)
 app.use('/v1/bakery/auth', bakeryAuthRouter)
+app.use('/v1/bakery/products', bakeryProductsRouter)
+app.use('/v1/bakery/categories', bakeryCategoriesRouter)
 app.use('/v1/admin/auth', adminAuthRouter)
