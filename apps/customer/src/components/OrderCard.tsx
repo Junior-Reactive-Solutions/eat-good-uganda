@@ -1,6 +1,6 @@
-import type { OrderListItem } from '../features/orders/api'
-
 import { ChevronRight } from 'lucide-react'
+
+import type { OrderListItem } from '../features/orders/api'
 
 import { Card } from './Card'
 

@@ -1,4 +1,4 @@
-import type { CheckoutFormInput } from '@eatgood/shared'
+import type { CheckoutForm } from '@eatgood/shared'
 import { ChevronRight } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 
@@ -17,7 +17,7 @@ import { Card } from '../Card'
  * - Edit buttons to go back to specific sections
  */
 export default function OrderReviewSection() {
-  const { watch } = useFormContext<CheckoutFormInput>()
+  const { watch } = useFormContext<CheckoutForm>()
   const { items } = useCart()
 
   // Watch form values

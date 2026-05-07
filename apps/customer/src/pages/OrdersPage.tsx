@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react'
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Button } from '../components/Button'
@@ -9,32 +10,46 @@ import { useOrders } from '../features/orders/api'
 
 const ITEMS_PER_PAGE = 20
 
-export default function OrdersPage() {
+interface PaginatedOrdersResponse {
+  items: Array<{ id: string; order_number: string; status: string; total_minor: number; fulfillment_mode: string; created_at: string }>
+  total: number
+}
+
+type UseOrdersHookResult = {
+  data: PaginatedOrdersResponse | undefined
+  isLoading: boolean
+  isError: boolean
+  error: Error | null
+  refetch: () => Promise<unknown>
+}
+
+export default function OrdersPage(): ReactNode {
   const navigate = useNavigate()
   const [offset, setOffset] = useState(0)
   const limit = ITEMS_PER_PAGE
 
-  const { data, isLoading, isError, error, refetch } = useOrders(limit, offset)
+  const queryResult = useOrders(limit, offset) as UseOrdersHookResult
+  const { data, isLoading, isError, error, refetch } = queryResult
 
-  const orders = data?.items || []
-  const totalCount = data?.total || 0
+  const orders = data?.items ?? []
+  const totalCount = data?.total ?? 0
   const pageCount = Math.ceil(totalCount / limit)
   const currentPage = Math.floor(offset / limit) + 1
 
-  const handlePreviousPage = () => {
+  const handlePreviousPage = (): void => {
     if (currentPage > 1) {
       setOffset(offset - limit)
     }
   }
 
-  const handleNextPage = () => {
+  const handleNextPage = (): void => {
     if (currentPage < pageCount) {
       setOffset(offset + limit)
     }
   }
 
-  const handleOrderClick = (orderId: string) => {
-    navigate(`/account/orders/${orderId}`)
+  const handleOrderClick = (orderId: string): void => {
+    void navigate(`/account/orders/${orderId}`)
   }
 
   if (isLoading) {
@@ -56,7 +71,7 @@ export default function OrdersPage() {
       </div>
 
       {/* Empty State */}
-      {!isLoading && orders.length === 0 && (
+      {orders.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-platform-border bg-platform-surface/50 py-12">
           <ShoppingBag className="mb-4 h-12 w-12 text-platform-fg-muted" />
           <h2 className="mb-2 text-lg font-semibold text-platform-fg">
@@ -65,7 +80,13 @@ export default function OrdersPage() {
           <p className="mb-6 text-platform-fg-muted">
             Start shopping to place your first order
           </p>
-          <Button onClick={() => navigate('/')}>Browse Bakeries</Button>
+          <Button
+            onClick={() => {
+              void navigate('/')
+            }}
+          >
+            Browse Bakeries
+          </Button>
         </div>
       )}
 
@@ -73,12 +94,14 @@ export default function OrdersPage() {
       {isError && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4">
           <p className="font-medium text-red-900">
-            Failed to load orders: {error?.message || 'Unknown error'}
+            Failed to load orders: {error instanceof Error ? error.message : 'Unknown error'}
           </p>
           <Button
             variant="secondary"
             className="mt-4"
-            onClick={() => refetch()}
+            onClick={() => {
+              void refetch()
+            }}
           >
             Retry
           </Button>
@@ -86,14 +109,16 @@ export default function OrdersPage() {
       )}
 
       {/* Orders Grid */}
-      {!isLoading && orders.length > 0 && (
+      {orders.length > 0 && (
         <>
           <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
             {orders.map((order) => (
               <OrderCard
                 key={order.id}
                 order={order}
-                onClick={() => { handleOrderClick(order.id); }}
+                onClick={() => {
+                  handleOrderClick(order.id)
+                }}
               />
             ))}
           </div>

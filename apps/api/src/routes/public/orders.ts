@@ -1,5 +1,5 @@
 import { pool, createOrder, getOrderById } from '@eatgood/db'
-import { orderCreationSchema, type OrderCreationInput } from '@eatgood/shared'
+import { orderCreationSchema, type OrderCreation } from '@eatgood/shared'
 import { Router } from 'express'
 import type { Request, Response } from 'express'
 
@@ -22,7 +22,7 @@ const router = Router()
 router.post('/', authRateLimit, async (req: Request, res: Response) => {
   try {
     // Validate request body
-    const body = orderCreationSchema.parse(req.body) as OrderCreationInput
+    const body = orderCreationSchema.parse(req.body) as OrderCreation
 
     // Ensure bakery_id is provided for guest checkout
     if (!body.bakeryId) {

@@ -30,7 +30,7 @@ export const deliveryAddressSchema = z.object({
   lng: z.number().optional(),
 })
 
-export type DeliveryAddress = z.infer<typeof deliveryAddressSchema>
+export type DeliveryAddressInput = z.infer<typeof deliveryAddressSchema>
 
 /**
  * Fulfillment schema
@@ -51,7 +51,7 @@ export const fulfillmentSchema = z.discriminatedUnion('mode', [
   }),
 ])
 
-export type Fulfillment = z.infer<typeof fulfillmentSchema>
+export type FulfillmentInput = z.infer<typeof fulfillmentSchema>
 
 /**
  * Payment method schema
@@ -76,7 +76,7 @@ export const paymentMethodSchema = z.discriminatedUnion('method', [
   }),
 ])
 
-export type PaymentMethod = z.infer<typeof paymentMethodSchema>
+export type PaymentMethodInput = z.infer<typeof paymentMethodSchema>
 
 /**
  * Cart item in checkout (minimal validation)
@@ -103,7 +103,7 @@ export const checkoutFormSchema = z.object({
   notes: z.string().optional(), // Order-level notes
 })
 
-export type CheckoutFormInput = z.infer<typeof checkoutFormSchema>
+export type CheckoutForm = z.infer<typeof checkoutFormSchema>
 
 /**
  * Order creation schema (sent to API)
@@ -121,7 +121,7 @@ export const orderCreationSchema = z.object({
   bakeryId: z.uuid().optional(),
 })
 
-export type OrderCreationInput = z.infer<typeof orderCreationSchema>
+export type OrderCreation = z.infer<typeof orderCreationSchema>
 
 /**
  * Order response schema (returned by API after creation)

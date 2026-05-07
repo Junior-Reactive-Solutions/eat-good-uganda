@@ -1,4 +1,4 @@
-import type { CheckoutFormInput } from '@eatgood/shared'
+import type { CheckoutForm } from '@eatgood/shared'
 import { useFormContext, Controller } from 'react-hook-form'
 
 import { Card } from '../Card'
@@ -17,7 +17,7 @@ import { Input } from '../Input'
  * For guests: empty fields, all required
  */
 export default function CustomerDetailsSection() {
-  const { control, formState: { errors } } = useFormContext<CheckoutFormInput>()
+  const { control, formState: { errors } } = useFormContext<CheckoutForm>()
 
   return (
     <Card className="p-4">

@@ -1,4 +1,4 @@
-import type { CheckoutFormInput } from '@eatgood/shared'
+import type { CheckoutForm } from '@eatgood/shared'
 import { MapPin, Clock } from 'lucide-react'
 import { useFormContext, Controller } from 'react-hook-form'
 
@@ -25,7 +25,7 @@ type DeliveryFieldErrors = {
  * conditionally render pickup or delivery sections
  */
 export default function FulfillmentSection() {
-  const { control, watch, formState: { errors } } = useFormContext<CheckoutFormInput>()
+  const { control, watch, formState: { errors } } = useFormContext<CheckoutForm>()
 
   // Watch fulfillment mode to conditionally render sections
   const fulfillmentMode = watch('fulfillment.mode')

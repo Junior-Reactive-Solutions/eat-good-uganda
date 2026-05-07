@@ -1,4 +1,4 @@
-import type { CheckoutFormInput } from '@eatgood/shared'
+import type { CheckoutForm } from '@eatgood/shared'
 import { DollarSign, Banknote, Smartphone } from 'lucide-react'
 import { useFormContext, Controller } from 'react-hook-form'
 
@@ -22,7 +22,7 @@ type PhonePaymentErrors = {
  * conditionally render additional fields (e.g., phone number for MoMo/Airtel)
  */
 export default function PaymentMethodSection() {
-  const { control, watch, formState: { errors } } = useFormContext<CheckoutFormInput>()
+  const { control, watch, formState: { errors } } = useFormContext<CheckoutForm>()
 
   // Watch payment method to conditionally render phone field
   const paymentMethod = watch('payment.method')

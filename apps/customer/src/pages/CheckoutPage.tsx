@@ -1,4 +1,4 @@
-import type { CheckoutFormInput, OrderResponse } from '@eatgood/shared'
+import type { CheckoutForm, OrderResponse } from '@eatgood/shared'
 import { checkoutFormSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
@@ -90,7 +90,7 @@ export default function CheckoutPage() {
   }, [items.length, bakerySlug, navigate, isLoadingUser])
 
   // Handle form submission
-  const onSubmit: SubmitHandler<CheckoutFormInput> = async (data) => {
+  const onSubmit: SubmitHandler<CheckoutForm> = async (data) => {
     setIsSubmitting(true)
     setSubmitError(null)
 

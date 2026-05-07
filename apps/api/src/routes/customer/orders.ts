@@ -1,5 +1,5 @@
 import { pool, createOrder, getOrderById, getOrderByNumber, listOrdersForCustomer, updateOrderStatus } from '@eatgood/db'
-import { orderCreationSchema, type OrderCreationInput } from '@eatgood/shared'
+import { orderCreationSchema, type OrderCreation } from '@eatgood/shared'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 
@@ -28,7 +28,7 @@ customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async 
 
   try {
     // Validate request body
-    const body = orderCreationSchema.parse(req.body) as OrderCreationInput
+    const body = orderCreationSchema.parse(req.body) as OrderCreation
 
     // Ensure items are not empty
     if (!body.items || body.items.length === 0) {
