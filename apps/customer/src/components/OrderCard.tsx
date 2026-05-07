@@ -1,10 +1,11 @@
-import { formatDistanceToNow } from 'date-fns'
+import type { OrderListItem } from '../features/orders/api'
+
 import { ChevronRight } from 'lucide-react'
+
 import { Card } from './Card'
-import type { Order } from '@eatgood/shared'
 
 interface OrderCardProps {
-  order: Order
+  order: OrderListItem
   onClick?: () => void
 }
 
@@ -30,16 +31,29 @@ const statusLabels: Record<string, string> = {
   refunded: 'Refunded',
 }
 
+function timeAgo(dateString: string): string {
+  const now = new Date()
+  const date = new Date(dateString)
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+  if (seconds < 60) return 'just now'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${String(minutes)}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${String(hours)}h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${String(days)}d ago`
+  return date.toLocaleDateString('en-UG')
+}
+
 export function OrderCard({ order, onClick }: OrderCardProps) {
-  const statusLabel =
-    statusLabels[order.status as keyof typeof statusLabels] || order.status
+  const statusKey = order.status
+  const statusLabel = statusLabels[statusKey] || order.status
   const badgeColor =
-    statusBadgeColors[order.status as keyof typeof statusBadgeColors] ||
+    statusBadgeColors[order.status] ||
     'bg-gray-100 text-gray-800'
 
-  const formattedDate = formatDistanceToNow(new Date(order.created_at), {
-    addSuffix: true,
-  })
+  const formattedDate = timeAgo(order.created_at)
 
   const fulfillmentLabel =
     order.fulfillment_mode === 'pickup' ? 'Pickup' : 'Delivery'

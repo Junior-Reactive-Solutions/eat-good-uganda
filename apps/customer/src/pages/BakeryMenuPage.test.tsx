@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import * as bakeryApi from '../features/bakery/api'
+
 import BakeryMenuPage from './BakeryMenuPage'
 
 vi.mock('../features/bakery/api')

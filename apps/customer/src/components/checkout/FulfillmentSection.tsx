@@ -1,10 +1,18 @@
-import { useFormContext, Controller } from 'react-hook-form'
-import { MapPin, Clock } from 'lucide-react'
 import type { CheckoutFormInput } from '@eatgood/shared'
+import { MapPin, Clock } from 'lucide-react'
+import { useFormContext, Controller } from 'react-hook-form'
 
-import { Input } from '../Input'
-import { Card } from '../Card'
 import { Button } from '../Button'
+import { Card } from '../Card'
+import { Input } from '../Input'
+
+type DeliveryFieldErrors = {
+  deliveryAddress?: {
+    line1?: { message?: string }
+    line2?: { message?: string }
+    city?: { message?: string }
+  }
+}
 
 /**
  * Fulfillment Section for Checkout
@@ -23,22 +31,18 @@ export default function FulfillmentSection() {
   const fulfillmentMode = watch('fulfillment.mode')
   const isDelivery = fulfillmentMode === 'delivery'
 
-  // Watch delivery address for geolocation
-  const deliveryAddress = watch('fulfillment.deliveryAddress')
-
   const handleGetGeolocation = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!navigator.geolocation) {
       alert('Geolocation is not supported by your browser')
       return
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      () => {
         // In a real implementation, would use form.setValue to set lat/lng
-        console.log('Geolocation obtained:', position.coords)
       },
-      (error) => {
-        console.error('Geolocation error:', error)
+      () => {
         alert('Unable to get your location. Please enable location access.')
       }
     )
@@ -61,7 +65,7 @@ export default function FulfillmentSection() {
                   type="radio"
                   value="pickup"
                   checked={field.value === 'pickup'}
-                  onChange={() => field.onChange('pickup')}
+                  onChange={() => { field.onChange('pickup'); }}
                   className="h-4 w-4 rounded-full border-platform-border text-platform-primary"
                 />
                 <span className="text-sm font-medium text-platform-fg">Pickup</span>
@@ -79,7 +83,7 @@ export default function FulfillmentSection() {
                   type="radio"
                   value="delivery"
                   checked={field.value === 'delivery'}
-                  onChange={() => field.onChange('delivery')}
+                  onChange={() => { field.onChange('delivery'); }}
                   className="h-4 w-4 rounded-full border-platform-border text-platform-primary"
                 />
                 <span className="text-sm font-medium text-platform-fg">Delivery</span>
@@ -106,7 +110,7 @@ export default function FulfillmentSection() {
                     type="datetime-local"
                     placeholder="2026-05-07T14:30"
                     className="w-full rounded-lg border border-platform-border bg-platform-surface px-3 py-2 text-sm text-platform-fg placeholder:text-platform-fg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-platform-primary focus:ring-offset-1"
-                    onChange={(e) => field.onChange(e.target.value || undefined)}
+                    onChange={(e) => { field.onChange(e.target.value || undefined); }}
                     onBlur={field.onBlur}
                     value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
                   />
@@ -135,7 +139,7 @@ export default function FulfillmentSection() {
                   placeholder="123 Main Street"
                   error={
                     errors.fulfillment && 'deliveryAddress' in errors.fulfillment
-                      ? (errors.fulfillment as any).deliveryAddress?.line1?.message
+                      ? (errors.fulfillment as unknown as DeliveryFieldErrors).deliveryAddress?.line1?.message
                       : undefined
                   }
                   {...field}
@@ -169,7 +173,7 @@ export default function FulfillmentSection() {
                   placeholder="Kampala"
                   error={
                     errors.fulfillment && 'deliveryAddress' in errors.fulfillment
-                      ? (errors.fulfillment as any).deliveryAddress?.city?.message
+                      ? (errors.fulfillment as unknown as DeliveryFieldErrors).deliveryAddress?.city?.message
                       : undefined
                   }
                   {...field}
@@ -221,7 +225,7 @@ export default function FulfillmentSection() {
                     type="datetime-local"
                     placeholder="2026-05-07T14:30"
                     className="w-full rounded-lg border border-platform-border bg-platform-surface px-3 py-2 text-sm text-platform-fg placeholder:text-platform-fg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-platform-primary focus:ring-offset-1"
-                    onChange={(e) => field.onChange(e.target.value || undefined)}
+                    onChange={(e) => { field.onChange(e.target.value || undefined); }}
                     onBlur={field.onBlur}
                     value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
                   />

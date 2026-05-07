@@ -1,10 +1,12 @@
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { FormProvider, useForm } from 'react-hook-form'
+import { checkoutFormSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { checkoutFormSchema, type CheckoutFormInput } from '@eatgood/shared'
-import OrderReviewSection from './OrderReviewSection'
+import { render, screen } from '@testing-library/react'
+import { FormProvider, useForm } from 'react-hook-form'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
 import * as cartHooks from '../../features/cart/hooks'
+
+import OrderReviewSection from './OrderReviewSection'
 
 // Mock the useCart hook
 vi.mock('../../features/cart/hooks', () => ({
@@ -75,7 +77,7 @@ describe('OrderReviewSection', () => {
       updateNotes: vi.fn(),
       clear: vi.fn(),
       switchBakery: vi.fn(),
-    } as any)
+    })
   })
 
   it('renders section header', () => {
@@ -158,33 +160,35 @@ describe('OrderReviewSection', () => {
   })
 
   it('shows delivery fee when delivery mode is selected', () => {
-    const methodsWithDelivery = useForm({
-      resolver: zodResolver(checkoutFormSchema),
-      defaultValues: {
-        customer: {
-          fullName: 'John Doe',
-          email: 'john@example.com',
-          phone: '+256701234567',
-          createAccount: false,
-        },
-        fulfillment: {
-          mode: 'delivery',
-          deliveryAddress: {
-            line1: '123 Main St',
-            city: 'Kampala',
+    const TestComponent = () => {
+      const methodsWithDelivery = useForm({
+        resolver: zodResolver(checkoutFormSchema),
+        defaultValues: {
+          customer: {
+            fullName: 'John Doe',
+            email: 'john@example.com',
+            phone: '+256701234567',
+            createAccount: false,
+          },
+          fulfillment: {
+            mode: 'delivery',
+            deliveryAddress: {
+              line1: '123 Main St',
+              city: 'Kampala',
+            },
+          },
+          payment: {
+            method: 'cash_on_delivery',
           },
         },
-        payment: {
-          method: 'cash_on_delivery',
-        },
-      },
-    })
+      })
 
-    const TestComponent = () => (
-      <FormProvider {...methodsWithDelivery}>
-        <OrderReviewSection />
-      </FormProvider>
-    )
+      return (
+        <FormProvider {...methodsWithDelivery}>
+          <OrderReviewSection />
+        </FormProvider>
+      )
+    }
 
     render(<TestComponent />)
 

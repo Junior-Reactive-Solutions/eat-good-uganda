@@ -1,9 +1,10 @@
+import { checkoutFormSchema } from '@eatgood/shared'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { FormProvider, useForm } from 'react-hook-form'
 import { describe, it, expect } from 'vitest'
-import { useFormContext, FormProvider, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { checkoutFormSchema, type CheckoutFormInput } from '@eatgood/shared'
+
 import CustomerDetailsSection from './CustomerDetailsSection'
 
 /**
@@ -49,9 +50,9 @@ describe('CustomerDetailsSection', () => {
     const user = userEvent.setup()
     render(<CustomerDetailsSectionWithForm />)
 
-    const fullNameInput = screen.getByLabelText(/full name/i) as HTMLInputElement
-    const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement
-    const phoneInput = screen.getByLabelText(/phone number/i) as HTMLInputElement
+    const fullNameInput = screen.getByLabelText(/full name/i)
+    const emailInput = screen.getByLabelText(/email/i)
+    const phoneInput = screen.getByLabelText(/phone number/i)
 
     await user.type(fullNameInput, 'John Doe')
     await user.type(emailInput, 'john@example.com')
@@ -66,7 +67,7 @@ describe('CustomerDetailsSection', () => {
     const user = userEvent.setup()
     render(<CustomerDetailsSectionWithForm />)
 
-    const checkbox = screen.getByLabelText(/create an account/i) as HTMLInputElement
+    const checkbox = screen.getByLabelText(/create an account/i)
 
     expect(checkbox.checked).toBe(false)
 

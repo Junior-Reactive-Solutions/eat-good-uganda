@@ -6,6 +6,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import * as bakeryApi from '../features/bakery/api'
 import * as cartHooks from '../features/cart/hooks'
+
 import ProductDetailPage from './ProductDetailPage'
 
 vi.mock('../features/bakery/api')
@@ -127,7 +128,7 @@ describe('ProductDetailPage', () => {
       updateNotes: vi.fn(),
       clear: vi.fn(),
       switchBakery: vi.fn(),
-    } as any)
+    })
     vi.mocked(cartHooks.useAddToCart).mockReturnValue(vi.fn())
     vi.mocked(cartHooks.useIsFromAnotherBakery).mockReturnValue(false)
   })

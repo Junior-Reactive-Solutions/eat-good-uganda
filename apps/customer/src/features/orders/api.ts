@@ -1,20 +1,32 @@
-import { useQuery } from '@tanstack/react-query'
-import { api } from '../../lib/api'
 import type { Order, PaginatedResponse } from '@eatgood/shared'
+import { useQuery } from '@tanstack/react-query'
+
+import { api } from '../../lib/api'
+
+/**
+ * Order list item - subset of Order for display in list view
+ */
+export type OrderListItem = Pick<
+  Order,
+  'id' | 'order_number' | 'status' | 'total_minor' | 'created_at' | 'fulfilment_mode'
+>
 
 /**
  * Fetch order details by ID
  * Supports both authenticated users (no claim token) and guest users (with claim token)
  */
-export const useOrderDetail = (orderId: string, claimToken?: string) => {
+export const useOrderDetail = <T extends Order = Order>(
+  orderId: string,
+  claimToken?: string,
+) => {
   return useQuery({
     queryKey: ['order-detail', orderId, claimToken],
-    queryFn: async () => {
+    queryFn: async (): Promise<T> => {
       const endpoint = claimToken
         ? `/v1/public/orders/${orderId}?claim=${claimToken}`
         : `/v1/customer/orders/${orderId}`
 
-      const { data } = await api.get<Order>(endpoint)
+      const { data } = await api.get<T>(endpoint)
       return data
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -28,14 +40,14 @@ export const useOrderDetail = (orderId: string, claimToken?: string) => {
 export const useOrders = (limit = 20, offset = 0) => {
   return useQuery({
     queryKey: ['orders', limit, offset],
-    queryFn: async () => {
-      const { data } = await api.get<PaginatedResponse<Order>>(
+    queryFn: async (): Promise<PaginatedResponse<Order>> => {
+      const response = await api.get<PaginatedResponse<Order>>(
         '/v1/customer/orders',
         {
           params: { limit, offset },
         },
       )
-      return data
+      return response.data
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   })

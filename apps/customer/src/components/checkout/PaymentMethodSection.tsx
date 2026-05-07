@@ -1,9 +1,13 @@
-import { useFormContext, Controller } from 'react-hook-form'
-import { DollarSign, Banknote, Smartphone } from 'lucide-react'
 import type { CheckoutFormInput } from '@eatgood/shared'
+import { DollarSign, Banknote, Smartphone } from 'lucide-react'
+import { useFormContext, Controller } from 'react-hook-form'
 
-import { Input } from '../Input'
 import { Card } from '../Card'
+import { Input } from '../Input'
+
+type PhonePaymentErrors = {
+  phoneNumber?: { message?: string }
+}
 
 /**
  * Payment Method Section for Checkout
@@ -77,7 +81,7 @@ export default function PaymentMethodSection() {
                     type="radio"
                     value={option.value}
                     checked={field.value === option.value}
-                    onChange={() => field.onChange(option.value)}
+                    onChange={() => { field.onChange(option.value); }}
                     className="h-4 w-4 rounded-full border-platform-border text-platform-primary mt-0.5"
                   />
                   <div className="flex-1">
@@ -106,7 +110,7 @@ export default function PaymentMethodSection() {
                   placeholder="+256701234567"
                   error={
                     errors.payment && 'phoneNumber' in errors.payment
-                      ? (errors.payment as any).phoneNumber?.message
+                      ? (errors.payment as unknown as PhonePaymentErrors).phoneNumber?.message
                       : undefined
                   }
                   {...field}

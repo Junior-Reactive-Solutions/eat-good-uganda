@@ -1,10 +1,10 @@
-import { useFormContext } from 'react-hook-form'
-import { ChevronRight } from 'lucide-react'
 import type { CheckoutFormInput } from '@eatgood/shared'
-import { useCart } from '../../features/cart/hooks'
+import { ChevronRight } from 'lucide-react'
+import { useFormContext } from 'react-hook-form'
 
-import { Card } from '../Card'
+import { useCart } from '../../features/cart/hooks'
 import { Button } from '../Button'
+import { Card } from '../Card'
 
 /**
  * Order Review Section for Checkout
@@ -42,9 +42,9 @@ export default function OrderReviewSection() {
       case 'bank_transfer':
         return 'Bank Transfer'
       case 'mtn_momo':
-        return `MTN Mobile Money (${phoneNumber})`
+        return `MTN Mobile Money (${phoneNumber ?? ''})`
       case 'airtel_money':
-        return `Airtel Money (${phoneNumber})`
+        return `Airtel Money (${phoneNumber ?? ''})`
       default:
         return method
     }
@@ -83,9 +83,9 @@ export default function OrderReviewSection() {
                 <p className="text-sm text-platform-fg-muted">Ready at the bakery</p>
               ) : (
                 <div className="text-sm text-platform-fg-muted space-y-1">
-                  <p>{fulfillment.deliveryAddress?.line1}</p>
-                  {fulfillment.deliveryAddress?.line2 && <p>{fulfillment.deliveryAddress.line2}</p>}
-                  <p>{fulfillment.deliveryAddress?.city}</p>
+                  <p>{fulfillment.deliveryAddress.line1}</p>
+                  {fulfillment.deliveryAddress.line2 && <p>{fulfillment.deliveryAddress.line2}</p>}
+                  <p>{fulfillment.deliveryAddress.city}</p>
                 </div>
               )}
             </div>

@@ -1,10 +1,12 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import OrdersPage from './OrdersPage'
+
 import * as ordersApi from '../features/orders/api'
+
+import OrdersPage from './OrdersPage'
 
 // Mock the useOrders hook
 vi.mock('../features/orders/api', () => ({

@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useForm, FormProvider, SubmitHandler } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import type { CheckoutFormInput, OrderResponse } from '@eatgood/shared'
 import { checkoutFormSchema } from '@eatgood/shared'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect, useState } from 'react'
+import { useForm, FormProvider } from 'react-hook-form'
+import type { SubmitHandler } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom'
 
-import { useCart } from '../features/cart/hooks'
-import { useMe } from '../features/auth/hooks'
-import { api } from '../lib/api'
 import { Button } from '../components/Button'
 import CustomerDetailsSection from '../components/checkout/CustomerDetailsSection'
 import FulfillmentSection from '../components/checkout/FulfillmentSection'
-import PaymentMethodSection from '../components/checkout/PaymentMethodSection'
 import OrderReviewSection from '../components/checkout/OrderReviewSection'
+import PaymentMethodSection from '../components/checkout/PaymentMethodSection'
+import { useMe } from '../features/auth/hooks'
+import { useCart } from '../features/cart/hooks'
+import { api } from '../lib/api'
 
 /**
  * Checkout Page
@@ -83,8 +84,8 @@ export default function CheckoutPage() {
 
   // Validate cart is not empty
   useEffect(() => {
-    if (!isLoadingUser && items.length === 0) {
-      navigate(`/b/${bakerySlug}/menu`)
+    if (!isLoadingUser && items.length === 0 && bakerySlug) {
+      void navigate(`/b/${bakerySlug}/menu`)
     }
   }, [items.length, bakerySlug, navigate, isLoadingUser])
 
@@ -116,9 +117,9 @@ export default function CheckoutPage() {
       // Redirect to order confirmation page
       const confirmPath = currentUser
         ? `/account/orders/${response.data.id}`
-        : `/order-confirmation/${response.data.id}?claim=${response.data.claimToken}`
+        : `/order-confirmation/${response.data.id}?claim=${response.data.claimToken ?? ''}`
 
-      navigate(confirmPath)
+      void navigate(confirmPath)
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Failed to create order. Please try again.'
@@ -148,7 +149,7 @@ export default function CheckoutPage() {
 
       {/* Checkout Form */}
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={(e) => { void methods.handleSubmit(onSubmit)(e) }} className="space-y-6">
           {/* Customer Details */}
           <CustomerDetailsSection />
 
@@ -166,7 +167,11 @@ export default function CheckoutPage() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => navigate(`/b/${bakerySlug}/menu`)}
+              onClick={() => {
+                if (bakerySlug) {
+                  void navigate(`/b/${bakerySlug}/menu`)
+                }
+              }}
               disabled={isSubmitting}
               className="flex-1"
             >

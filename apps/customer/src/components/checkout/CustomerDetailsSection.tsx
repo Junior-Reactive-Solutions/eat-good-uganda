@@ -1,8 +1,8 @@
-import { useFormContext, Controller } from 'react-hook-form'
 import type { CheckoutFormInput } from '@eatgood/shared'
+import { useFormContext, Controller } from 'react-hook-form'
 
-import { Input } from '../Input'
 import { Card } from '../Card'
+import { Input } from '../Input'
 
 /**
  * Customer Details Section for Checkout
@@ -80,7 +80,7 @@ export default function CustomerDetailsSection() {
                 id="create-account"
                 className="h-4 w-4 rounded border-platform-border text-platform-primary"
                 checked={field.value || false}
-                onChange={(e) => field.onChange(e.target.checked)}
+                onChange={(e) => { field.onChange(e.target.checked); }}
                 onBlur={field.onBlur}
                 disabled={field.disabled}
               />

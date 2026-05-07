@@ -1,10 +1,11 @@
+import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react'
-import { useOrders } from '../features/orders/api'
-import { OrderCard } from '../components/OrderCard'
+
 import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import { OrderCard } from '../components/OrderCard'
+import { useOrders } from '../features/orders/api'
 
 const ITEMS_PER_PAGE = 20
 
@@ -92,7 +93,7 @@ export default function OrdersPage() {
               <OrderCard
                 key={order.id}
                 order={order}
-                onClick={() => handleOrderClick(order.id)}
+                onClick={() => { handleOrderClick(order.id); }}
               />
             ))}
           </div>

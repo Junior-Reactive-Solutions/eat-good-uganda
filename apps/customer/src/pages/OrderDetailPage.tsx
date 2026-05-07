@@ -1,11 +1,4 @@
-import { useParams, useSearchParams } from 'react-router-dom'
-import {
-  format,
-  parseISO,
-  isAfter,
-  isBefore,
-  isWithinInterval,
-} from 'date-fns'
+import type { Order, OrderItem } from '@eatgood/shared'
 import {
   Package,
   MapPin,
@@ -15,13 +8,36 @@ import {
   CheckCircle2,
   Clock,
   Truck,
-  MapPinIcon,
 } from 'lucide-react'
-import { useOrderDetail } from '../features/orders/api'
+import { useParams, useSearchParams } from 'react-router-dom'
+
 import { Button } from '../components/Button'
-import { LoadingSpinner } from '../components/LoadingSpinner'
 import { Card } from '../components/Card'
-import type { Order } from '@eatgood/shared'
+import { LoadingSpinner } from '../components/LoadingSpinner'
+import { useOrderDetail } from '../features/orders/api'
+
+/**
+ * Order with items included (from API response)
+ */
+type OrderWithItems = Order & {
+  items?: OrderItem[]
+}
+
+/**
+ * Format a date string to long date with time
+ * e.g., "May 7, 2026, 2:30 PM"
+ */
+function formatDateTime(dateString: string | Date): string {
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString
+  return date.toLocaleString('en-UG', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 
 const statusLabels: Record<string, string> = {
   pending_payment: 'Pending Payment',
@@ -155,8 +171,8 @@ export default function OrderDetailPage() {
   const [searchParams] = useSearchParams()
   const claimToken = searchParams.get('claim') || undefined
 
-  const { data: order, isLoading, isError, error } = useOrderDetail(
-    orderId!,
+  const { data: order, isLoading, isError, error } = useOrderDetail<OrderWithItems>(
+    orderId || '',
     claimToken,
   )
 
@@ -190,7 +206,7 @@ export default function OrderDetailPage() {
     statusColors[order.status as keyof typeof statusColors] ||
     'bg-gray-100 text-gray-800'
 
-  const formattedDate = format(parseISO(order.created_at), 'PPP p')
+  const formattedDate = formatDateTime(order.created_at)
   const subtotalUGX = (order.subtotal_minor / 100).toLocaleString()
   const deliveryFeeUGX =
     order.delivery_fee_minor && order.delivery_fee_minor > 0
@@ -284,7 +300,7 @@ export default function OrderDetailPage() {
                     </p>
                     <p className="font-medium text-platform-fg">
                       {order.scheduled_for
-                        ? format(parseISO(order.scheduled_for), 'PPP p')
+                        ? formatDateTime(order.scheduled_for)
                         : 'As soon as possible'}
                     </p>
                   </div>
@@ -329,7 +345,7 @@ export default function OrderDetailPage() {
                         Delivery Time
                       </p>
                       <p className="font-medium text-platform-fg">
-                        {format(parseISO(order.scheduled_for), 'PPP p')}
+                        {formatDateTime(order.scheduled_for)}
                       </p>
                     </div>
                   </div>

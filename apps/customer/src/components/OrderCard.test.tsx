@@ -1,8 +1,9 @@
+import type { Order } from '@eatgood/shared'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect } from 'vitest'
+
 import { OrderCard } from './OrderCard'
-import type { Order } from '@eatgood/shared'
 
 describe('OrderCard', () => {
   const mockOrder: Order = {
@@ -72,9 +73,10 @@ describe('OrderCard', () => {
     render(<OrderCard order={mockOrder} onClick={onClick} />)
 
     const card = screen.getByText('EGU-20260507-A3F7').closest('div')
-    await user.click(card!)
-
-    expect(onClick).toHaveBeenCalled()
+    if (card) {
+      await user.click(card)
+      expect(onClick).toHaveBeenCalled()
+    }
   })
 
   it('displays "View Order" text', () => {

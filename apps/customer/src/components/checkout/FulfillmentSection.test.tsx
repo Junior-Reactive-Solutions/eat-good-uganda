@@ -1,9 +1,10 @@
+import { checkoutFormSchema } from '@eatgood/shared'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect } from 'vitest'
 import { FormProvider, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { checkoutFormSchema, type CheckoutFormInput } from '@eatgood/shared'
+import { describe, it, expect } from 'vitest'
+
 import FulfillmentSection from './FulfillmentSection'
 
 /**
@@ -83,8 +84,8 @@ describe('FulfillmentSection', () => {
     const deliveryRadio = screen.getByLabelText(/delivery/i)
     await user.click(deliveryRadio)
 
-    const addressInput = screen.getByLabelText(/street address/i) as HTMLInputElement
-    const cityInput = screen.getByLabelText(/city/i) as HTMLInputElement
+    const addressInput = screen.getByLabelText(/street address/i)
+    const cityInput = screen.getByLabelText(/city/i)
 
     await user.type(addressInput, '123 Main Street')
     await user.type(cityInput, 'Kampala')
@@ -110,11 +111,10 @@ describe('FulfillmentSection', () => {
     expect(screen.getByText(/fulfillment method/i)).toBeInTheDocument()
   })
 
-  it('allows optional scheduled date/time for pickup', async () => {
-    const user = userEvent.setup()
+  it('allows optional scheduled date/time for pickup', () => {
     render(<FulfillmentSectionWithForm />)
 
-    const dateInput = screen.getByLabelText(/pickup date & time/i) as HTMLInputElement
+    const dateInput = screen.getByLabelText(/pickup date & time/i)
     expect(dateInput).toBeInTheDocument()
     expect(dateInput.type).toBe('datetime-local')
   })
@@ -126,7 +126,7 @@ describe('FulfillmentSection', () => {
     const deliveryRadio = screen.getByLabelText(/delivery/i)
     await user.click(deliveryRadio)
 
-    const dateInput = screen.getByLabelText(/delivery date & time/i) as HTMLInputElement
+    const dateInput = screen.getByLabelText(/delivery date & time/i)
     expect(dateInput).toBeInTheDocument()
     expect(dateInput.type).toBe('datetime-local')
   })

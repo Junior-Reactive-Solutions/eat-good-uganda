@@ -1,9 +1,10 @@
+import { checkoutFormSchema } from '@eatgood/shared'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect } from 'vitest'
 import { FormProvider, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { checkoutFormSchema, type CheckoutFormInput } from '@eatgood/shared'
+import { describe, it, expect } from 'vitest'
+
 import PaymentMethodSection from './PaymentMethodSection'
 
 /**
@@ -48,7 +49,7 @@ describe('PaymentMethodSection', () => {
   it('has cash on delivery selected by default', () => {
     render(<PaymentMethodSectionWithForm />)
 
-    const codRadio = screen.getByLabelText(/cash on delivery/i) as HTMLInputElement
+    const codRadio = screen.getByLabelText(/cash on delivery/i)
     expect(codRadio.checked).toBe(true)
   })
 
@@ -56,7 +57,7 @@ describe('PaymentMethodSection', () => {
     const user = userEvent.setup()
     render(<PaymentMethodSectionWithForm />)
 
-    const bankRadio = screen.getByLabelText(/bank transfer/i) as HTMLInputElement
+    const bankRadio = screen.getByLabelText(/bank transfer/i)
     await user.click(bankRadio)
 
     expect(bankRadio.checked).toBe(true)
@@ -138,7 +139,7 @@ describe('PaymentMethodSection', () => {
     const mtnRadio = screen.getByLabelText(/mtn mobile money/i)
     await user.click(mtnRadio)
 
-    const phoneInput = screen.getByLabelText(/mobile money phone number/i) as HTMLInputElement
+    const phoneInput = screen.getByLabelText(/mobile money phone number/i)
     await user.type(phoneInput, '+256701234567')
 
     expect(phoneInput.value).toBe('+256701234567')

@@ -1,7 +1,5 @@
 import { z } from 'zod'
 
-import { normalizeUgandaPhone } from '../index'
-
 // Phone validation regex for Uganda numbers
 const ugandaPhoneRegex = /^(?:\+?256|0)\d{9}$/
 
@@ -12,7 +10,7 @@ const ugandaPhoneRegex = /^(?:\+?256|0)\d{9}$/
  */
 export const customerDetailsSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
+  email: z.email().pipe(z.string()),
   phone: z.string().regex(ugandaPhoneRegex, 'Invalid Uganda phone number'),
   createAccount: z.boolean().default(false),
 })
@@ -32,8 +30,7 @@ export const deliveryAddressSchema = z.object({
   lng: z.number().optional(),
 })
 
-// Internal type - not exported to avoid conflict with types.ts
-type DeliveryAddress = z.infer<typeof deliveryAddressSchema>
+export type DeliveryAddress = z.infer<typeof deliveryAddressSchema>
 
 /**
  * Fulfillment schema
@@ -43,11 +40,13 @@ type DeliveryAddress = z.infer<typeof deliveryAddressSchema>
 export const fulfillmentSchema = z.discriminatedUnion('mode', [
   z.object({
     mode: z.literal('pickup'),
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     scheduledFor: z.string().datetime().optional(),
   }),
   z.object({
     mode: z.literal('delivery'),
     deliveryAddress: deliveryAddressSchema,
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     scheduledFor: z.string().datetime().optional(),
   }),
 ])
@@ -77,8 +76,7 @@ export const paymentMethodSchema = z.discriminatedUnion('method', [
   }),
 ])
 
-// Internal type - not exported to avoid conflict with types.ts
-type PaymentMethod = z.infer<typeof paymentMethodSchema>
+export type PaymentMethod = z.infer<typeof paymentMethodSchema>
 
 /**
  * Cart item in checkout (minimal validation)
@@ -86,8 +84,8 @@ type PaymentMethod = z.infer<typeof paymentMethodSchema>
  * - Quantity must be positive
  */
 export const checkoutCartItemSchema = z.object({
-  productId: z.string().uuid('Invalid product ID'),
-  variantId: z.string().uuid('Invalid variant ID').optional(),
+  productId: z.uuid(),
+  variantId: z.uuid().optional(),
   quantity: z.number().int().min(1, 'Quantity must be at least 1'),
 })
 
@@ -120,7 +118,7 @@ export const orderCreationSchema = z.object({
   payment: paymentMethodSchema,
   notes: z.string().optional(),
   // Guest checkout: must provide bakery_id explicitly
-  bakeryId: z.string().uuid('Invalid bakery ID').optional(),
+  bakeryId: z.uuid().optional(),
 })
 
 export type OrderCreationInput = z.infer<typeof orderCreationSchema>
@@ -129,7 +127,7 @@ export type OrderCreationInput = z.infer<typeof orderCreationSchema>
  * Order response schema (returned by API after creation)
  */
 export const orderResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   orderNumber: z.string(), // EGU-YYYYMMDD-XXXX format
   totalMinor: z.number().int().min(0), // In cents/smallest unit
   nextStep: z.literal('pay'),
