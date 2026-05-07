@@ -1,0 +1,15 @@
+:root {
+  --platform-primary: #8b4513;
+  --platform-primary-hover: #7a3c10;
+  --platform-primary-light: #c8733a;
+  --platform-accent: #f5f0e8;
+  --platform-accent-dark: #e8dfc8;
+  --platform-bg: #faf8f4;
+  --platform-surface: #ffffff;
+  --platform-fg: #1a1209;
+  --platform-fg-muted: #6b5744;
+  --platform-border: #e2d5c3;
+  --platform-error: #dc2626;
+  --platform-success: #16a34a;
+  --platform-warning: #d97706;
+}
