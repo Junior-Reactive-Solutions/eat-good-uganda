@@ -1,3 +1,0 @@
-# Kilo Parallel Development Workflow
-
-Details...
