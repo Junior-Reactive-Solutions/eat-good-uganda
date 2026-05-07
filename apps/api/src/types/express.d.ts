@@ -7,6 +7,10 @@ declare global {
       auth: AnyToken | null
       bakeryId?: string
       dbClient?: PoolClient
+      customer?: {
+        id: string
+        bakery_id: string
+      }
     }
   }
 }

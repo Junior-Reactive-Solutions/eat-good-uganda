@@ -1,0 +1,133 @@
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, it, expect } from 'vitest'
+import { FormProvider, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { checkoutFormSchema, type CheckoutFormInput } from '@eatgood/shared'
+import FulfillmentSection from './FulfillmentSection'
+
+/**
+ * Wrapper component to provide form context for testing
+ */
+function FulfillmentSectionWithForm() {
+  const methods = useForm({
+    resolver: zodResolver(checkoutFormSchema),
+    defaultValues: {
+      customer: {
+        fullName: 'John Doe',
+        email: 'john@example.com',
+        phone: '+256701234567',
+        createAccount: false,
+      },
+      fulfillment: {
+        mode: 'pickup',
+      },
+      payment: {
+        method: 'cash_on_delivery',
+      },
+    },
+  })
+
+  return (
+    <FormProvider {...methods}>
+      <FulfillmentSection />
+    </FormProvider>
+  )
+}
+
+describe('FulfillmentSection', () => {
+  it('renders fulfillment mode selection', () => {
+    render(<FulfillmentSectionWithForm />)
+
+    expect(screen.getByLabelText(/pickup/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/delivery/i)).toBeInTheDocument()
+  })
+
+  it('shows pickup section by default', () => {
+    render(<FulfillmentSectionWithForm />)
+
+    expect(screen.getByText(/ready for pickup at the bakery/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/pickup date & time/i)).toBeInTheDocument()
+  })
+
+  it('switches to delivery section when delivery is selected', async () => {
+    const user = userEvent.setup()
+    render(<FulfillmentSectionWithForm />)
+
+    const deliveryRadio = screen.getByLabelText(/delivery/i)
+    await user.click(deliveryRadio)
+
+    expect(screen.getByText(/we'll deliver to your address/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/street address/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/city/i)).toBeInTheDocument()
+  })
+
+  it('renders delivery address fields when delivery is selected', async () => {
+    const user = userEvent.setup()
+    render(<FulfillmentSectionWithForm />)
+
+    const deliveryRadio = screen.getByLabelText(/delivery/i)
+    await user.click(deliveryRadio)
+
+    expect(screen.getByLabelText(/street address/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/apartment, suite/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/city/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/delivery instructions/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/use my location/i)).toBeInTheDocument()
+  })
+
+  it('allows entering delivery address', async () => {
+    const user = userEvent.setup()
+    render(<FulfillmentSectionWithForm />)
+
+    const deliveryRadio = screen.getByLabelText(/delivery/i)
+    await user.click(deliveryRadio)
+
+    const addressInput = screen.getByLabelText(/street address/i) as HTMLInputElement
+    const cityInput = screen.getByLabelText(/city/i) as HTMLInputElement
+
+    await user.type(addressInput, '123 Main Street')
+    await user.type(cityInput, 'Kampala')
+
+    expect(addressInput.value).toBe('123 Main Street')
+    expect(cityInput.value).toBe('Kampala')
+  })
+
+  it('shows delivery fee information', async () => {
+    const user = userEvent.setup()
+    render(<FulfillmentSectionWithForm />)
+
+    const deliveryRadio = screen.getByLabelText(/delivery/i)
+    await user.click(deliveryRadio)
+
+    expect(
+      screen.getByText(/delivery fee will be calculated at checkout/i),
+    ).toBeInTheDocument()
+  })
+
+  it('displays section header', () => {
+    render(<FulfillmentSectionWithForm />)
+    expect(screen.getByText(/fulfillment method/i)).toBeInTheDocument()
+  })
+
+  it('allows optional scheduled date/time for pickup', async () => {
+    const user = userEvent.setup()
+    render(<FulfillmentSectionWithForm />)
+
+    const dateInput = screen.getByLabelText(/pickup date & time/i) as HTMLInputElement
+    expect(dateInput).toBeInTheDocument()
+    expect(dateInput.type).toBe('datetime-local')
+  })
+
+  it('allows optional scheduled date/time for delivery', async () => {
+    const user = userEvent.setup()
+    render(<FulfillmentSectionWithForm />)
+
+    const deliveryRadio = screen.getByLabelText(/delivery/i)
+    await user.click(deliveryRadio)
+
+    const dateInput = screen.getByLabelText(/delivery date & time/i) as HTMLInputElement
+    expect(dateInput).toBeInTheDocument()
+    expect(dateInput.type).toBe('datetime-local')
+  })
+})
