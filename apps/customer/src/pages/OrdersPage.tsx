@@ -1,11 +1,132 @@
-import { EmptyState } from '../components/EmptyState'
-import { PageHeader } from '../components/PageHeader'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react'
+import { useOrders } from '../features/orders/api'
+import { OrderCard } from '../components/OrderCard'
+import { Button } from '../components/Button'
+import { LoadingSpinner } from '../components/LoadingSpinner'
+
+const ITEMS_PER_PAGE = 20
 
 export default function OrdersPage() {
+  const navigate = useNavigate()
+  const [offset, setOffset] = useState(0)
+  const limit = ITEMS_PER_PAGE
+
+  const { data, isLoading, isError, error, refetch } = useOrders(limit, offset)
+
+  const orders = data?.items || []
+  const totalCount = data?.total || 0
+  const pageCount = Math.ceil(totalCount / limit)
+  const currentPage = Math.floor(offset / limit) + 1
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setOffset(offset - limit)
+    }
+  }
+
+  const handleNextPage = () => {
+    if (currentPage < pageCount) {
+      setOffset(offset + limit)
+    }
+  }
+
+  const handleOrderClick = (orderId: string) => {
+    navigate(`/account/orders/${orderId}`)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader heading="My orders" />
-      <EmptyState heading="No orders yet" body="When you place an order it will appear here." />
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-platform-fg">Your Orders</h1>
+        <p className="mt-2 text-platform-fg-muted">
+          View and manage all your orders
+        </p>
+      </div>
+
+      {/* Empty State */}
+      {!isLoading && orders.length === 0 && (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-platform-border bg-platform-surface/50 py-12">
+          <ShoppingBag className="mb-4 h-12 w-12 text-platform-fg-muted" />
+          <h2 className="mb-2 text-lg font-semibold text-platform-fg">
+            No orders yet
+          </h2>
+          <p className="mb-6 text-platform-fg-muted">
+            Start shopping to place your first order
+          </p>
+          <Button onClick={() => navigate('/')}>Browse Bakeries</Button>
+        </div>
+      )}
+
+      {/* Error State */}
+      {isError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="font-medium text-red-900">
+            Failed to load orders: {error?.message || 'Unknown error'}
+          </p>
+          <Button
+            variant="secondary"
+            className="mt-4"
+            onClick={() => refetch()}
+          >
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {/* Orders Grid */}
+      {!isLoading && orders.length > 0 && (
+        <>
+          <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {orders.map((order) => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                onClick={() => handleOrderClick(order.id)}
+              />
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {pageCount > 1 && (
+            <div className="flex items-center justify-center gap-4 border-t border-platform-border pt-6">
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={currentPage === 1}
+                onClick={handlePreviousPage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+
+              <div className="text-sm text-platform-fg-muted">
+                Page {currentPage} of {pageCount}
+              </div>
+
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={currentPage === pageCount}
+                onClick={handleNextPage}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }

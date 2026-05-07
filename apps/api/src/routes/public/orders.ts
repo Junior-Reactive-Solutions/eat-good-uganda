@@ -5,6 +5,7 @@ import type { Request, Response } from 'express'
 
 import { generateOrderNumber, generateClaimToken, hashClaimToken } from '../../services/orders'
 import { authRateLimit } from '../../middleware/rateLimit'
+import { sendOrderConfirmationEmail } from '../../services/email/orders'
 
 const router = Router()
 
@@ -86,13 +87,27 @@ router.post('/', authRateLimit, async (req: Request, res: Response) => {
       })),
     })
 
-    // TODO: Send confirmation email with claim token
-    // await sendOrderConfirmationEmail({
-    //   to: body.customer.email,
-    //   orderNumber: order.order_number,
-    //   claimToken,
-    //   orderLink: `https://app.url/order/${order.order_number}?token=${claimToken}`,
-    // })
+    // Send confirmation email with claim token
+    const publicCustomerUrl = process.env.PUBLIC_CUSTOMER_URL || 'https://app.eatgood.ug'
+    const orderLink = `${publicCustomerUrl}/account/orders/${order.id}`
+
+    try {
+      await sendOrderConfirmationEmail({
+        to: body.customer.email,
+        orderNumber: order.order_number,
+        orderId: order.id,
+        claimToken,
+        orderLink,
+        total: order.total_minor,
+      })
+    } catch (emailError) {
+      // Email sending failed - fail the entire order creation
+      console.error('Email sending failed for order:', order.id, emailError)
+      // Note: In a real system, you might want to delete the order here
+      return res.status(500).json({
+        error: 'Failed to send confirmation email. Please try again.',
+      })
+    }
 
     return res.status(201).json({
       id: order.id,

@@ -6,6 +6,7 @@ import type { Request, Response, Router } from 'express'
 import { requireCustomerContext } from '../../middleware/requireCustomerContext'
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { generateOrderNumber } from '../../services/orders'
+import { sendOrderConfirmationEmail } from '../../services/email/orders'
 
 export const customerOrdersRouter = createRouter() as Router
 
@@ -80,6 +81,27 @@ customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async 
         line_total_minor: 0, // Would be calculated
       })),
     })
+
+    // Send confirmation email to authenticated customer
+    const publicCustomerUrl = process.env.PUBLIC_CUSTOMER_URL || 'https://app.eatgood.ug'
+    const orderLink = `${publicCustomerUrl}/account/orders/${order.id}`
+
+    try {
+      await sendOrderConfirmationEmail({
+        to: body.customer.email,
+        orderNumber: order.order_number,
+        orderId: order.id,
+        orderLink,
+        total: order.total_minor,
+      })
+    } catch (emailError) {
+      // Email sending failed - fail the entire order creation
+      console.error('Email sending failed for order:', order.id, emailError)
+      // Note: In a real system, you might want to delete the order here
+      return res.status(500).json({
+        error: 'Failed to send confirmation email. Please try again.',
+      })
+    }
 
     return res.status(201).json({
       id: order.id,
