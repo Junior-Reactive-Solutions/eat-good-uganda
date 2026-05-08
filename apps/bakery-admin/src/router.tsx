@@ -6,6 +6,7 @@ import { BakeryProvider } from './contexts/bakery'
 import { useMe } from './features/auth/hooks'
 import { RequireAuth } from './features/auth/RequireAuth'
 import { DashboardLayout } from './layouts/DashboardLayout'
+import { ProductFormPage } from './pages/ProductFormPage'
 
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const OrdersPage = lazy(() => import('./pages/OrdersPage'))
@@ -86,6 +87,22 @@ export const router = createBrowserRouter([
         element: (
           <Lazy>
             <MenuPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'menu/create',
+        element: (
+          <Lazy>
+            <ProductFormPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'menu/:productId/edit',
+        element: (
+          <Lazy>
+            <ProductFormPage />
           </Lazy>
         ),
       },
