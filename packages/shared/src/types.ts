@@ -226,3 +226,14 @@ export type Payment = {
   created_at: Date
   updated_at: Date
 }
+
+export type BakeryPaymentCredential = {
+  id: string
+  bakery_id: string
+  provider: PaymentProvider
+  is_enabled: boolean
+  target_environment: 'sandbox' | 'production'
+  last_verified_at: Date | null
+  created_at: Date
+  updated_at: Date
+}
