@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 import { LoadingSpinner } from './components/LoadingSpinner'
 import { BakeryProvider } from './contexts/bakery'
@@ -52,11 +52,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: (
-          <Lazy>
-            <DashboardPage />
-          </Lazy>
-        ),
+        element: <Navigate to="/dashboard" replace />,
       },
       {
         path: 'dashboard',
