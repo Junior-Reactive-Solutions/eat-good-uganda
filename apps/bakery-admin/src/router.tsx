@@ -13,6 +13,8 @@ const OrdersPage = lazy(() => import('./pages/OrdersPage'))
 const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'))
 const MenuPage = lazy(() => import('./pages/MenuPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
+const BakerySettingsPage = lazy(() => import('./pages/BakerySettingsPage'))
+const PaymentSetupPage = lazy(() => import('./pages/PaymentSetupPage'))
 
 function Lazy({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
@@ -99,6 +101,22 @@ export const router = createBrowserRouter([
         element: (
           <Lazy>
             <ProductFormPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'settings',
+        element: (
+          <Lazy>
+            <BakerySettingsPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'payment-setup',
+        element: (
+          <Lazy>
+            <PaymentSetupPage />
           </Lazy>
         ),
       },
