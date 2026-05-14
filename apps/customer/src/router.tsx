@@ -17,8 +17,10 @@ const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
 const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'))
 const AccountPage = lazy(() => import('./pages/AccountPage'))
-const OrdersPage = lazy(() => import('./pages/OrdersPage'))
+const OrderHistoryPage = lazy(() => import('./pages/OrderHistoryPage'))
 const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'))
+const AccountSettingsPage = lazy(() => import('./pages/AccountSettingsPage'))
+const NotificationPage = lazy(() => import('./pages/NotificationPage'))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 const TermsPage = lazy(() => import('./pages/TermsPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
@@ -167,7 +169,7 @@ export const router = createBrowserRouter([
             path: 'orders',
             element: (
               <Lazy>
-                <OrdersPage />
+                <OrderHistoryPage />
               </Lazy>
             ),
           },
@@ -192,6 +194,22 @@ export const router = createBrowserRouter([
             element: (
               <Lazy>
                 <AddressesPage />
+              </Lazy>
+            ),
+          },
+          {
+            path: 'settings',
+            element: (
+              <Lazy>
+                <AccountSettingsPage />
+              </Lazy>
+            ),
+          },
+          {
+            path: 'notifications',
+            element: (
+              <Lazy>
+                <NotificationPage />
               </Lazy>
             ),
           },

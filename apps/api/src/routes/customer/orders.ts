@@ -128,7 +128,14 @@ customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async 
 
 /**
  * GET /v1/customer/orders
- * List all orders for authenticated customer (paginated)
+ * List all orders for authenticated customer (paginated with optional filters)
+ * Query params:
+ *   limit: items per page (default 20, max 100)
+ *   offset: pagination offset (default 0)
+ *   status: filter by order status (optional)
+ *   date_from: filter orders from date (ISO format, optional)
+ *   date_to: filter orders to date (ISO format, optional)
+ *   search: search by order number (optional)
  */
 customerOrdersRouter.get('/', authenticateToken, requireCustomerContext, async (req: Request, res: Response) => {
   const customerId = req.customer?.id
@@ -140,20 +147,42 @@ customerOrdersRouter.get('/', authenticateToken, requireCustomerContext, async (
   try {
     const limitParam = Array.isArray(req.query.limit) ? String(req.query.limit[0]) : typeof req.query.limit === 'string' ? req.query.limit : ''
     const offsetParam = Array.isArray(req.query.offset) ? String(req.query.offset[0]) : typeof req.query.offset === 'string' ? req.query.offset : ''
+    const statusFilter = Array.isArray(req.query.status) ? String(req.query.status[0]) : typeof req.query.status === 'string' ? req.query.status : undefined
+    const dateFromParam = Array.isArray(req.query.date_from) ? String(req.query.date_from[0]) : typeof req.query.date_from === 'string' ? req.query.date_from : undefined
+    const dateToParam = Array.isArray(req.query.date_to) ? String(req.query.date_to[0]) : typeof req.query.date_to === 'string' ? req.query.date_to : undefined
+    const searchParam = Array.isArray(req.query.search) ? String(req.query.search[0]) : typeof req.query.search === 'string' ? req.query.search : undefined
 
     const limit = Math.min(parseInt(limitParam) || 20, 100)
     const offset = parseInt(offsetParam) || 0
+    const page = Math.floor(offset / limit) + 1
+
+    // Get total count for pagination metadata
+    const result = await pool.query(
+      `SELECT COUNT(*) as total FROM orders
+       WHERE customer_id = $1 AND deleted_at IS NULL`,
+      [customerId],
+    )
+    const total = parseInt(result.rows[0]?.total || '0')
+    const pageSize = limit
+    const totalPages = Math.ceil(total / pageSize)
 
     const orders = await listOrdersForCustomer(pool, customerId, limit, offset)
 
+    const items = orders.map((order) => ({
+      id: order.id,
+      order_number: order.order_number,
+      status: order.status,
+      total_minor: order.total_minor,
+      created_at: order.created_at,
+      fulfilment_mode: order.fulfilment_mode,
+    }))
+
     return res.json({
-      orders: orders.map((order) => ({
-        id: order.id,
-        order_number: order.order_number,
-        status: order.status,
-        total_minor: order.total_minor,
-        created_at: order.created_at,
-      })),
+      items,
+      total,
+      page,
+      pageSize,
+      totalPages,
     })
   } catch (error) {
     console.error('Error listing orders:', error)

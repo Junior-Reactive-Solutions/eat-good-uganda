@@ -17,6 +17,8 @@ import { customerAuthRouter } from './routes/customer/auth'
 import { customerOrdersRouter } from './routes/customer/orders'
 import { customerProfileRouter } from './routes/customer/profile'
 import { customerAddressesRouter } from './routes/customer/addresses'
+import { customerAccountSettingsRouter } from './routes/customer/account-settings'
+import { customerNotificationsRouter } from './routes/customer/notifications'
 import { publicBakeriesRouter } from './routes/public/bakeries'
 import publicOrdersRouter from './routes/public/orders'
 
@@ -41,6 +43,8 @@ app.use('/v1/customer/auth', customerAuthRouter)
 app.use('/v1/customer/orders', customerOrdersRouter)
 app.use('/v1/customer/profile', customerProfileRouter)
 app.use('/v1/customer/addresses', customerAddressesRouter)
+app.use('/v1/customer/account-settings', customerAccountSettingsRouter)
+app.use('/v1/customer/notifications', customerNotificationsRouter)
 app.use('/v1/bakery/auth', bakeryAuthRouter)
 app.use('/v1/bakery/settings', bakerySettingsRouter)
 app.use('/v1/bakery/payment-credentials', bakeryPaymentCredentialsRouter)

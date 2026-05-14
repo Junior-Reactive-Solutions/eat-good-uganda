@@ -11,7 +11,7 @@ import { useOrders } from '../features/orders/api'
 const ITEMS_PER_PAGE = 20
 
 interface PaginatedOrdersResponse {
-  items: Array<{ id: string; order_number: string; status: string; total_minor: number; fulfillment_mode: string; created_at: string }>
+  items: Array<{ id: string; order_number: string; status: string; total_minor: number; fulfilment_mode: string; created_at: string }>
   total: number
 }
 
