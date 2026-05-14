@@ -7,18 +7,19 @@ import { env } from './env'
 import { csrf } from './middleware/csrf'
 import { generalRateLimit } from './middleware/rateLimit'
 import { adminAuthRouter } from './routes/admin/auth'
+import { adminDashboardRouter } from './routes/admin/dashboard'
 import { bakeryAuthRouter } from './routes/bakery/auth'
 import { bakeryCategoriesRouter } from './routes/bakery/categories'
 import { bakeryMetricsRouter } from './routes/bakery/metrics'
 import { bakeryPaymentCredentialsRouter } from './routes/bakery/payment-credentials'
 import { bakeryProductsRouter } from './routes/bakery/products'
 import { bakerySettingsRouter } from './routes/bakery/settings'
+import { customerAccountSettingsRouter } from './routes/customer/account-settings'
+import { customerAddressesRouter } from './routes/customer/addresses'
 import { customerAuthRouter } from './routes/customer/auth'
+import { customerNotificationsRouter } from './routes/customer/notifications'
 import { customerOrdersRouter } from './routes/customer/orders'
 import { customerProfileRouter } from './routes/customer/profile'
-import { customerAddressesRouter } from './routes/customer/addresses'
-import { customerAccountSettingsRouter } from './routes/customer/account-settings'
-import { customerNotificationsRouter } from './routes/customer/notifications'
 import { publicBakeriesRouter } from './routes/public/bakeries'
 import publicOrdersRouter from './routes/public/orders'
 
@@ -52,3 +53,4 @@ app.use('/v1/bakery/products', bakeryProductsRouter)
 app.use('/v1/bakery/categories', bakeryCategoriesRouter)
 app.use('/v1/bakery/metrics', bakeryMetricsRouter)
 app.use('/v1/admin/auth', adminAuthRouter)
+app.use('/v1/admin/dashboard', adminDashboardRouter)

@@ -1,10 +1,33 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'react-hot-toast'
+import { RouterProvider } from 'react-router-dom'
+
+import { useAuthSetup } from './features/auth/hooks'
+import { router } from './router'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, staleTime: 30_000 },
+  },
+})
+
+function AuthSetup() {
+  useAuthSetup()
+  return null
+}
+
 export function App() {
   return (
-    <main className="min-h-screen bg-[#8B4513] text-white">
-      <div className="mx-auto max-w-4xl px-6 py-16">
-        <h1 className="text-4xl font-semibold">Eat Good Uganda - super admin</h1>
-        <p className="mt-3 text-lg text-amber-100">Prompt 01 placeholder shell.</p>
-      </div>
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <AuthSetup />
+      <RouterProvider router={router} />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          className: 'text-sm',
+          style: { maxWidth: 360 },
+        }}
+      />
+    </QueryClientProvider>
   )
 }

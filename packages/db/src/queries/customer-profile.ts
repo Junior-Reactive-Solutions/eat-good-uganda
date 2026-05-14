@@ -1,4 +1,5 @@
-import type { CustomerProfile, CustomerAddress } from '@eatgood/shared'
+import type { CustomerAddress, CustomerProfile } from '@eatgood/shared'
+
 import { query } from '../client'
 import type { Database } from '../client'
 import { sql } from '../sql'
