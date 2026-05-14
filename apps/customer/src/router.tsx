@@ -23,6 +23,8 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 const TermsPage = lazy(() => import('./pages/TermsPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
+const CustomerProfilePage = lazy(() => import('./pages/CustomerProfilePage'))
+const AddressesPage = lazy(() => import('./pages/AddressesPage'))
 
 function Lazy({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
@@ -174,6 +176,22 @@ export const router = createBrowserRouter([
             element: (
               <Lazy>
                 <OrderDetailPage />
+              </Lazy>
+            ),
+          },
+          {
+            path: 'profile',
+            element: (
+              <Lazy>
+                <CustomerProfilePage />
+              </Lazy>
+            ),
+          },
+          {
+            path: 'addresses',
+            element: (
+              <Lazy>
+                <AddressesPage />
               </Lazy>
             ),
           },

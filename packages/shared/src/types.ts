@@ -237,3 +237,30 @@ export type BakeryPaymentCredential = {
   created_at: Date
   updated_at: Date
 }
+
+export type CustomerProfile = {
+  id: string
+  user_id: string
+  first_name: string | null
+  last_name: string | null
+  date_of_birth: string | null
+  bio: string | null
+  avatar_url: string | null
+  default_address_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CustomerAddress = {
+  id: string
+  user_id: string
+  street_address: string
+  city: string
+  district: string
+  postal_code: string | null
+  is_default: boolean
+  is_delivery_address: boolean
+  is_billing_address: boolean
+  created_at: string
+  updated_at: string
+}
