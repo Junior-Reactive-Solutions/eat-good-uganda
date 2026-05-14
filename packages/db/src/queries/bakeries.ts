@@ -213,3 +213,50 @@ export async function updateBakery(
   )
   return result.rows[0] ?? null
 }
+
+export type AdminBakeriesListResult = {
+  bakeries: Bakery[]
+  total_count: number
+}
+
+export async function adminListAllBakeries(
+  db: Database,
+  limit: number = 20,
+  offset: number = 0,
+): Promise<AdminBakeriesListResult> {
+  const result = await query<Bakery & { total_count: number }>(
+    db,
+    sql`SELECT ${BAKERY_COLS}, COUNT(*) OVER() AS total_count
+        FROM bakeries
+        WHERE deleted_at IS NULL
+        ORDER BY created_at DESC
+        LIMIT ${limit} OFFSET ${offset}`,
+  )
+  const total_count = result.rows[0]?.total_count ?? 0
+  const bakeries = result.rows
+  return { bakeries, total_count }
+}
+
+export type UpdateBakeryStatusInput = {
+  status: string
+  approved_at?: Date | null
+  approved_by?: string | null
+}
+
+export async function adminUpdateBakeryStatus(
+  db: Database,
+  bakeryId: string,
+  input: UpdateBakeryStatusInput,
+): Promise<Bakery | null> {
+  const result = await query<Bakery>(
+    db,
+    sql`UPDATE bakeries SET
+          status = ${input.status},
+          approved_at = COALESCE(${input.approved_at ?? null}, approved_at),
+          approved_by = COALESCE(${input.approved_by ?? null}, approved_by),
+          updated_at = now()
+        WHERE id = ${bakeryId} AND deleted_at IS NULL
+        RETURNING ${BAKERY_COLS}`,
+  )
+  return result.rows[0] ?? null
+}

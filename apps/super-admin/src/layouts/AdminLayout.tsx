@@ -1,4 +1,4 @@
-import { Menu, X, LogOut, LayoutDashboard } from 'lucide-react'
+import { Menu, X, LogOut, LayoutDashboard, Store } from 'lucide-react'
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
@@ -21,7 +21,10 @@ export function AdminLayout() {
     void navigate('/login')
   }
 
-  const navItems = [{ label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' }]
+  const navItems = [
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+    { label: 'Bakeries', icon: Store, path: '/bakeries' },
+  ]
 
   return (
     <div className="flex h-screen bg-platform-surface">

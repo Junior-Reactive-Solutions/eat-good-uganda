@@ -7,6 +7,7 @@ import { env } from './env'
 import { csrf } from './middleware/csrf'
 import { generalRateLimit } from './middleware/rateLimit'
 import { adminAuthRouter } from './routes/admin/auth'
+import { adminBakeriesRouter } from './routes/admin/bakeries'
 import { adminDashboardRouter } from './routes/admin/dashboard'
 import { bakeryAuthRouter } from './routes/bakery/auth'
 import { bakeryCategoriesRouter } from './routes/bakery/categories'
@@ -54,3 +55,4 @@ app.use('/v1/bakery/categories', bakeryCategoriesRouter)
 app.use('/v1/bakery/metrics', bakeryMetricsRouter)
 app.use('/v1/admin/auth', adminAuthRouter)
 app.use('/v1/admin/dashboard', adminDashboardRouter)
+app.use('/v1/admin/bakeries', adminBakeriesRouter)

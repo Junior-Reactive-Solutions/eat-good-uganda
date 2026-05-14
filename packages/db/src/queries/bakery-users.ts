@@ -75,3 +75,16 @@ export async function updateBakeryUserPasswordHash(
     sql`UPDATE bakery_users SET password_hash = ${hash}, updated_at = now() WHERE id = ${id}`,
   )
 }
+
+export async function listBakeryUsersForBakery(
+  db: Database,
+  bakeryId: string,
+): Promise<BakeryUser[]> {
+  const result = await query<BakeryUser>(
+    db,
+    sql`SELECT ${BAKERY_USER_COLS} FROM bakery_users
+        WHERE bakery_id = ${bakeryId} AND deleted_at IS NULL
+        ORDER BY created_at ASC`,
+  )
+  return result.rows
+}

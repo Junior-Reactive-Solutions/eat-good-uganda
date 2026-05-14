@@ -7,6 +7,8 @@ import { RequireAdminAuth } from './middleware/requireAdminAuth'
 
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'))
+const BakeriesPage = lazy(() => import('./pages/BakeriesPage'))
+const BakeryDetailPage = lazy(() => import('./pages/BakeryDetailPage'))
 
 function Lazy({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
@@ -38,6 +40,22 @@ export const router = createBrowserRouter([
         element: (
           <Lazy>
             <AdminDashboardPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'bakeries',
+        element: (
+          <Lazy>
+            <BakeriesPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'bakeries/:bakeryId',
+        element: (
+          <Lazy>
+            <BakeryDetailPage />
           </Lazy>
         ),
       },
