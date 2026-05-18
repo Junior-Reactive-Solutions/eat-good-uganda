@@ -15,3 +15,13 @@ export * from './queries/bakery-users'
 export * from './queries/tokens'
 export * from './queries/admin-users'
 export * from './queries/bakery-metrics'
+export {
+  getAdminPlatformMetrics,
+  getAdminBakeryAnalytics,
+  getAdminMetricsTimeSeries,
+  getAdminTopBakeries,
+  type PlatformMetrics,
+  type BakeryAnalytics,
+  type TimeSeriesPoint,
+  type TopBakery,
+} from './queries/analytics'
