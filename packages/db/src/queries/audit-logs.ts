@@ -4,33 +4,31 @@ import { sql } from '../sql'
 
 export interface AuditLog {
   id: string
-  actor_type: 'customer' | 'bakery_user' | 'super_admin' | 'system' | 'webhook'
-  actor_id?: string
-  bakery_id?: string
+  admin_id: string
   action: string
-  target_type?: string
-  target_id?: string
-  payload?: Record<string, unknown>
+  bakery_id?: string
+  resource_type?: string
+  resource_id?: string
+  changes?: Record<string, unknown>
   ip_address?: string
   user_agent?: string
   created_at: string
 }
 
 const AUDIT_LOG_COLS = sql`
-  id, actor_type, actor_id, bakery_id, action, target_type, target_id,
-  payload, ip_address, user_agent, created_at
+  id, admin_id, action, bakery_id, resource_type, resource_id,
+  changes, ip_address, user_agent, created_at
 `
 
 export async function createAuditLog(
   db: Database,
   data: {
-    actorType: 'customer' | 'bakery_user' | 'super_admin' | 'system' | 'webhook'
-    actorId?: string
-    bakeryId?: string
+    adminId: string
     action: string
-    targetType?: string
-    targetId?: string
-    payload?: Record<string, unknown>
+    bakeryId?: string
+    resourceType?: string
+    resourceId?: string
+    changes?: Record<string, unknown>
     ipAddress?: string
     userAgent?: string
   },
@@ -38,10 +36,10 @@ export async function createAuditLog(
   const result = await query<AuditLog>(
     db,
     sql`
-      INSERT INTO audit_log
-        (actor_type, actor_id, bakery_id, action, target_type, target_id, payload, ip_address, user_agent, created_at)
+      INSERT INTO audit_logs
+        (admin_id, action, bakery_id, resource_type, resource_id, changes, ip_address, user_agent, created_at)
       VALUES
-        (${data.actorType}, ${data.actorId ?? null}, ${data.bakeryId ?? null}, ${data.action}, ${data.targetType ?? null}, ${data.targetId ?? null}, ${data.payload ? JSON.stringify(data.payload) : null}, ${data.ipAddress ?? null}, ${data.userAgent ?? null}, now())
+        (${data.adminId}, ${data.action}, ${data.bakeryId ?? null}, ${data.resourceType ?? null}, ${data.resourceId ?? null}, ${data.changes ? JSON.stringify(data.changes) : null}, ${data.ipAddress ?? null}, ${data.userAgent ?? null}, now())
       RETURNING ${AUDIT_LOG_COLS}
     `,
   )
@@ -55,11 +53,10 @@ export async function createAuditLog(
 export async function getAuditLogs(
   db: Database,
   filters: {
-    actorId?: string
-    actorType?: string
+    adminId?: string
     action?: string
     bakeryId?: string
-    targetType?: string
+    resourceType?: string
     startDate?: Date
     endDate?: Date
     limit?: number
@@ -73,13 +70,9 @@ export async function getAuditLogs(
   const whereClauses: string[] = []
   const values: unknown[] = []
 
-  if (filters.actorId) {
-    whereClauses.push(`actor_id = $${String(values.length + 1)}`)
-    values.push(filters.actorId)
-  }
-  if (filters.actorType) {
-    whereClauses.push(`actor_type = $${String(values.length + 1)}`)
-    values.push(filters.actorType)
+  if (filters.adminId) {
+    whereClauses.push(`admin_id = $${String(values.length + 1)}`)
+    values.push(filters.adminId)
   }
   if (filters.action) {
     whereClauses.push(`action = $${String(values.length + 1)}`)
@@ -89,9 +82,9 @@ export async function getAuditLogs(
     whereClauses.push(`bakery_id = $${String(values.length + 1)}`)
     values.push(filters.bakeryId)
   }
-  if (filters.targetType) {
-    whereClauses.push(`target_type = $${String(values.length + 1)}`)
-    values.push(filters.targetType)
+  if (filters.resourceType) {
+    whereClauses.push(`resource_type = $${String(values.length + 1)}`)
+    values.push(filters.resourceType)
   }
   if (filters.startDate) {
     whereClauses.push(`created_at >= $${String(values.length + 1)}`)
@@ -106,10 +99,10 @@ export async function getAuditLogs(
 
   const sqlQuery = `
     SELECT
-      id, actor_type, actor_id, bakery_id, action, target_type, target_id,
-      payload, ip_address, user_agent, created_at,
+      id, admin_id, action, bakery_id, resource_type, resource_id,
+      changes, ip_address, user_agent, created_at,
       COUNT(*) OVER() as total
-    FROM audit_log
+    FROM audit_logs
     ${whereClause}
     ORDER BY created_at DESC
     LIMIT ${String(limit)} OFFSET ${String(offset)}

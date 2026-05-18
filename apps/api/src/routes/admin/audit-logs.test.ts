@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import * as db from '@eatgood/db'
 
 // Mock the database module
 vi.mock('@eatgood/db', () => ({
@@ -20,13 +19,12 @@ describe('Admin Audit Logs API - Contract Tests', () => {
           logs: [
             {
               id: 'log-1',
-              actor_type: 'super_admin' as const,
-              actor_id: 'admin-1',
-              bakery_id: 'bakery-123',
+              admin_id: 'admin-1',
               action: 'POST /v1/admin/bakeries/approve',
-              target_type: 'bakery',
-              target_id: 'bakery-123',
-              payload: { status: 'approved' },
+              bakery_id: 'bakery-123',
+              resource_type: 'bakery',
+              resource_id: 'bakery-123',
+              changes: { status: 'approved' },
               ip_address: '192.168.1.1',
               user_agent: 'Mozilla/5.0',
               created_at: '2024-01-01T12:00:00Z',
@@ -53,23 +51,21 @@ describe('Admin Audit Logs API - Contract Tests', () => {
     it('should return logs with all fields', () => {
       const mockLog = {
         id: 'log-1',
-        actor_type: 'super_admin' as const,
-        actor_id: 'admin-1',
-        bakery_id: 'bakery-123',
+        admin_id: 'admin-1',
         action: 'POST /v1/admin/bakeries',
-        target_type: 'bakery',
-        target_id: 'bakery-123',
-        payload: { status: 'approved' },
+        bakery_id: 'bakery-123',
+        resource_type: 'bakery',
+        resource_id: 'bakery-123',
+        changes: { status: 'approved' },
         ip_address: '192.168.1.1',
         user_agent: 'Mozilla/5.0',
         created_at: '2024-01-01T12:00:00Z',
       }
 
       expect(mockLog).toHaveProperty('id')
-      expect(mockLog).toHaveProperty('actor_type')
-      expect(mockLog).toHaveProperty('actor_id')
-      expect(mockLog).toHaveProperty('bakery_id')
+      expect(mockLog).toHaveProperty('admin_id')
       expect(mockLog).toHaveProperty('action')
+      expect(mockLog).toHaveProperty('bakery_id')
       expect(mockLog).toHaveProperty('created_at')
     })
 
@@ -86,6 +82,7 @@ describe('Admin Audit Logs API - Contract Tests', () => {
         },
       }
 
+      expect(Array.isArray(mockResponse.data.logs)).toBe(true)
       expect(mockResponse.data.logs).toHaveLength(0)
       expect(mockResponse.data.pagination.totalCount).toBe(0)
     })
@@ -94,13 +91,17 @@ describe('Admin Audit Logs API - Contract Tests', () => {
   describe('Query Parameters Validation', () => {
     it('should accept valid adminId (UUID format)', () => {
       const validUUID = '550e8400-e29b-41d4-a716-446655440000'
-      const isValid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(validUUID)
+      const isValid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        validUUID,
+      )
       expect(isValid).toBe(true)
     })
 
     it('should reject invalid adminId format', () => {
       const invalidUUID = 'not-a-uuid'
-      const isValid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(invalidUUID)
+      const isValid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        invalidUUID,
+      )
       expect(isValid).toBe(false)
     })
 
@@ -111,7 +112,9 @@ describe('Admin Audit Logs API - Contract Tests', () => {
 
     it('should accept bakeryId parameter', () => {
       const validUUID = '550e8400-e29b-41d4-a716-446655440000'
-      const isValid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(validUUID)
+      const isValid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        validUUID,
+      )
       expect(isValid).toBe(true)
     })
 
@@ -240,19 +243,19 @@ describe('Admin Audit Logs API - Contract Tests', () => {
       const mockLogs = [
         {
           id: 'log-3',
-          actor_type: 'super_admin' as const,
+          admin_id: 'admin-1',
           action: 'ACTION_3',
           created_at: '2024-01-01T14:00:00Z',
         },
         {
           id: 'log-2',
-          actor_type: 'super_admin' as const,
+          admin_id: 'admin-1',
           action: 'ACTION_2',
           created_at: '2024-01-01T13:00:00Z',
         },
         {
           id: 'log-1',
-          actor_type: 'super_admin' as const,
+          admin_id: 'admin-1',
           action: 'ACTION_1',
           created_at: '2024-01-01T12:00:00Z',
         },
@@ -285,9 +288,7 @@ describe('Admin Audit Logs API - Contract Tests', () => {
       const requestedPageSize = 150
       const maxPageSize = 100
 
-      if (requestedPageSize > maxPageSize) {
-        expect(requestedPageSize).toBeGreaterThan(maxPageSize)
-      }
+      expect(requestedPageSize).toBeGreaterThan(maxPageSize)
     })
 
     it('should return 400 for page < 1', () => {
@@ -345,23 +346,23 @@ describe('Admin Audit Logs API - Contract Tests', () => {
       expect(pagination).toHaveProperty('totalPages')
     })
 
-    it('should preserve log payload as JSON object', () => {
+    it('should preserve log changes as JSON object', () => {
       const mockLog = {
         id: 'log-1',
-        actor_type: 'super_admin' as const,
+        admin_id: 'admin-1',
         action: 'UPDATE_ACTION',
-        payload: {
+        changes: {
           status: 'approved',
           reason: 'meets requirements',
         },
         created_at: '2024-01-01T00:00:00Z',
       }
 
-      expect(mockLog.payload).toEqual({
+      expect(mockLog.changes).toEqual({
         status: 'approved',
         reason: 'meets requirements',
       })
-      expect(typeof mockLog.payload).toBe('object')
+      expect(typeof mockLog.changes).toBe('object')
     })
   })
 })

@@ -71,6 +71,7 @@ export default [
   {
     files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/*.config.ts'],
     languageOptions: {
+      parserOptions: { projectService: true },
       globals: { ...globals.browser, ...globals.node },
     },
   },

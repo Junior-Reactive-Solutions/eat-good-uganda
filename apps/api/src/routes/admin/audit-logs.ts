@@ -37,7 +37,8 @@ auditLogsRouter.get(
         })
       }
 
-      const { adminId, action, bakeryId, resourceType, startDate, endDate, page, pageSize } = validation.data
+      const { adminId, action, bakeryId, resourceType, startDate, endDate, page, pageSize } =
+        validation.data
 
       // Convert page and pageSize to offset and limit
       const offset = (page - 1) * pageSize
@@ -49,10 +50,10 @@ auditLogsRouter.get(
         offset,
       }
 
-      if (adminId) filters.actorId = adminId
+      if (adminId) filters.adminId = adminId
       if (action) filters.action = action
       if (bakeryId) filters.bakeryId = bakeryId
-      if (resourceType) filters.targetType = resourceType
+      if (resourceType) filters.resourceType = resourceType
       if (startDate) filters.startDate = startDate
       if (endDate) filters.endDate = endDate
 
@@ -60,8 +61,9 @@ auditLogsRouter.get(
 
       const totalPages = Math.ceil(total / pageSize)
 
-      logger.info(`Admin listed ${String(logs.length)} audit logs (page ${String(page)}, total ${String(total)})`)
-
+      logger.info(
+        `Admin listed ${String(logs.length)} audit logs (page ${String(page)}, total ${String(total)})`,
+      )
 
       return res.status(200).json({
         data: {
@@ -75,7 +77,9 @@ auditLogsRouter.get(
         },
       })
     } catch (error) {
-      logger.error(`Error listing audit logs: ${error instanceof Error ? error.message : 'unknown error'}`)
+      logger.error(
+        `Error listing audit logs: ${error instanceof Error ? error.message : 'unknown error'}`,
+      )
       return res.status(500).json({ error: 'Internal server error' })
     }
   },
