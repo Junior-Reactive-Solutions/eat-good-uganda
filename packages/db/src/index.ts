@@ -15,6 +15,7 @@ export * from './queries/bakery-users'
 export * from './queries/tokens'
 export * from './queries/admin-users'
 export * from './queries/bakery-metrics'
+export * from './queries/staff'
 export {
   getAdminPlatformMetrics,
   getAdminBakeryAnalytics,

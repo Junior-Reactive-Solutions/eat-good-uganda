@@ -286,6 +286,9 @@ importers:
 
   apps/super-admin:
     dependencies:
+      '@eatgood/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@eatgood/shared':
         specifier: workspace:^
         version: link:../../packages/shared
