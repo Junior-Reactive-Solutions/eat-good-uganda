@@ -6,10 +6,11 @@ import helmet from 'helmet'
 import { env } from './env'
 import { csrf } from './middleware/csrf'
 import { generalRateLimit } from './middleware/rateLimit'
+import { adminAnalyticsRouter } from './routes/admin/analytics'
+import auditLogsRouter from './routes/admin/audit-logs'
 import { adminAuthRouter } from './routes/admin/auth'
 import { adminBakeriesRouter } from './routes/admin/bakeries'
 import { adminDashboardRouter } from './routes/admin/dashboard'
-import { adminAnalyticsRouter } from './routes/admin/analytics'
 import staffRouter from './routes/admin/staff'
 import { bakeryAuthRouter } from './routes/bakery/auth'
 import { bakeryCategoriesRouter } from './routes/bakery/categories'
@@ -60,3 +61,4 @@ app.use('/v1/admin/dashboard', adminDashboardRouter)
 app.use('/v1/admin/analytics', adminAnalyticsRouter)
 app.use('/v1/admin/bakeries', adminBakeriesRouter)
 app.use('/v1/admin', staffRouter)
+app.use('/v1/admin', auditLogsRouter)
