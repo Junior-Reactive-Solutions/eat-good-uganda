@@ -26,3 +26,4 @@ export {
   type TimeSeriesPoint,
   type TopBakery,
 } from './queries/analytics'
+export { createAuditLog, getAuditLogs, type AuditLog } from './queries/audit-logs'
