@@ -10,6 +10,7 @@ import { adminAuthRouter } from './routes/admin/auth'
 import { adminBakeriesRouter } from './routes/admin/bakeries'
 import { adminDashboardRouter } from './routes/admin/dashboard'
 import { adminAnalyticsRouter } from './routes/admin/analytics'
+import staffRouter from './routes/admin/staff'
 import { bakeryAuthRouter } from './routes/bakery/auth'
 import { bakeryCategoriesRouter } from './routes/bakery/categories'
 import { bakeryMetricsRouter } from './routes/bakery/metrics'
@@ -58,3 +59,4 @@ app.use('/v1/admin/auth', adminAuthRouter)
 app.use('/v1/admin/dashboard', adminDashboardRouter)
 app.use('/v1/admin/analytics', adminAnalyticsRouter)
 app.use('/v1/admin/bakeries', adminBakeriesRouter)
+app.use('/v1/admin', staffRouter)

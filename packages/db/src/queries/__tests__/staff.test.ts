@@ -133,6 +133,7 @@ describe('Staff Queries - Contract Tests', () => {
         email: 'newstaff@test.com',
         fullName: 'New Staff',
         role: 'staff' as const,
+        phone: undefined,
       }
 
       expect(input).toHaveProperty('email')
