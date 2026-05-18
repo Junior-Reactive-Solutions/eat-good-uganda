@@ -27,3 +27,10 @@ export {
   type TopBakery,
 } from './queries/analytics'
 export { createAuditLog, getAuditLogs, type AuditLog } from './queries/audit-logs'
+export {
+  banCustomer,
+  unbanCustomer,
+  getCustomerDetails,
+  listCustomers,
+  type CustomerDetail,
+} from './queries/users'
