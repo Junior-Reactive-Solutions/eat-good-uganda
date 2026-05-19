@@ -189,6 +189,10 @@ docker-data/
 *.tfvars
 !*.tfvars.example
 
+# ---------- Git worktrees ----------
+.worktrees/
+worktrees/
+
 # ---------- AI tool caches / scratch ----------
 .aider*
 .cursor/scratch/
