@@ -34,3 +34,4 @@ export {
   listCustomers,
   type CustomerDetail,
 } from './queries/users'
+export * from './queries/support'
