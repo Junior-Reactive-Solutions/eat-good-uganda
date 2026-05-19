@@ -9,6 +9,11 @@ const LoginPage = lazy(() => import('./pages/LoginPage'))
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'))
 const BakeriesPage = lazy(() => import('./pages/BakeriesPage'))
 const BakeryDetailPage = lazy(() => import('./pages/BakeryDetailPage'))
+const AuditLogsPage = lazy(() => import('./pages/AuditLogsPage'))
+const BakeryStaffPage = lazy(() => import('./pages/BakeryStaffPage'))
+const UserManagementPage = lazy(() => import('./pages/UserManagementPage'))
+const SupportPage = lazy(() => import('./pages/SupportPage'))
+const DataExportPage = lazy(() => import('./pages/DataExportPage'))
 
 function Lazy({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
@@ -56,6 +61,46 @@ export const router = createBrowserRouter([
         element: (
           <Lazy>
             <BakeryDetailPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'audit-logs',
+        element: (
+          <Lazy>
+            <AuditLogsPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'staff',
+        element: (
+          <Lazy>
+            <BakeryStaffPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'users',
+        element: (
+          <Lazy>
+            <UserManagementPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'support',
+        element: (
+          <Lazy>
+            <SupportPage />
+          </Lazy>
+        ),
+      },
+      {
+        path: 'exports',
+        element: (
+          <Lazy>
+            <DataExportPage />
           </Lazy>
         ),
       },
