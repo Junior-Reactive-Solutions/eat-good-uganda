@@ -11,6 +11,7 @@ import auditLogsRouter from './routes/admin/audit-logs'
 import { adminAuthRouter } from './routes/admin/auth'
 import { adminBakeriesRouter } from './routes/admin/bakeries'
 import { adminDashboardRouter } from './routes/admin/dashboard'
+import { exportsRouter } from './routes/admin/exports'
 import staffRouter from './routes/admin/staff'
 import { supportRouter } from './routes/admin/support'
 import usersRouter from './routes/admin/users'
@@ -66,3 +67,4 @@ app.use('/v1/admin', staffRouter)
 app.use('/v1/admin', auditLogsRouter)
 app.use('/v1/admin', supportRouter)
 app.use('/v1/admin/users', usersRouter)
+app.use('/v1/admin/exports', exportsRouter)
