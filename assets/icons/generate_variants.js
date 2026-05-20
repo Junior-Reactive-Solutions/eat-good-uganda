@@ -113,11 +113,12 @@ function generateVariants() {
   const deliveryDir = path.join(iconDir, 'delivery')
   const productDir = path.join(iconDir, 'product')
   const navigationDir = path.join(iconDir, 'navigation')
+  const adminDir = path.join(iconDir, 'admin')
 
   const baseIcons = []
 
   // Find base icons (24px versions without size/state suffixes)
-  for (const dir of [paymentDir, deliveryDir, productDir, navigationDir]) {
+  for (const dir of [paymentDir, deliveryDir, productDir, navigationDir, adminDir]) {
     if (!fs.existsSync(dir)) {
       console.warn(`Warning: Directory ${dir} does not exist`)
       continue
