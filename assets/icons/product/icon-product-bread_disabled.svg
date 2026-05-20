@@ -1,0 +1,16 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+  <!-- Loaf shape (curved rectangle with personality) -->
+  <path d="M 6.5 16 Q 6.5 10 12 7 Q 17.5 10 17.5 16" stroke="#CCCCCC" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Base of loaf -->
+  <line x1="6.5" y1="16" x2="17.5" y2="16" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Score lines (diagonal cuts on bread - warm accent) -->
+  <path d="M 8 13 L 9.5 10" stroke="#CCCCCC" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 12 10 L 13.5 13" stroke="#CCCCCC" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 15 13 L 16.5 10" stroke="#CCCCCC" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Crust texture (subtle curved lines) -->
+  <path d="M 7.5 12 Q 8.5 11 9.5 12" stroke="#CCCCCC" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 14.5 12 Q 15.5 11 16.5 12" stroke="#CCCCCC" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+</svg>

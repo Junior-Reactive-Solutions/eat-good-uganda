@@ -125,6 +125,7 @@ def generate_variants():
     icon_dir = Path(__file__).parent
     payment_dir = icon_dir / "payment"
     delivery_dir = icon_dir / "delivery"
+    product_dir = icon_dir / "product"
 
     base_icons = []
     for icon_file in payment_dir.glob("icon-payment-*.svg"):
@@ -132,6 +133,10 @@ def generate_variants():
             base_icons.append(icon_file)
 
     for icon_file in delivery_dir.glob("icon-delivery-*.svg"):
+        if not any(suffix in icon_file.name for suffix in ["_32", "_48", "_hover", "_active", "_disabled"]):
+            base_icons.append(icon_file)
+
+    for icon_file in product_dir.glob("icon-product-*.svg"):
         if not any(suffix in icon_file.name for suffix in ["_32", "_48", "_hover", "_active", "_disabled"]):
             base_icons.append(icon_file)
 
