@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+  <!-- Y-axis line -->
+  <line x1="4" y1="20" x2="4" y2="3" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- X-axis line -->
+  <line x1="4" y1="20" x2="21" y2="20" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Trending line (upward with curve) -->
+  <path d="M 5 15 L 8 12 L 11 13 L 14 8 L 17 9 L 20 4" stroke="#CCCCCC" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Data point markers (circles at inflection points) -->
+  <circle cx="5" cy="15" r="1" fill="#333333"/>
+  <circle cx="8" cy="12" r="1" fill="#333333"/>
+  <circle cx="11" cy="13" r="1" fill="#333333"/>
+  <circle cx="14" cy="8" r="1" fill="#333333"/>
+  <circle cx="17" cy="9" r="1" fill="#333333"/>
+  <circle cx="20" cy="4" r="1" fill="#333333"/>
+
+  <!-- Subtle upward arrow accent on last point -->
+  <path d="M 20 4 L 19.5 2" stroke="#CCCCCC" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+</svg>
