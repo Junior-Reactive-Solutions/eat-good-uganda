@@ -1,0 +1,10 @@
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Search circle (distinctive design) -->
+  <circle cx="10" cy="10" r="6" stroke="#333333" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Handle with accent -->
+  <line x1="15.5" y1="15.5" x2="20" y2="20" stroke="#333333" stroke-width="2.67" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Decorative inner accent dot -->
+  <circle cx="10" cy="10" r="1.5" fill="#FF6B35" stroke="none"/>
+</svg>

@@ -135,6 +135,15 @@ assets/icons/
 │   ├── icon-delivery-time.svg (+ variants)    [NEW]
 │   ├── icon-delivery-location.svg (+ variants) [NEW]
 │   └── icon-delivery-status.svg (+ variants)   [NEW]
+├── navigation/           # Primary navigation icons (8 base × 12 variants = 96 files) [NEW]
+│   ├── icon-navigation-home.svg (+ variants)
+│   ├── icon-navigation-search.svg (+ variants)
+│   ├── icon-navigation-cart.svg (+ variants)
+│   ├── icon-navigation-orders.svg (+ variants)
+│   ├── icon-navigation-profile.svg (+ variants)
+│   ├── icon-navigation-favorites.svg (+ variants)
+│   ├── icon-navigation-menu.svg (+ variants)
+│   └── icon-navigation-settings.svg (+ variants)
 ├── product/              # Product category icons
 │   └── icon-product-bread.svg (+ variants)
 ├── generate_variants.js  # Variant generator script
@@ -241,6 +250,72 @@ Example: `icon-payment-shield_32_active.svg`
 - **Variants:** 24px, 32px, 48px
 - **States:** default, hover, active, disabled
 - **Status:** NEW - Phase 2
+
+### Navigation & Actions (8 icons)
+
+#### 1. Home (`icon-navigation-home.svg`)
+
+- **Purpose:** Primary home/dashboard navigation
+- **Design:** House silhouette with cozy, warm feel (door + window accent)
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 3
+
+#### 2. Search (`icon-navigation-search.svg`)
+
+- **Purpose:** Search functionality trigger
+- **Design:** Distinctive magnifying glass with center accent dot
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 3
+
+#### 3. Cart (`icon-navigation-cart.svg`)
+
+- **Purpose:** Shopping cart for orders
+- **Design:** Basket or wheeled cart with local feel (accent wheels and handle)
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 3
+
+#### 4. Orders (`icon-navigation-orders.svg`)
+
+- **Purpose:** Order history and tracking
+- **Design:** Stacked delivery boxes with receipt lines (accent detail)
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 3
+
+#### 5. Profile (`icon-navigation-profile.svg`)
+
+- **Purpose:** User account and profile access
+- **Design:** Person icon (warm, friendly silhouette with accent highlight)
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 3
+
+#### 6. Favorites (`icon-navigation-favorites.svg`)
+
+- **Purpose:** Saved/favorite items
+- **Design:** Heart with warm color accent (love, preference signal)
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 3
+
+#### 7. Menu (`icon-navigation-menu.svg`)
+
+- **Purpose:** Main navigation menu toggle
+- **Design:** Hamburger (three horizontal lines with accent on middle line)
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 3
+
+#### 8. Settings (`icon-navigation-settings.svg`)
+
+- **Purpose:** Application settings and configuration
+- **Design:** Friendly rounded gear (not overly technical)
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 3
 
 ### Product Categories
 
@@ -553,6 +628,7 @@ This creates:
 
 | Version | Date       | Changes                                                               |
 | ------- | ---------- | --------------------------------------------------------------------- |
+| 1.3     | 2026-05-20 | Added 8 navigation icons: 96 files (8 base × 12 variants each)        |
 | 1.2     | 2026-05-20 | Complete variant generation: 11 icons × 12 variants = 132 total files |
 | 1.1     | 2026-05-20 | Added 5 new icons (shield, generic payment, time, location, status)   |
 | 1.0     | 2026-05-20 | Initial release with 6 base icons and style guide                     |
