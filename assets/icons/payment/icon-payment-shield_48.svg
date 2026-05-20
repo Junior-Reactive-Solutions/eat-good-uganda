@@ -1,0 +1,10 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer shield frame (rounded, organic) -->
+  <path d="M 24.00 6.00 L 38.00 12.00 L 38.00 25.00 C 38.00 34.00 24.00 42.00 24.00 42.00 C 24.00 42.00 10.00 34.00 10.00 25.00 L 10.00 12.00 Z" stroke="#333333" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round" rx="4.00"/>
+
+  <!-- Inner shield background (subtle) -->
+  <path d="M 24.00 11.00 L 35.00 15.00 L 35.00 25.00 C 35.00 32.00 24.00 39.00 24.00 39.00 C 24.00 39.00 13.00 32.00 13.00 25.00 L 13.00 15.00 Z" stroke="#333333" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+
+  <!-- Checkmark inside (warm accent) -->
+  <path d="M 20.00 26.00 L 23.00 29.00 L 29.00 20.00" stroke="#FF6B35" stroke-width="5.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

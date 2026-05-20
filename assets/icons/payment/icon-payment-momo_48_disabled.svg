@@ -1,0 +1,16 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+  <!-- Outer circle frame -->
+  <circle cx="48.00" cy="48.00" r="22.00" stroke="#CCCCCC" stroke-width="4.00" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Phone body -->
+  <rect x="18.00" y="14.00" width="6" height="10" rx="2.00" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Phone screen area (subtle indicator) -->
+  <rect x="19.00" y="15.00" width="5" height="8" rx="1.00" stroke="#CCCCCC" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+
+  <!-- Money symbol (₦) - warm accent -->
+  <text x="24.00" y="29.00" font-family="Arial, sans-serif" font-size="12.00" font-weight="bold" text-anchor="middle" fill="#CCCCCC" stroke="none">₦</text>
+
+  <!-- Small accent dot on phone frame -->
+  <circle cx="48.00" cy="31.20" r="1.60" fill="#CCCCCC" stroke="none"/>
+</svg>

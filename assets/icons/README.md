@@ -122,78 +122,134 @@ const PaymentIcon = ({ type, size = 24 }) => {
 
 ```
 assets/icons/
-├── payment/              # Payment method icons
-│   ├── icon-payment-momo.svg
-│   ├── icon-payment-airtel.svg
-│   ├── icon-payment-bank.svg
-│   └── icon-payment-cod.svg
-├── delivery/             # Fulfillment/delivery icons
-│   ├── icon-delivery-boda.svg
-│   └── icon-delivery-pickup.svg
+├── payment/              # Payment method icons (6 base × 12 variants = 72 files)
+│   ├── icon-payment-momo.svg (+ _hover, _active, _disabled, _32, _32_hover, ...)
+│   ├── icon-payment-airtel.svg (+ variants)
+│   ├── icon-payment-bank.svg (+ variants)
+│   ├── icon-payment-cod.svg (+ variants)
+│   ├── icon-payment-shield.svg (+ variants)  [NEW]
+│   └── icon-payment-generic.svg (+ variants) [NEW]
+├── delivery/             # Fulfillment/delivery icons (5 base × 12 variants = 60 files)
+│   ├── icon-delivery-boda.svg (+ variants)
+│   ├── icon-delivery-pickup.svg (+ variants)
+│   ├── icon-delivery-time.svg (+ variants)    [NEW]
+│   ├── icon-delivery-location.svg (+ variants) [NEW]
+│   └── icon-delivery-status.svg (+ variants)   [NEW]
 ├── product/              # Product category icons
-│   └── icon-product-bread.svg
+│   └── icon-product-bread.svg (+ variants)
+├── generate_variants.js  # Variant generator script
 └── README.md            # This file
 ```
+
+### File Naming Convention
+
+- **Base:** `icon-[category]-[name].svg` (24px)
+- **Sized:** `icon-[category]-[name]_[size].svg` (32px, 48px)
+- **Hover:** `icon-[category]-[name]_hover.svg`
+- **Active:** `icon-[category]-[name]_active.svg`
+- **Disabled:** `icon-[category]-[name]_disabled.svg`
+- **Sized + State:** `icon-[category]-[name]_[size]_[state].svg`
+
+Example: `icon-payment-shield_32_active.svg`
 
 ---
 
 ## Icon Reference
 
-### Payment Methods
+### Payment Methods (6 icons)
 
-#### MTN Mobile Money (`icon-payment-momo.svg`)
+#### 1. MTN Mobile Money (`icon-payment-momo.svg`)
 
 - **Purpose:** Most-used mobile money payment method in Uganda
-- **Design:** Phone with money symbol, warm accent on symbol
-- **Size:** 24px × 24px (2px stroke)
-- **Category:** Payment
+- **Design:** Phone with money symbol (₦), warm accent on symbol
+- **Variants:** 24px, 32px, 48px (base)
+- **States:** default, hover, active, disabled
 
-#### Airtel Money (`icon-payment-airtel.svg`)
+#### 2. Airtel Money (`icon-payment-airtel.svg`)
 
 - **Purpose:** Alternative mobile money (Airtel network)
 - **Design:** Signal waves with warm accent highlight
-- **Size:** 24px × 24px (2px stroke)
-- **Category:** Payment
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
 
-#### Bank Transfer (`icon-payment-bank.svg`)
+#### 3. Bank Transfer (`icon-payment-bank.svg`)
 
 - **Purpose:** Traditional bank payment method
 - **Design:** Bank building with columns, warm accent on structure
-- **Size:** 24px × 24px (2px stroke)
-- **Category:** Payment
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
 
-#### Cash on Delivery (`icon-payment-cod.svg`)
+#### 4. Cash on Delivery (`icon-payment-cod.svg`)
 
 - **Purpose:** Payment upon delivery
 - **Design:** Money stack with receiving hand, warm accent on currency
-- **Size:** 24px × 24px (2px stroke)
-- **Category:** Payment
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
 
-### Delivery Methods
+#### 5. Payment Shield (`icon-payment-shield.svg`)
 
-#### Boda-Boda Delivery (`icon-delivery-boda.svg`)
+- **Purpose:** Secure payment indicator
+- **Design:** Rounded shield with checkmark (warm accent)
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 2
+
+#### 6. Generic Payment (`icon-payment-generic.svg`)
+
+- **Purpose:** Fallback payment method for unspecified types
+- **Design:** Phone with tap waves (warm accent)
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 2
+
+### Delivery Methods (5 icons)
+
+#### 1. Boda-Boda Delivery (`icon-delivery-boda.svg`)
 
 - **Purpose:** Fast motorcycle delivery (culturally relevant to Uganda)
 - **Design:** Simplified motorcycle with wheels, seat, handlebars
-- **Size:** 24px × 24px (2px stroke)
-- **Category:** Delivery
-- **Accent:** Warm orange on main frame
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
 
-#### Store Pickup (`icon-delivery-pickup.svg`)
+#### 2. Store Pickup (`icon-delivery-pickup.svg`)
 
 - **Purpose:** Customer picks up at store location
 - **Design:** Store building with door and windows, warm accent on roof
-- **Size:** 24px × 24px (2px stroke)
-- **Category:** Delivery
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
 
-### Products
+#### 3. Delivery Time (`icon-delivery-time.svg`)
+
+- **Purpose:** Estimated delivery time indicator
+- **Design:** Hourglass with warm sand accumulation
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 2
+
+#### 4. Delivery Location (`icon-delivery-location.svg`)
+
+- **Purpose:** Map pin / destination indicator
+- **Design:** Warm map pin with radiating lines
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 2
+
+#### 5. Delivery Status (`icon-delivery-status.svg`)
+
+- **Purpose:** Track delivery progress and route
+- **Design:** Route map with checkpoints and direction arrow
+- **Variants:** 24px, 32px, 48px
+- **States:** default, hover, active, disabled
+- **Status:** NEW - Phase 2
+
+### Product Categories
 
 #### Bread (`icon-product-bread.svg`)
 
 - **Purpose:** Bakery product category indicator
 - **Design:** Loaf with diagonal score lines, warm accents
-- **Size:** 24px × 24px (2px stroke)
-- **Category:** Product
+- **Variants:** 24px, 32px, 48px (base)
+- **States:** default, hover, active, disabled
 
 ---
 
@@ -468,8 +524,35 @@ Remember: **Warm, approachable, culturally grounded, and grid-perfect.**
 
 ---
 
+## Variant Generation
+
+### Automatic Variant Creation
+
+All size and state variants are automatically generated using `generate_variants.js`:
+
+```bash
+cd assets/icons
+node generate_variants.js
+```
+
+This creates:
+
+- **Size variants:** 32px and 48px from 24px base
+- **State variants:** hover, active, disabled from default
+- **Total per icon:** 12 variants (3 sizes × 4 states)
+
+### Scaling Rules
+
+| Size | Stroke | Scale Factor | Use Case                    |
+| ---- | ------ | ------------ | --------------------------- |
+| 24px | 2px    | 1.0x         | Controls, small UI elements |
+| 32px | 2.67px | 1.33x        | Standard UI, navigation     |
+| 48px | 4px    | 2.0x         | Hero sections, large areas  |
+
 ## Version History
 
-| Version | Date       | Changes                                           |
-| ------- | ---------- | ------------------------------------------------- |
-| 1.0     | 2026-05-20 | Initial release with 7 hero icons and style guide |
+| Version | Date       | Changes                                                               |
+| ------- | ---------- | --------------------------------------------------------------------- |
+| 1.2     | 2026-05-20 | Complete variant generation: 11 icons × 12 variants = 132 total files |
+| 1.1     | 2026-05-20 | Added 5 new icons (shield, generic payment, time, location, status)   |
+| 1.0     | 2026-05-20 | Initial release with 6 base icons and style guide                     |

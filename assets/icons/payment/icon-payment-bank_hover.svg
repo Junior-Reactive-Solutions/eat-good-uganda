@@ -1,0 +1,19 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Building outline - simplified bank structure -->
+  <path d="M 5 18 L 5 10 L 12 6 L 19 10 L 19 18" stroke="#FF6B35" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Base/foundation line -->
+  <line x1="5" y1="18" x2="19" y2="18" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Left column with warm accent -->
+  <rect x="6.5" y="11" width="2" height="7" rx="0.5" stroke="#FF6B35" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Center column -->
+  <rect x="11" y="10" width="2" height="8" rx="0.5" stroke="#FF6B35" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Right column -->
+  <rect x="15.5" y="11" width="2" height="7" rx="0.5" stroke="#FF6B35" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Roof accent (curved ridge) -->
+  <path d="M 8 9.5 Q 12 7.5 16 9.5" stroke="#FF6B35" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

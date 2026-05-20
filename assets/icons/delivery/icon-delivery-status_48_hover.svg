@@ -1,0 +1,23 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Map grid outline (subtle background) -->
+  <rect x="8.00" y="8.00" width="16" height="16" rx="4.00" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+
+  <!-- Route path (curved line connecting checkpoints) -->
+  <path d="M 14.00 16.00 Q 20.00 14.00 26.00 18.00 Q 32.00 22.00 32.00 30.00" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Checkpoint 1 (start - warm filled) -->
+  <circle cx="28.00" cy="32.00" r="3.60" fill="#FF6B35" stroke="none"/>
+
+  <!-- Checkpoint 2 (mid - outline) -->
+  <circle cx="52.00" cy="36.00" r="3.00" stroke="#FF6B35" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Checkpoint 3 (end - warm outline) -->
+  <circle cx="64.00" cy="60.00" r="3.60" stroke="#FF6B35" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Small accent dots on route -->
+  <circle cx="40.00" cy="30.00" r="1.00" fill="#FF6B35" stroke="none" opacity="0.6"/>
+  <circle cx="60.00" cy="50.00" r="1.00" fill="#FF6B35" stroke="none" opacity="0.6"/>
+
+  <!-- Status direction indicator (small arrow at end) -->
+  <path d="M 32.00 30.00 L 36.00 34.00 M 32.00 30.00 L 35.00 28.00" stroke="#FF6B35" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+</svg>

@@ -1,0 +1,23 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+  <!-- Left wheel (circle) -->
+  <circle cx="32.00" cy="64.00" r="7.00" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Right wheel (circle) -->
+  <circle cx="72.00" cy="64.00" r="7.00" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Axle connecting wheels -->
+  <line x1="16.00" y1="32.00" x2="36.00" y2="32.00" stroke="#CCCCCC" stroke-width="3.00" stroke-linecap="round"/>
+
+  <!-- Motorcycle frame (main body) -->
+  <path d="M 16.00 32.00 L 20.00 20.00 L 30.00 20.00 L 36.00 32.00" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Seat (curved, friendly shape) -->
+  <path d="M 21.00 21.00 Q 25.00 19.00 29.00 21.00" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Handlebars (curved upward) -->
+  <path d="M 19.00 19.00 Q 18.00 15.00 22.00 14.00" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 29.00 14.00 Q 32.00 15.00 31.00 19.00" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Handlebar grip connectors -->
+  <line x1="19.00" y1="19.00" x2="31.00" y2="19.00" stroke="#CCCCCC" stroke-width="3.00" stroke-linecap="round"/>
+</svg>

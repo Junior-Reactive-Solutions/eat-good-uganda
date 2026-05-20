@@ -1,0 +1,22 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+  <!-- Building outline (store) -->
+  <path d="M 6.67 24.00 L 8.00 13.33 L 24.00 13.33 L 25.33 24.00" stroke="#CCCCCC" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Door frame -->
+  <rect x="13.33" y="16.00" width="4" height="6" rx="1.33" stroke="#CCCCCC" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Door handle/knob with warm accent -->
+  <circle cx="24.00" cy="26.67" r="1.07" fill="#CCCCCC" stroke="none"/>
+
+  <!-- Roof (peaked, friendly angle) -->
+  <path d="M 8.00 13.33 L 16.00 8.00 L 24.00 13.33" stroke="#CCCCCC" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Base line -->
+  <line x1="6.67" y1="24.00" x2="25.33" y2="24.00" stroke="#CCCCCC" stroke-width="2.67" stroke-linecap="round"/>
+
+  <!-- Window left -->
+  <rect x="10.00" y="15.33" width="2.5" height="2.5" rx="0.67" stroke="#CCCCCC" stroke-width="1.33" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Window right -->
+  <rect x="18.67" y="15.33" width="2.5" height="2.5" rx="0.67" stroke="#CCCCCC" stroke-width="1.33" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

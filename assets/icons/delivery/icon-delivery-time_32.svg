@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer hourglass body (rounded top and bottom) -->
+  <path d="M 9.33 4.00 L 22.67 4.00 Q 24.00 4.00 24.00 5.33 L 24.00 9.33 L 8.00 9.33 L 8.00 5.33 Q 8.00 4.00 9.33 4.00 Z" stroke="#333333" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Bottom hourglass body (rounded) -->
+  <path d="M 8.00 22.67 L 8.00 26.67 Q 8.00 28.00 9.33 28.00 L 22.67 28.00 Q 24.00 28.00 24.00 26.67 L 24.00 22.67 L 8.00 22.67 Z" stroke="#333333" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Middle neck (thin line) -->
+  <line x1="16.00" y1="9.33" x2="16.00" y2="22.67" stroke="#333333" stroke-width="2.00" stroke-linecap="round"/>
+
+  <!-- Top hourglass sand (warm accent) -->
+  <path d="M 10.67 5.33 L 21.33 5.33 L 18.67 9.33 L 13.33 9.33 Z" fill="#FF6B35" stroke="none" opacity="0.8"/>
+
+  <!-- Sand falling indicator (small arc) -->
+  <path d="M 15.33 12.00 Q 16.00 13.33 16.67 14.67" stroke="#FF6B35" stroke-width="2.00" fill="none" stroke-linecap="round"/>
+  <path d="M 14.67 13.33 Q 15.33 14.67 16.00 16.00" stroke="#FF6B35" stroke-width="2.00" fill="none" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- Bottom sand accumulation (warm) -->
+  <path d="M 13.33 22.67 L 18.67 22.67 L 21.33 26.67 L 10.67 26.67 Z" fill="#FF6B35" stroke="none" opacity="0.6"/>
+</svg>

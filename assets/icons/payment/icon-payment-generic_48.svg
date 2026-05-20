@@ -1,0 +1,16 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Phone body (rounded rectangle) -->
+  <rect x="17.00" y="10.00" width="7" height="14" rx="3.00" stroke="#333333" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Phone screen area (subtle inner frame) -->
+  <rect x="18.00" y="11.00" width="6" height="12" rx="2.00" stroke="#333333" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+
+  <!-- Tap waves (organic, 3 curved lines) -->
+  <path d="M 14.00 24.00 Q 14.00 18.00 20.00 18.00" stroke="#FF6B35" stroke-width="3.60" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 11.00 24.00 Q 11.00 16.00 20.00 16.00" stroke="#FF6B35" stroke-width="3.60" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+  <path d="M 34.00 24.00 Q 34.00 18.00 28.00 18.00" stroke="#FF6B35" stroke-width="3.60" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 37.00 24.00 Q 37.00 16.00 28.00 16.00" stroke="#FF6B35" stroke-width="3.60" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+
+  <!-- Small dot indicator on phone (top right) -->
+  <circle cx="56.00" cy="26.00" r="1.20" fill="#FF6B35" stroke="none"/>
+</svg>
