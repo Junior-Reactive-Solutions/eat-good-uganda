@@ -1,0 +1,205 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║              EAT GOOD UGANDA ICON SYSTEM - QUICK REFERENCE                  ║
+║                          Task 1 Complete - v1.0                             ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+ICON SPECIFICATIONS
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Base Grid:        24px × 24px                                              │
+│ Stroke Weight:    2px (at 24px size)                                       │
+│ Corner Radius:    3–4px minimum                                            │
+│ Internal Padding: 2–3px from edges                                         │
+│ Format:           SVG (scalable, no rasterization)                         │
+│ LineCap/LineJoin: Round (stroke-linecap="round" stroke-linejoin="round")   │
+│ Fill:             None (outline-only, fill="none")                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+COLOR PALETTE
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Outline:      #333333 (dark gray)     — Primary icon strokes              │
+│ Accent:       #FF6B35 (warm orange)   — Highlight 1–2 key elements        │
+│ Disabled:     #CCCCCC (light gray)    — Inactive/unavailable states       │
+│ Focus:        #2196F3 (focus blue)    — Keyboard navigation               │
+│ Status Green: #4CAF50                 — Success/completed                 │
+│ Status Yellow:#FFC107                 — Pending/caution                   │
+│ Status Red:   #F44336                 — Error/critical                    │
+│ Status Blue:  #2196F3                 — Information/processing            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+SCALING GUIDE
+┌──────────┬────────────┬──────────────────────────────────────────────────────┐
+│ Size     │ Stroke     │ Use Cases                                            │
+├──────────┼────────────┼──────────────────────────────────────────────────────┤
+│ 24px     │ 2px        │ UI controls, small buttons, list items               │
+│ 32px     │ 2.67px     │ Standard icon display, navigation items              │
+│ 48px     │ 4px        │ Hero sections, large buttons, featured content       │
+│ 64px     │ 5.33px     │ Marketing materials, high-prominence sections        │
+└──────────┴────────────┴──────────────────────────────────────────────────────┘
+
+ICON FILES (7 Hero Icons)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ PAYMENT METHODS (4)                                                         │
+│ ├─ icon-payment-momo.svg (935 bytes)      — MTN Mobile Money               │
+│ ├─ icon-payment-airtel.svg (949 bytes)    — Airtel Money                   │
+│ ├─ icon-payment-bank.svg (1.2 KB)         — Bank Transfer                  │
+│ └─ icon-payment-cod.svg (1.3 KB)          — Cash on Delivery               │
+│                                                                             │
+│ DELIVERY METHODS (2)                                                        │
+│ ├─ icon-delivery-boda.svg (1.4 KB)        — Boda-Boda Motorcycle           │
+│ └─ icon-delivery-pickup.svg (1.2 KB)      — Store Pickup                   │
+│                                                                             │
+│ PRODUCT CATEGORIES (1)                                                      │
+│ └─ icon-product-bread.svg (1.2 KB)        — Bread (Bakery)                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+NAMING CONVENTION
+Format: icon-[category]-[name].svg
+Examples:
+  ✓ icon-payment-momo.svg     ✓ icon-delivery-boda.svg    ✓ icon-product-bread.svg
+  ✗ icon-payment-MTN.svg      ✗ icon-delivery-motorcycle  ✗ icon-product-item.svg
+
+HTML USAGE
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ <!-- Simple image tag -->                                                   │
+│ <img src="/assets/icons/payment/icon-payment-momo.svg" alt="" class="icon" │
+│      class="icon-32"/>                                                      │
+│                                                                             │
+│ <!-- With text label -->                                                    │
+│ <div class="payment-method">                                                │
+│   <img src="/assets/icons/payment/icon-payment-momo.svg" alt=""             │
+│        class="icon icon-48"/>                                               │
+│   <span>MTN Mobile Money</span>                                             │
+│ </div>                                                                      │
+│                                                                             │
+│ <!-- Interactive button (ALWAYS include aria-label) -->                     │
+│ <button aria-label="Select Mobile Money" class="payment-btn">              │
+│   <img src="/assets/icons/payment/icon-payment-momo.svg" alt=""             │
+│        class="icon icon-32"/>                                               │
+│ </button>                                                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+REACT USAGE
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ import MomoIcon from '@/assets/icons/payment/icon-payment-momo.svg';       │
+│                                                                             │
+│ export function PaymentButton() {                                           │
+│   return (                                                                  │
+│     <button className="payment-btn" aria-label="Pay with MTN Mobile Money">│
+│       <img src={MomoIcon} alt="" className="icon icon-32"/>                │
+│       <span>Mobile Money</span>                                             │
+│     </button>                                                               │
+│   );                                                                        │
+│ }                                                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+ESSENTIAL CSS
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ /* Base icon sizing */                                                      │
+│ .icon {                                                                     │
+│   display: inline-block;                                                    │
+│   vertical-align: middle;                                                   │
+│   width: 24px;                                                              │
+│   height: 24px;                                                             │
+│ }                                                                           │
+│                                                                             │
+│ .icon-24 { width: 24px; height: 24px; }                                    │
+│ .icon-32 { width: 32px; height: 32px; }                                    │
+│ .icon-48 { width: 48px; height: 48px; }                                    │
+│ .icon-64 { width: 64px; height: 64px; }                                    │
+│                                                                             │
+│ /* Icon button (interactive) */                                             │
+│ .icon-button {                                                              │
+│   background: none;                                                         │
+│   border: none;                                                             │
+│   padding: 8px;                                                             │
+│   cursor: pointer;                                                          │
+│   border-radius: 4px;                                                       │
+│   transition: background-color 0.2s ease;                                   │
+│ }                                                                           │
+│                                                                             │
+│ .icon-button:hover {                                                        │
+│   background-color: rgba(255, 107, 53, 0.1);                               │
+│ }                                                                           │
+│                                                                             │
+│ .icon-button:focus {                                                        │
+│   outline: 2px solid #2196F3;                                               │
+│   outline-offset: 2px;                                                      │
+│ }                                                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+ACCESSIBILITY CHECKLIST
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ✓ Use aria-label on icon-only buttons                                      │
+│ ✓ Use aria-hidden="true" on decorative icons                               │
+│ ✓ Ensure visible focus indicator (outline or focus-ring)                    │
+│ ✓ Never use color alone to convey meaning                                   │
+│ ✓ Support keyboard navigation (Tab, Enter)                                  │
+│ ✓ Test contrast ratios (AAA: >7:1, AA: >4.5:1)                             │
+│ ✓ Pair icons with text labels when possible                                 │
+│ ✓ Support prefers-reduced-motion media query                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+DESIGN PRINCIPLES (DO'S & DON'TS)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ✓ DO: Use rounded corners, curved strokes, warm accent color               │
+│ ✗ DON'T: Sharp angles, rigid geometry, fill entire icon with accent       │
+│                                                                             │
+│ ✓ DO: Test at 24px, 32px, 48px for clarity                                 │
+│ ✗ DON'T: Add intricate details that disappear at 24px                       │
+│                                                                             │
+│ ✓ DO: Maintain consistent 2px stroke weight throughout                     │
+│ ✗ DON'T: Mix stroke weights or use fill + stroke together                  │
+│                                                                             │
+│ ✓ DO: Keep icons simple and recognizable                                    │
+│ ✗ DON'T: Crowd too many elements together                                   │
+│                                                                             │
+│ ✓ DO: Honor cultural context (Uganda-specific designs)                      │
+│ ✗ DON'T: Use generic, location-agnostic designs                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+STATE VARIATIONS
+┌──────────┬──────────────┬────────────┬────────────────────────────────────┐
+│ State    │ Stroke Color │ Opacity    │ Usage                              │
+├──────────┼──────────────┼────────────┼────────────────────────────────────┤
+│ Default  │ #333333      │ 1.0        │ Normal appearance                  │
+│ Hover    │ #FF6B35      │ 1.0        │ Mouse over element                 │
+│ Active   │ #FF6B35      │ 1.0        │ Pressed/selected state             │
+│ Disabled │ #CCCCCC      │ 0.6        │ Unavailable/inactive               │
+│ Focus    │ #333333      │ 1.0        │ Keyboard focus (+ blue outline)    │
+└──────────┴──────────────┴────────────┴────────────────────────────────────┘
+
+DOCUMENTATION LINKS
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Complete Style Guide:        docs/ICON_STYLE_GUIDE.md                      │
+│ Icon Reference & Examples:   docs/ICON_REFERENCE.md                        │
+│ Implementation Guide:        docs/ICON_IMPLEMENTATION_GUIDE.md              │
+│ Assets Directory README:     assets/icons/README.md                         │
+│ Task 1 Summary:              ICON_SYSTEM_TASK_1_SUMMARY.md                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+COMMON ISSUES & SOLUTIONS
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Issue: Icon not displaying                                                  │
+│ Fix:   Check file path, verify mime type is image/svg+xml                  │
+│                                                                             │
+│ Issue: Icon appearing distorted at certain sizes                            │
+│ Fix:   Use CSS scaling (width/height), not viewBox resizing                │
+│                                                                             │
+│ Issue: Focus indicator not visible                                          │
+│ Fix:   Add outline: 2px solid #2196F3 to interactive icon buttons          │
+│                                                                             │
+│ Issue: Icon color not matching design                                       │
+│ Fix:   Ensure SVG uses stroke (not fill), check hex values exact            │
+│                                                                             │
+│ Issue: Icon appears blurry or pixelated                                     │
+│ Fix:   Use SVG file (scalable), not PNG/JPG raster images                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+TASK 1 STATUS: COMPLETE ✓
+7 Hero Icons • 4 Documentation Files • 24px Grid • 2px Stroke • Warm Aesthetic
+Production-Ready • WCAG AA+ Accessibility • Cultural Relevance • Scalable SVG
+
+Ready for Tasks 2-10 (40+ additional icons)
+Next Steps: Follow ICON_STYLE_GUIDE.md specifications for all future icons
+
+Version: 1.0 | Date: 2026-05-20 | Status: Production Ready 🚀

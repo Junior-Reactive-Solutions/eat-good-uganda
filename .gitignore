@@ -211,7 +211,8 @@ openapi-generated.json
 swagger-generated.json
 
 # ---------- MacOS Finder icon ----------
-Icon?
+/Icon
+/Icon?
 
 # ---------- Windows installer noise ----------
 *.stackdump
