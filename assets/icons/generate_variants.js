@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const SIZE_CONFIGS = {
-  24: { stroke: 2, nameSuffix: '' },
+  24: { stroke: 2, nameSuffix: '_24' },
   32: { stroke: 2.67, nameSuffix: '_32' },
   48: { stroke: 4, nameSuffix: '_48' },
 }
@@ -23,10 +23,10 @@ const STATES = {
     strokeColor: '#333333',
     accentColor: '#FF6B35',
     opacity: '1.0',
-    nameSuffix: '',
+    nameSuffix: '_default',
   },
   hover: {
-    strokeColor: '#FF6B35',
+    strokeColor: '#333333',
     accentColor: '#FF6B35',
     opacity: '1.0',
     nameSuffix: '_hover',
@@ -150,12 +150,10 @@ function generateVariants() {
       const sizeNum = parseInt(size)
 
       if (sizeNum === 24) {
-        // Only generate state variants for 24px
+        // Generate all state variants for 24px
         for (const [stateName, stateConfig] of Object.entries(STATES)) {
-          if (stateName === 'default') continue // Skip, it's the original
-
           const newContent = applyStateColors(baseContent, stateConfig)
-          const newName = `${baseName}${stateConfig.nameSuffix}.svg`
+          const newName = `${baseName}${sizeConfig.nameSuffix}${stateConfig.nameSuffix}.svg`
           const newPath = path.join(baseDir, newName)
 
           fs.writeFileSync(newPath, newContent)

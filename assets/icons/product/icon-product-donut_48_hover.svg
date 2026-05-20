@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Donut outer ring -->
-  <circle cx="12" cy="12" r="9" stroke="#FF6B35" stroke-width="4.00" fill="none"/>
+  <circle cx="12" cy="12" r="9" stroke="#333333" stroke-width="4.00" fill="none"/>
 
   <!-- Donut hole (inner ring) -->
-  <circle cx="12" cy="12" r="5.5" stroke="#FF6B35" stroke-width="4.00" fill="none"/>
+  <circle cx="12" cy="12" r="5.5" stroke="#333333" stroke-width="4.00" fill="none"/>
 
   <!-- Glaze coating on top (wavy line) -->
   <path d="M 4 12 Q 4 6 12 4 Q 20 6 20 12" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round"/>

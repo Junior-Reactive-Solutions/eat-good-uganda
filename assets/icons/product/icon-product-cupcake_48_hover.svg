@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Cupcake wrapper (trapezoid cup shape) -->
-  <path d="M 8 13 L 7 20 Q 7 21 8.5 21.5 L 15.5 21.5 Q 17 21 17 20 L 16 13 Z" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 8 13 L 7 20 Q 7 21 8.5 21.5 L 15.5 21.5 Q 17 21 17 20 L 16 13 Z" stroke="#333333" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Frosting swirl on top (wavy curve for frosting) -->
   <path d="M 10 11 Q 12 7 14 11 Q 12 8 10 11" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -10,6 +10,6 @@
   <circle cx="12" cy="5" r="1.5" fill="#FF6B35"/>
 
   <!-- Subtle wrapper texture -->
-  <line x1="9" y1="15" x2="8.5" y2="20" stroke="#FF6B35" stroke-width="2.00" stroke-linecap="round" opacity="0.5"/>
-  <line x1="15" y1="15" x2="15.5" y2="20" stroke="#FF6B35" stroke-width="2.00" stroke-linecap="round" opacity="0.5"/>
+  <line x1="9" y1="15" x2="8.5" y2="20" stroke="#333333" stroke-width="2.00" stroke-linecap="round" opacity="0.5"/>
+  <line x1="15" y1="15" x2="15.5" y2="20" stroke="#333333" stroke-width="2.00" stroke-linecap="round" opacity="0.5"/>
 </svg>

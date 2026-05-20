@@ -1,0 +1,13 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cart basket body -->
+  <path d="M4 8H20L19 19C19 19.5304 18.7893 20.0391 18.4142 20.4142C18.0391 20.7893 17.5304 21 17 21H7C6.46957 21 5.96086 20.7893 5.58579 20.4142C5.21071 20.0391 5 19.5304 5 19L4 8Z" stroke="#FF6B35" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Handle (accent) -->
+  <path d="M7 8C7 6.34315 8.34315 5 10 5H14C15.6569 5 17 6.34315 17 8" stroke="#FF6B35" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Wheel left (accent) -->
+  <circle cx="8" cy="21" r="0.8" fill="#FF6B35" stroke="none"/>
+
+  <!-- Wheel right (accent) -->
+  <circle cx="16" cy="21" r="0.8" fill="#FF6B35" stroke="none"/>
+</svg>
