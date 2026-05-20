@@ -1,6 +1,6 @@
 import { checkoutFormSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { render, screen } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { FormProvider, useForm } from 'react-hook-form'
 import { describe, it, expect } from 'vitest'
@@ -157,5 +157,73 @@ describe('PaymentMethodSection', () => {
     expect(screen.getByText(/transfer to bakery bank account/i)).toBeInTheDocument()
     expect(screen.getByText(/pay with mtn momo/i)).toBeInTheDocument()
     expect(screen.getByText(/pay with airtel money/i)).toBeInTheDocument()
+  })
+})
+
+/**
+ * Wrapper that exposes the submit handler so we can trigger Zod validation
+ * on the phone number field.
+ */
+function PaymentMethodSectionWithSubmit() {
+  const methods = useForm({
+    resolver: zodResolver(checkoutFormSchema),
+    defaultValues: {
+      customer: {
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '+256701234567',
+        createAccount: false,
+      },
+      fulfillment: { mode: 'pickup' as const },
+      payment: { method: 'mtn_momo' as const, phoneNumber: '' },
+    },
+    mode: 'all',
+  })
+
+  return (
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(() => undefined)}>
+        <PaymentMethodSection />
+        <button type="submit">Submit</button>
+      </form>
+    </FormProvider>
+  )
+}
+
+describe('PaymentMethodSection — phone validation', () => {
+  it('shows validation error for invalid Uganda phone number', async () => {
+    const user = userEvent.setup()
+    render(<PaymentMethodSectionWithSubmit />)
+
+    // MoMo already selected via defaultValues
+    const phoneInput = screen.getByLabelText(/mobile money phone number/i)
+
+    await user.clear(phoneInput)
+    await user.type(phoneInput, '12345')
+
+    // Trigger submit to run Zod validation
+    await user.click(screen.getByRole('button', { name: /submit/i }))
+
+    expect(await screen.findByText(/invalid uganda phone number/i)).toBeInTheDocument()
+  })
+
+  it('accepts a valid +256 Uganda phone number', async () => {
+    const user = userEvent.setup()
+    render(<PaymentMethodSectionWithSubmit />)
+
+    const phoneInput = screen.getByLabelText(/mobile money phone number/i)
+
+    await user.clear(phoneInput)
+    await user.type(phoneInput, '+256701234567')
+
+    await user.click(screen.getByRole('button', { name: /submit/i }))
+
+    // No validation error should be present
+    expect(screen.queryByText(/invalid uganda phone number/i)).not.toBeInTheDocument()
+  })
+
+  it('shows MoMo option in payment methods', () => {
+    render(<PaymentMethodSectionWithSubmit />)
+    expect(screen.getByLabelText(/mtn mobile money/i)).toBeInTheDocument()
   })
 })

@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import request from 'supertest'
-import { app } from '../../app'
 import * as addressesDb from '@eatgood/db'
+import request from 'supertest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
+import { app } from '../../app'
+
 
 vi.mock('@eatgood/db', () => ({
   pool: {},
@@ -65,7 +67,7 @@ describe('Customer Addresses API', () => {
         },
       ]
 
-      vi.mocked(addressesDb.getCustomerAddresses).mockResolvedValue(mockAddresses as any)
+      vi.mocked(addressesDb.getCustomerAddresses).mockResolvedValue(mockAddresses)
 
       const response = await request(app).get('/v1/customer/addresses')
 
@@ -106,7 +108,7 @@ describe('Customer Addresses API', () => {
         updated_at: '2026-05-13T10:00:00Z',
       }
 
-      vi.mocked(addressesDb.getCustomerAddress).mockResolvedValue(mockAddress as any)
+      vi.mocked(addressesDb.getCustomerAddress).mockResolvedValue(mockAddress)
 
       const response = await request(app).get('/v1/customer/addresses/addr-1')
 
@@ -149,7 +151,7 @@ describe('Customer Addresses API', () => {
         updated_at: '2026-05-13T10:00:00Z',
       }
 
-      vi.mocked(addressesDb.createCustomerAddress).mockResolvedValue(mockCreatedAddress as any)
+      vi.mocked(addressesDb.createCustomerAddress).mockResolvedValue(mockCreatedAddress)
 
       const response = await request(app).post('/v1/customer/addresses').send(createData)
 
@@ -182,7 +184,7 @@ describe('Customer Addresses API', () => {
         updated_at: '2026-05-13T10:00:00Z',
       }
 
-      vi.mocked(addressesDb.createCustomerAddress).mockResolvedValue(mockCreatedAddress as any)
+      vi.mocked(addressesDb.createCustomerAddress).mockResolvedValue(mockCreatedAddress)
 
       const response = await request(app).post('/v1/customer/addresses').send(createData)
 
@@ -250,7 +252,7 @@ describe('Customer Addresses API', () => {
       }
 
       vi.mocked(addressesDb.updateCustomerAddress).mockResolvedValue(
-        mockUpdatedAddress as any,
+        mockUpdatedAddress,
       )
 
       const response = await request(app)
@@ -284,7 +286,7 @@ describe('Customer Addresses API', () => {
       }
 
       vi.mocked(addressesDb.updateCustomerAddress).mockResolvedValue(
-        mockUpdatedAddress as any,
+        mockUpdatedAddress,
       )
 
       const response = await request(app).patch('/v1/customer/addresses/addr-1').send({

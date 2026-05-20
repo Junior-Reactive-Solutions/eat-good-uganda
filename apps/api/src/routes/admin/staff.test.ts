@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as db from '@eatgood/db'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Mock the database module
 vi.mock('@eatgood/db', () => ({

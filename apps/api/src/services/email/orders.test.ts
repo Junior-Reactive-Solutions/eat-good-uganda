@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { sendOrderConfirmationEmail } from './orders'
+
 import * as loggerModule from '../../utils/logger'
+
+import { sendOrderConfirmationEmail } from './orders'
 
 vi.mock('../../utils/logger', () => ({
   logger: {

@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import request from 'supertest'
-import { app } from '../../app'
 import * as profileDb from '@eatgood/db'
+import request from 'supertest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
+import { app } from '../../app'
+
 
 vi.mock('@eatgood/db', () => ({
   pool: {},
@@ -46,7 +48,7 @@ describe('Customer Profile API', () => {
         updated_at: '2026-05-13T10:00:00Z',
       }
 
-      vi.mocked(profileDb.getCustomerProfile).mockResolvedValue(mockProfile as any)
+      vi.mocked(profileDb.getCustomerProfile).mockResolvedValue(mockProfile)
 
       const response = await request(app).get('/v1/customer/profile')
 
@@ -96,7 +98,7 @@ describe('Customer Profile API', () => {
         updated_at: '2026-05-13T10:30:00Z',
       }
 
-      vi.mocked(profileDb.updateCustomerProfile).mockResolvedValue(mockUpdatedProfile as any)
+      vi.mocked(profileDb.updateCustomerProfile).mockResolvedValue(mockUpdatedProfile)
 
       const response = await request(app).patch('/v1/customer/profile').send(updateData)
 
@@ -142,7 +144,7 @@ describe('Customer Profile API', () => {
         updated_at: '2026-05-13T10:30:00Z',
       }
 
-      vi.mocked(profileDb.updateCustomerProfile).mockResolvedValue(mockProfile as any)
+      vi.mocked(profileDb.updateCustomerProfile).mockResolvedValue(mockProfile)
 
       const response = await request(app).patch('/v1/customer/profile').send({
         avatar_url: null,
@@ -198,7 +200,7 @@ describe('Customer Profile API', () => {
         updated_at: '2026-05-13T10:30:00Z',
       }
 
-      vi.mocked(profileDb.updateCustomerProfile).mockResolvedValue(mockProfile as any)
+      vi.mocked(profileDb.updateCustomerProfile).mockResolvedValue(mockProfile)
 
       const response = await request(app).patch('/v1/customer/profile').send({
         first_name: 'Updated',

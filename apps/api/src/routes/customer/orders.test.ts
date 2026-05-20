@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import request from 'supertest'
-import { app } from '../../app'
 import * as ordersDb from '@eatgood/db'
+import request from 'supertest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
+import { app } from '../../app'
+
 
 // Mock the database module
 vi.mock('@eatgood/db', () => ({

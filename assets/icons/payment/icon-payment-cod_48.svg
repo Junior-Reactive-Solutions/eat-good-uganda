@@ -1,17 +1,17 @@
-<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Money stack base (two stacked rectangles) -->
-  <rect x="12.00" y="18.00" width="12" height="3" rx="2.00" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="12.00" y="25.00" width="12" height="3" rx="2.00" stroke="#333333" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="6" y="9" width="12" height="3" rx="1" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="6" y="12.5" width="12" height="3" rx="1" stroke="#333333" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Hand at bottom (receiving money) -->
-  <path d="M 14.00 34.00 Q 14.00 38.00 18.00 38.00 Q 22.00 38.00 24.00 36.00 Q 26.00 38.00 30.00 38.00 Q 34.00 38.00 34.00 34.00" stroke="#333333" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 7 17 Q 7 19 9 19 Q 11 19 12 18 Q 13 19 15 19 Q 17 19 17 17" stroke="#333333" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Hand fingers detail -->
-  <line x1="16.00" y1="34.00" x2="16.00" y2="39.00" stroke="#333333" stroke-width="3.00" stroke-linecap="round"/>
-  <line x1="22.00" y1="34.00" x2="22.00" y2="39.00" stroke="#333333" stroke-width="3.00" stroke-linecap="round"/>
-  <line x1="28.00" y1="34.00" x2="28.00" y2="39.00" stroke="#333333" stroke-width="3.00" stroke-linecap="round"/>
-  <line x1="34.00" y1="34.00" x2="34.00" y2="39.00" stroke="#333333" stroke-width="3.00" stroke-linecap="round"/>
+  <line x1="8" y1="17" x2="8" y2="19.5" stroke="#333333" stroke-width="3.00" stroke-linecap="round"/>
+  <line x1="11" y1="17" x2="11" y2="19.5" stroke="#333333" stroke-width="3.00" stroke-linecap="round"/>
+  <line x1="14" y1="17" x2="14" y2="19.5" stroke="#333333" stroke-width="3.00" stroke-linecap="round"/>
+  <line x1="17" y1="17" x2="17" y2="19.5" stroke="#333333" stroke-width="3.00" stroke-linecap="round"/>
 
   <!-- Warm accent on top note -->
-  <rect x="18.00" y="19.00" width="6" height="2" rx="1.00" stroke="#FF6B35" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="9" y="9.5" width="6" height="2" rx="0.5" stroke="#FF6B35" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

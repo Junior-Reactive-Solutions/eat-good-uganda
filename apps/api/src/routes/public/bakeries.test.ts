@@ -1,8 +1,10 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import request from 'supertest'
-import { app } from '../../app'
 import { pool } from '@eatgood/db'
 import type { PoolClient } from 'pg'
+import request from 'supertest'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+
+import { app } from '../../app'
+
 
 describe('Public Bakeries API', () => {
   let client: PoolClient

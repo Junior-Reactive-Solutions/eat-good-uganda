@@ -56,37 +56,30 @@ def scale_stroke_width(original_width: str, from_size: int, to_size: int) -> str
 
 
 def scale_svg_content(svg_content: str, from_size: int, to_size: int) -> str:
-    """Scale all measurements in SVG"""
-    scale_factor = to_size / from_size
+    """
+    Scale SVG for different sizes.
 
-    # Update viewBox if present
+    IMPORTANT: viewBox stays at 0 0 24 24 (original base).
+    Only width, height, and stroke-width scale.
+    All coordinates (cx, cy, x, y, etc.) remain at original 24px values.
+    """
+    stroke_scale_factor = to_size / from_size
+
+    # Keep viewBox at base 24x24
     svg_content = re.sub(
         r'viewBox="0 0 (\d+) (\d+)"',
-        f'viewBox="0 0 {to_size} {to_size}"',
+        f'viewBox="0 0 24 24"',
         svg_content,
     )
 
-    # Update width and height
+    # Update width and height attributes only
     svg_content = re.sub(r'width="(\d+)"', f'width="{to_size}"', svg_content)
     svg_content = re.sub(r'height="(\d+)"', f'height="{to_size}"', svg_content)
 
-    # Scale numeric attributes (cx, cy, r, x, y, x1, x2, y1, y2, etc.)
-    def scale_number(match):
-        value = float(match.group(1))
-        scaled = value * scale_factor
-        return f'{match.group(0).split("=")[0]}="{scaled:.2f}"'
-
-    for attr in ["cx", "cy", "r", "x", "y", "x1", "x2", "y1", "y2", "width", "height"]:
-        svg_content = re.sub(
-            rf'{attr}="([0-9.]+)"',
-            lambda m: f'{attr}="{float(m.group(1)) * scale_factor:.2f}"',
-            svg_content,
-        )
-
-    # Scale stroke-width
+    # Scale stroke-width ONLY (not coordinates)
     def scale_stroke(match):
         width = float(match.group(1))
-        scaled = width * scale_factor
+        scaled = width * stroke_scale_factor
         return f'stroke-width="{scaled:.2f}"'
 
     svg_content = re.sub(r'stroke-width="([0-9.]+)"', scale_stroke, svg_content)
@@ -94,18 +87,10 @@ def scale_svg_content(svg_content: str, from_size: int, to_size: int) -> str:
     # Scale font-size if present
     def scale_font(match):
         size = float(match.group(1))
-        scaled = size * scale_factor
+        scaled = size * stroke_scale_factor
         return f'font-size="{scaled:.2f}"'
 
     svg_content = re.sub(r'font-size="([0-9.]+)"', scale_font, svg_content)
-
-    # Scale path d values (approximate - scale all numbers)
-    def scale_path(match):
-        path = match.group(1)
-        # Find all numbers in path and scale them
-        return f'd="{re.sub(r"([0-9.]+)", lambda m: f"{float(m.group(1)) * scale_factor:.2f}", path)}"'
-
-    svg_content = re.sub(r'd="([^"]*)"', scale_path, svg_content)
 
     return svg_content
 

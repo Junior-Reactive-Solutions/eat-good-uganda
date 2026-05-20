@@ -3,10 +3,10 @@ import { orderCreationSchema, type OrderCreation } from '@eatgood/shared'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 
-import { requireCustomerContext } from '../../middleware/requireCustomerContext'
 import { authenticateToken } from '../../middleware/authenticateToken'
-import { generateOrderNumber } from '../../services/orders'
+import { requireCustomerContext } from '../../middleware/requireCustomerContext'
 import { sendOrderConfirmationEmail } from '../../services/email/orders'
+import { generateOrderNumber } from '../../services/orders'
 
 export const customerOrdersRouter = createRouter() as Router
 
@@ -28,7 +28,7 @@ customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async 
 
   try {
     // Validate request body
-    const body = orderCreationSchema.parse(req.body) as OrderCreation
+    const body = orderCreationSchema.parse(req.body)
 
     // Ensure items are not empty
     if (!body.items || body.items.length === 0) {

@@ -1,6 +1,6 @@
+import { pool } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
-import { pool } from '@eatgood/db'
 
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { requireCustomerContext } from '../../middleware/requireCustomerContext'

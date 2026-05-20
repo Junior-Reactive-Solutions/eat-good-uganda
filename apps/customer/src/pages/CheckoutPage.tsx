@@ -1,7 +1,8 @@
 import type { CheckoutForm, OrderResponse } from '@eatgood/shared'
 import { checkoutFormSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
+import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import type { SubmitHandler } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom'
@@ -13,6 +14,11 @@ import OrderReviewSection from '../components/checkout/OrderReviewSection'
 import PaymentMethodSection from '../components/checkout/PaymentMethodSection'
 import { useMe } from '../features/auth/hooks'
 import { useCart } from '../features/cart/hooks'
+import {
+  useInitiateMomoPayment,
+  usePaymentStatus,
+  normalizeUgandaPhone,
+} from '../features/orders/usePayment'
 import { api } from '../lib/api'
 
 /**
@@ -29,6 +35,10 @@ import { api } from '../lib/api'
  * 4. Submit order to API (customer or public endpoint based on auth)
  * 5. Redirect to order confirmation page
  */
+type MomoPhase = 'idle' | 'initiating' | 'polling' | 'success' | 'failed' | 'timeout'
+
+const MOMO_POLL_TIMEOUT_MS = 5 * 60 * 1000 // 5 minutes
+
 export default function CheckoutPage() {
   const navigate = useNavigate()
   const { slug: bakerySlug } = useParams<{ slug: string }>()
@@ -37,6 +47,42 @@ export default function CheckoutPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  // MoMo payment state (used after order creation when method is mtn_momo)
+  const [momoPhase, setMomoPhase] = useState<MomoPhase>('idle')
+  const [momoOrderId, setMomoOrderId] = useState<string | null>(null)
+  const [momoError, setMomoError] = useState<string | null>(null)
+  const momoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const initiateMomo = useInitiateMomoPayment()
+  const { data: momoStatus } = usePaymentStatus(momoOrderId ?? '', momoPhase === 'polling')
+
+  // React to payment status updates
+  useEffect(() => {
+    if (momoPhase !== 'polling' || !momoStatus) return
+
+    if (momoStatus.status === 'paid') {
+      if (momoTimeoutRef.current) clearTimeout(momoTimeoutRef.current)
+      setMomoPhase('success')
+      // Redirect to order confirmation after a short delay
+      setTimeout(() => {
+        if (momoOrderId) {
+          void navigate(`/account/orders/${momoOrderId}`)
+        }
+      }, 2000)
+    } else if (momoStatus.status === 'failed') {
+      if (momoTimeoutRef.current) clearTimeout(momoTimeoutRef.current)
+      setMomoError(momoStatus.reason ?? 'Payment was declined')
+      setMomoPhase('failed')
+    }
+  }, [momoStatus, momoPhase, momoOrderId, navigate])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (momoTimeoutRef.current) clearTimeout(momoTimeoutRef.current)
+    }
+  }, [])
 
   // Set up form with validation
   const methods = useForm({
@@ -113,11 +159,50 @@ export default function CheckoutPage() {
       // Submit to appropriate API endpoint
       const endpoint = currentUser ? '/v1/customer/orders' : '/v1/public/orders'
       const response = await api.post<OrderResponse>(endpoint, orderPayload)
+      const orderId = response.data.id
 
-      // Redirect to order confirmation page
+      // Handle MoMo payment: initiate after order creation and poll for status
+      if (
+        data.payment.method === 'mtn_momo' &&
+        currentUser &&
+        'phoneNumber' in data.payment
+      ) {
+        const phone = data.payment.phoneNumber as string
+        const normalized = normalizeUgandaPhone(phone)
+        if (!normalized) {
+          setSubmitError('Invalid Uganda phone number')
+          setIsSubmitting(false)
+          return
+        }
+
+        setMomoOrderId(orderId)
+        setMomoPhase('initiating')
+        setIsSubmitting(false)
+
+        try {
+          await initiateMomo.mutateAsync({ orderId, phone: normalized })
+          setMomoPhase('polling')
+
+          // 5-minute timeout
+          momoTimeoutRef.current = setTimeout(() => {
+            setMomoPhase('timeout')
+            setMomoError(
+              'Payment timed out after 5 minutes. Please try again or contact support.',
+            )
+          }, MOMO_POLL_TIMEOUT_MS)
+        } catch (momoErr) {
+          const message =
+            momoErr instanceof Error ? momoErr.message : 'Failed to initiate payment'
+          setMomoError(message)
+          setMomoPhase('failed')
+        }
+        return
+      }
+
+      // For non-MoMo methods, redirect to confirmation page
       const confirmPath = currentUser
-        ? `/account/orders/${response.data.id}`
-        : `/order-confirmation/${response.data.id}?claim=${response.data.claimToken ?? ''}`
+        ? `/account/orders/${orderId}`
+        : `/order-confirmation/${orderId}?claim=${response.data.claimToken ?? ''}`
 
       void navigate(confirmPath)
     } catch (error) {
@@ -132,6 +217,81 @@ export default function CheckoutPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8">
         <p className="text-center text-platform-fg-muted">Loading checkout...</p>
+      </div>
+    )
+  }
+
+  // MoMo payment in-progress overlay
+  if (momoPhase !== 'idle') {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-8">
+        <h1 className="mb-6 text-2xl font-bold text-platform-fg">Payment</h1>
+
+        {(momoPhase === 'initiating' || momoPhase === 'polling') && (
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-6 text-center">
+            <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-blue-600" />
+            <p className="text-base font-semibold text-blue-800">
+              Payment initiated — check your phone for the MoMo prompt
+            </p>
+            <p className="mt-2 text-sm text-blue-600">
+              Approve the payment on your phone. This page will update automatically.
+            </p>
+          </div>
+        )}
+
+        {momoPhase === 'success' && (
+          <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center">
+            <CheckCircle2 className="mx-auto mb-3 h-8 w-8 text-green-600" />
+            <p className="text-base font-semibold text-green-800">
+              Payment confirmed! Your order is confirmed.
+            </p>
+            <p className="mt-2 text-sm text-green-600">
+              Redirecting to your order...
+            </p>
+          </div>
+        )}
+
+        {(momoPhase === 'failed' || momoPhase === 'timeout') && (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+            <div className="flex items-start gap-3">
+              <XCircle className="mt-0.5 h-6 w-6 shrink-0 text-red-600" />
+              <div>
+                <p className="font-semibold text-red-800">
+                  {momoPhase === 'timeout'
+                    ? 'Payment timeout — please try again or contact support'
+                    : `Payment failed — ${momoError ?? 'Unknown error'}`}
+                </p>
+                {momoPhase === 'timeout' && (
+                  <p className="mt-1 text-sm text-red-600">
+                    Your order has been saved. You can retry payment from your order history.
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="mt-4 flex gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setMomoPhase('idle')
+                  setMomoError(null)
+                }}
+                className="flex-1"
+              >
+                Try Again
+              </Button>
+              {momoOrderId && (
+                <Button
+                  onClick={() => {
+                    void navigate(`/account/orders/${momoOrderId}`)
+                  }}
+                  className="flex-1"
+                >
+                  View Order
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     )
   }

@@ -9,6 +9,7 @@ export * from './queries/categories'
 export * from './queries/products'
 export * from './queries/orders'
 export * from './queries/payments'
+export * from './queries/webhook-deliveries'
 export * from './queries/customers'
 export * from './queries/customer-profile'
 export * from './queries/bakery-users'
@@ -26,6 +27,10 @@ export {
   type TimeSeriesPoint,
   type TopBakery,
 } from './queries/analytics'
+export {
+  adminGetDashboardMetrics,
+  type DashboardMetrics,
+} from './queries/admin/dashboard-metrics'
 export { createAuditLog, getAuditLogs, type AuditLog } from './queries/audit-logs'
 export {
   banCustomer,

@@ -1,16 +1,16 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Outer circle frame -->
-  <circle cx="21.33" cy="21.33" r="14.67" stroke="#333333" stroke-width="2.67" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="12" cy="12" r="11" stroke="#333333" stroke-width="2.67" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Signal waves (curved arcs) representing Airtel's wireless nature -->
-  <path d="M 14.00 17.33 Q 14.00 14.67 16.00 14.67 Q 18.00 14.67 18.00 17.33" stroke="#333333" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 10.5 13 Q 10.5 11 12 11 Q 13.5 11 13.5 13" stroke="#333333" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Middle wave with warm accent -->
-  <path d="M 12.00 19.33 Q 12.00 14.67 16.00 14.67 Q 20.00 14.67 20.00 19.33" stroke="#FF6B35" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 9 14.5 Q 9 11 12 11 Q 15 11 15 14.5" stroke="#FF6B35" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Outer wave -->
-  <path d="M 10.67 21.33 Q 10.67 14.00 16.00 14.00 Q 21.33 14.00 21.33 21.33" stroke="#333333" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 8 16 Q 8 10.5 12 10.5 Q 16 10.5 16 16" stroke="#333333" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Money symbol at bottom for clarity -->
-  <circle cx="21.33" cy="31.11" r="2.00" fill="#FF6B35" stroke="none"/>
+  <circle cx="12" cy="17.5" r="1.5" fill="#FF6B35" stroke="none"/>
 </svg>

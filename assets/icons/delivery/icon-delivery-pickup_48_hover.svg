@@ -1,22 +1,22 @@
-<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Building outline (store) -->
-  <path d="M 10.00 36.00 L 12.00 20.00 L 36.00 20.00 L 38.00 36.00" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 5 18 L 6 10 L 18 10 L 19 18" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Door frame -->
-  <rect x="20.00" y="24.00" width="4" height="6" rx="2.00" stroke="#FF6B35" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="10" y="12" width="4" height="6" rx="1" stroke="#FF6B35" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Door handle/knob with warm accent -->
-  <circle cx="54.00" cy="60.00" r="1.60" fill="#FF6B35" stroke="none"/>
+  <circle cx="13.5" cy="15" r="0.8" fill="#FF6B35" stroke="none"/>
 
   <!-- Roof (peaked, friendly angle) -->
-  <path d="M 12.00 20.00 L 24.00 12.00 L 36.00 20.00" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 6 10 L 12 6 L 18 10" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Base line -->
-  <line x1="10.00" y1="36.00" x2="38.00" y2="36.00" stroke="#FF6B35" stroke-width="4.00" stroke-linecap="round"/>
+  <line x1="5" y1="18" x2="19" y2="18" stroke="#FF6B35" stroke-width="4.00" stroke-linecap="round"/>
 
   <!-- Window left -->
-  <rect x="15.00" y="23.00" width="2.5" height="2.5" rx="1.00" stroke="#FF6B35" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="7.5" y="11.5" width="2.5" height="2.5" rx="0.5" stroke="#FF6B35" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Window right -->
-  <rect x="28.00" y="23.00" width="2.5" height="2.5" rx="1.00" stroke="#FF6B35" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="14" y="11.5" width="2.5" height="2.5" rx="0.5" stroke="#FF6B35" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

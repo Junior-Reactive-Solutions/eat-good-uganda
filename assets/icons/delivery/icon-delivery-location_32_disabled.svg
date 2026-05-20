@@ -1,15 +1,15 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
   <!-- Map pin outer shape (rounded top, pointed bottom) -->
-  <path d="M 16.00 4.00 C 19.73 4.00 22.67 6.93 22.67 10.67 C 22.67 15.33 16.00 25.33 16.00 25.33 C 16.00 25.33 9.33 15.33 9.33 10.67 C 9.33 6.93 12.27 4.00 16.00 4.00 Z" stroke="#CCCCCC" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 12 3 C 14.8 3 17 5.2 17 8 C 17 11.5 12 19 12 19 C 12 19 7 11.5 7 8 C 7 5.2 9.2 3 12 3 Z" stroke="#CCCCCC" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Inner circle indicator (at pin head) -->
-  <circle cx="21.33" cy="14.23" r="2.67" stroke="#CCCCCC" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+  <circle cx="12" cy="8" r="2" stroke="#CCCCCC" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
 
   <!-- Center dot (warm accent) -->
-  <circle cx="21.33" cy="14.23" r="1.33" fill="#CCCCCC" stroke="none"/>
+  <circle cx="12" cy="8" r="1" fill="#CCCCCC" stroke="none"/>
 
   <!-- Small radiating lines for emphasis (warm) -->
-  <line x1="16.00" y1="7.33" x2="16.00" y2="5.33" stroke="#CCCCCC" stroke-width="2.00" stroke-linecap="round" opacity="0.7"/>
-  <line x1="19.07" y1="7.60" x2="20.67" y2="6.00" stroke="#CCCCCC" stroke-width="2.00" stroke-linecap="round" opacity="0.6"/>
-  <line x1="12.93" y1="7.60" x2="11.33" y2="6.00" stroke="#CCCCCC" stroke-width="2.00" stroke-linecap="round" opacity="0.6"/>
+  <line x1="12" y1="5.5" x2="12" y2="4" stroke="#CCCCCC" stroke-width="2.00" stroke-linecap="round" opacity="0.7"/>
+  <line x1="14.3" y1="5.7" x2="15.5" y2="4.5" stroke="#CCCCCC" stroke-width="2.00" stroke-linecap="round" opacity="0.6"/>
+  <line x1="9.7" y1="5.7" x2="8.5" y2="4.5" stroke="#CCCCCC" stroke-width="2.00" stroke-linecap="round" opacity="0.6"/>
 </svg>

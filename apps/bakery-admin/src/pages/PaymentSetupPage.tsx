@@ -1,5 +1,5 @@
-import { Plus, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { CheckCircle2, Loader2, Plus, TestTube2, Trash2, XCircle } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
@@ -11,12 +11,28 @@ import {
   useDeletePaymentCredential,
   usePaymentCredentials,
 } from '../features/settings/api'
+import {
+  useCreateTestOrder,
+  useInitiateTestPayment,
+  useTestPaymentStatus,
+} from '../features/settings/useTestPayment'
 
 const providerLabels = {
   mtn_momo: 'MTN Mobile Money (MoMo)',
   airtel_money: 'Airtel Money',
   bank_transfer: 'Bank Transfer',
 }
+
+type TestPaymentPhase =
+  | 'idle'
+  | 'initiating'
+  | 'polling'
+  | 'success'
+  | 'failed'
+  | 'timeout'
+
+const TEST_PHONE = '+256700000000'
+const POLL_TIMEOUT_MS = 30 * 1000 // 30 seconds
 
 export default function PaymentSetupPage() {
   const { data, isLoading, error } = usePaymentCredentials()
@@ -27,6 +43,78 @@ export default function PaymentSetupPage() {
     'mtn_momo',
   )
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+
+  // Test payment state
+  const [testPhase, setTestPhase] = useState<TestPaymentPhase>('idle')
+  const [testOrderId, setTestOrderId] = useState<string | null>(null)
+  const [testError, setTestError] = useState<string | null>(null)
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const createTestOrder = useCreateTestOrder()
+  const initiateTestPayment = useInitiateTestPayment()
+
+  const { data: paymentStatus } = useTestPaymentStatus(
+    testOrderId ?? '',
+    testPhase === 'polling',
+  )
+
+  // React to polling result
+  useEffect(() => {
+    if (testPhase !== 'polling' || !paymentStatus) return
+
+    if (paymentStatus.status === 'paid') {
+      if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current)
+      setTestPhase('success')
+    } else if (paymentStatus.status === 'failed') {
+      if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current)
+      setTestError(paymentStatus.reason ?? 'Payment failed')
+      setTestPhase('failed')
+    }
+  }, [paymentStatus, testPhase])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current)
+    }
+  }, [])
+
+  const handleTestPaymentClick = async () => {
+    if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current)
+    setTestPhase('initiating')
+    setTestError(null)
+    setTestOrderId(null)
+
+    try {
+      // Step 1: Create a minimal test order (1000 UGX)
+      const testOrder = await createTestOrder.mutateAsync()
+      setTestOrderId(testOrder.id)
+
+      // Step 2: Initiate MoMo payment with test phone
+      await initiateTestPayment.mutateAsync({
+        orderId: testOrder.id,
+        phone: TEST_PHONE,
+      })
+      setTestPhase('polling')
+
+      // Set 30-second timeout
+      pollTimeoutRef.current = setTimeout(() => {
+        setTestPhase('timeout')
+        setTestError('Payment timed out after 30 seconds. Check your MoMo configuration.')
+      }, POLL_TIMEOUT_MS)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to initiate test payment'
+      setTestError(message)
+      setTestPhase('failed')
+    }
+  }
+
+  const resetTestPayment = () => {
+    if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current)
+    setTestPhase('idle')
+    setTestOrderId(null)
+    setTestError(null)
+  }
 
   const handleCreateCredential = (credentialData: {
     account_number: string
@@ -165,12 +253,16 @@ export default function PaymentSetupPage() {
           {/* Existing Credentials */}
           {data && data.items.length > 0 ? (
             <div className="space-y-3">
-              {data.items.map((credential) => (
+              {data.items.map((credential) => {
+                const isMomoEnabled =
+                  credential.provider === 'mtn_momo' && credential.is_enabled
+
+                return (
                 <Card
                   key={credential.id}
                   className="rounded-lg border border-platform-border bg-platform-surface p-4"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <h4 className="font-semibold text-platform-fg">
                         {providerLabels[credential.provider]}
@@ -182,20 +274,100 @@ export default function PaymentSetupPage() {
                         Status: {credential.is_enabled ? 'Enabled' : 'Disabled'}
                       </p>
                     </div>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => {
-                        setDeleteConfirm(credential.id)
-                      }}
-                      disabled={deleteCredential.isPending}
-                      className="text-platform-error"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {isMomoEnabled && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            void handleTestPaymentClick()
+                          }}
+                          disabled={
+                            testPhase === 'initiating' ||
+                            testPhase === 'polling' ||
+                            deleteCredential.isPending
+                          }
+                          className="gap-1.5"
+                          aria-label="Test MoMo payment"
+                          data-testid="test-payment-button"
+                        >
+                          {testPhase === 'initiating' || testPhase === 'polling' ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <TestTube2 className="h-3.5 w-3.5" />
+                          )}
+                          Test Payment
+                        </Button>
+                      )}
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => {
+                          setDeleteConfirm(credential.id)
+                        }}
+                        disabled={deleteCredential.isPending}
+                        className="text-platform-error"
+                        aria-label="Delete payment method"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
+
+                  {/* Test Payment Status Banner */}
+                  {isMomoEnabled && testPhase !== 'idle' && (
+                    <div className="mt-3">
+                      {(testPhase === 'initiating' || testPhase === 'polling') && (
+                        <div className="flex items-center gap-2 rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 border border-blue-200">
+                          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                          <span>
+                            Payment initiated — check your phone for the MoMo prompt
+                          </span>
+                        </div>
+                      )}
+
+                      {testPhase === 'success' && (
+                        <div className="flex items-center gap-2 rounded-md bg-green-50 px-3 py-2 text-sm text-green-800 border border-green-200">
+                          <CheckCircle2 className="h-4 w-4 shrink-0" />
+                          <span>Payment received! MoMo integration is working correctly.</span>
+                          <button
+                            onClick={resetTestPayment}
+                            className="ml-auto text-xs underline"
+                          >
+                            Dismiss
+                          </button>
+                        </div>
+                      )}
+
+                      {(testPhase === 'failed' || testPhase === 'timeout') && testError && (
+                        <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 border border-red-200">
+                          <div className="flex items-start gap-2">
+                            <XCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                            <div className="flex-1">
+                              <p className="font-medium">
+                                {testPhase === 'timeout' ? 'Payment timed out' : 'Payment failed'}
+                              </p>
+                              <p className="mt-0.5 text-xs text-red-700">{testError}</p>
+                              <ul className="mt-1.5 space-y-0.5 text-xs text-red-700 list-disc list-inside">
+                                <li>Verify your MTN MoMo API credentials are correct</li>
+                                <li>Check that the environment (sandbox/production) matches</li>
+                                <li>Ensure the test phone number is registered for MoMo</li>
+                              </ul>
+                            </div>
+                            <button
+                              onClick={resetTestPayment}
+                              className="ml-auto shrink-0 text-xs underline"
+                            >
+                              Dismiss
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </Card>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div className="rounded-lg border border-dashed border-platform-border bg-platform-surface p-8 text-center">

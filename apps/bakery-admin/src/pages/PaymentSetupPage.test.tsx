@@ -1,16 +1,30 @@
 import type { BakeryPaymentCredential } from '@eatgood/shared'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import PaymentSetupPage from './PaymentSetupPage'
 import * as settingsApi from '../features/settings/api'
+import * as testPaymentHooks from '../features/settings/useTestPayment'
 
 // Mock the settings API
 vi.mock('../features/settings/api', () => ({
   usePaymentCredentials: vi.fn(),
   useCreatePaymentCredential: vi.fn(),
   useDeletePaymentCredential: vi.fn(),
+}))
+
+// Mock test payment hooks
+vi.mock('../features/settings/useTestPayment', () => ({
+  useCreateTestOrder: vi.fn(),
+  useInitiateTestPayment: vi.fn(),
+  useTestPaymentStatus: vi.fn(),
+  isValidUgandaPhone: vi.fn((phone: string) => /^(?:\+?256|0)\d{9}$/.test(phone)),
+  normalizeUgandaPhone: vi.fn((phone: string) => {
+    if (!/^(?:\+?256|0)\d{9}$/.test(phone)) return null
+    const digits = phone.replace(/^\+?256|^0/, '')
+    return `+256${digits}`
+  }),
 }))
 
 const mockCredentials: BakeryPaymentCredential[] = [
@@ -38,7 +52,32 @@ const mockCredentials: BakeryPaymentCredential[] = [
   },
 ]
 
+// Default mock return for test payment hooks (no active test payment)
+function setupTestPaymentMocks() {
+  vi.mocked(testPaymentHooks.useCreateTestOrder).mockReturnValue({
+    mutateAsync: vi.fn().mockResolvedValue({ id: 'test-order-1', order_number: 'EGU-TEST', total_minor: 1000 }),
+    isPending: false,
+    isError: false,
+  } as any)
+
+  vi.mocked(testPaymentHooks.useInitiateTestPayment).mockReturnValue({
+    mutateAsync: vi.fn().mockResolvedValue({ paymentId: 'pay-1', status: 'pending' }),
+    isPending: false,
+    isError: false,
+  } as any)
+
+  vi.mocked(testPaymentHooks.useTestPaymentStatus).mockReturnValue({
+    data: null,
+    isLoading: false,
+  } as any)
+}
+
 describe('PaymentSetupPage', () => {
+  // Set up default test-payment hook mocks before each test
+  beforeEach(() => {
+    setupTestPaymentMocks()
+  })
+
   describe('Loading States', () => {
     it('shows loading spinner while fetching credentials', () => {
       vi.mocked(settingsApi.usePaymentCredentials).mockReturnValue({
@@ -334,8 +373,8 @@ describe('PaymentSetupPage', () => {
       const user = userEvent.setup()
       render(<PaymentSetupPage />)
 
-      const deleteButtons = screen.getAllByRole('button', { name: '' })
-      const trashButton = deleteButtons[deleteButtons.length - 1]
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const trashButton = screen.getAllByRole('button', { name: /delete payment method/i })[0]!
 
       await user.click(trashButton)
 
@@ -354,8 +393,8 @@ describe('PaymentSetupPage', () => {
 
       render(<PaymentSetupPage />)
 
-      const deleteButtons = screen.getAllByRole('button', { name: '' })
-      const trashButton = deleteButtons[deleteButtons.length - 1]
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const trashButton = screen.getAllByRole('button', { name: /delete payment method/i })[0]!
       await user.click(trashButton)
 
       const confirmDeleteButton = screen.getByRole('button', { name: 'Delete' })
@@ -370,8 +409,8 @@ describe('PaymentSetupPage', () => {
       const user = userEvent.setup()
       render(<PaymentSetupPage />)
 
-      const deleteButtons = screen.getAllByRole('button', { name: '' })
-      const trashButton = deleteButtons[deleteButtons.length - 1]
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const trashButton = screen.getAllByRole('button', { name: /delete payment method/i })[0]!
       await user.click(trashButton)
 
       const cancelButton = screen.getByRole('button', { name: 'Cancel' })
@@ -420,6 +459,140 @@ describe('PaymentSetupPage', () => {
       expect(title).toBeInTheDocument()
 
       expect(screen.getByText('MTN Mobile Money (MoMo)')).toBeInTheDocument()
+    })
+  })
+
+  describe('Test Payment Button', () => {
+    beforeEach(() => {
+      vi.mocked(settingsApi.useCreatePaymentCredential).mockReturnValue({
+        mutate: vi.fn(),
+        isPending: false,
+        isError: false,
+      } as any)
+
+      vi.mocked(settingsApi.useDeletePaymentCredential).mockReturnValue({
+        mutate: vi.fn(),
+        isPending: false,
+        isError: false,
+      } as any)
+    })
+
+    it('shows test payment button when MoMo is enabled', () => {
+      vi.mocked(settingsApi.usePaymentCredentials).mockReturnValue({
+        data: { items: mockCredentials, total: 2 },
+        isLoading: false,
+        error: null,
+      } as any)
+
+      render(<PaymentSetupPage />)
+
+      expect(screen.getByRole('button', { name: /test momo payment/i })).toBeInTheDocument()
+    })
+
+    it('does not show test payment button when MoMo is disabled', () => {
+      const disabledMomoCredentials: BakeryPaymentCredential[] = [
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        { ...mockCredentials[0]!, is_enabled: false },
+      ]
+
+      vi.mocked(settingsApi.usePaymentCredentials).mockReturnValue({
+        data: { items: disabledMomoCredentials, total: 1 },
+        isLoading: false,
+        error: null,
+      } as any)
+
+      render(<PaymentSetupPage />)
+
+      expect(screen.queryByRole('button', { name: /test momo payment/i })).not.toBeInTheDocument()
+    })
+
+    it('initiates test payment when button clicked', async () => {
+      const mockCreateTestOrder = vi.fn().mockResolvedValue({
+        id: 'test-order-1',
+        order_number: 'EGU-TEST',
+        total_minor: 1000,
+      })
+      const mockInitiatePayment = vi.fn().mockResolvedValue({
+        paymentId: 'pay-1',
+        status: 'pending',
+      })
+
+      vi.mocked(testPaymentHooks.useCreateTestOrder).mockReturnValue({
+        mutateAsync: mockCreateTestOrder,
+        isPending: false,
+        isError: false,
+      } as any)
+
+      vi.mocked(testPaymentHooks.useInitiateTestPayment).mockReturnValue({
+        mutateAsync: mockInitiatePayment,
+        isPending: false,
+        isError: false,
+      } as any)
+
+      vi.mocked(settingsApi.usePaymentCredentials).mockReturnValue({
+        data: { items: mockCredentials, total: 2 },
+        isLoading: false,
+        error: null,
+      } as any)
+
+      const user = userEvent.setup()
+      render(<PaymentSetupPage />)
+
+      const testButton = screen.getByRole('button', { name: /test momo payment/i })
+      await user.click(testButton)
+
+      await waitFor(() => {
+        expect(mockCreateTestOrder).toHaveBeenCalled()
+        expect(mockInitiatePayment).toHaveBeenCalledWith({
+          orderId: 'test-order-1',
+          phone: '+256700000000',
+        })
+      })
+    })
+
+    it('shows "payment initiated" message after button click', async () => {
+      vi.mocked(settingsApi.usePaymentCredentials).mockReturnValue({
+        data: { items: mockCredentials, total: 2 },
+        isLoading: false,
+        error: null,
+      } as any)
+
+      const user = userEvent.setup()
+      render(<PaymentSetupPage />)
+
+      const testButton = screen.getByRole('button', { name: /test momo payment/i })
+      await user.click(testButton)
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/payment initiated — check your phone for the momo prompt/i),
+        ).toBeInTheDocument()
+      })
+    })
+
+    it('shows success message when payment is confirmed', async () => {
+      vi.mocked(testPaymentHooks.useTestPaymentStatus).mockReturnValue({
+        data: { status: 'paid', financialTransactionId: 'txn-123' },
+        isLoading: false,
+      } as any)
+
+      vi.mocked(settingsApi.usePaymentCredentials).mockReturnValue({
+        data: { items: mockCredentials, total: 2 },
+        isLoading: false,
+        error: null,
+      } as any)
+
+      const user = userEvent.setup()
+      render(<PaymentSetupPage />)
+
+      const testButton = screen.getByRole('button', { name: /test momo payment/i })
+      await user.click(testButton)
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/payment received! momo integration is working correctly/i),
+        ).toBeInTheDocument()
+      })
     })
   })
 })

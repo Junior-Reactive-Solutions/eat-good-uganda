@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-deprecated */
-import { Router as createRouter } from 'express'
-import type { Request, Response, Router } from 'express'
-import { z } from 'zod'
 import {
   getCustomerProfile,
   updateCustomerProfile,
   type UpdateCustomerProfileInput,
 } from '@eatgood/db'
+import { Router as createRouter } from 'express'
+import type { Request, Response, Router } from 'express'
+import { z } from 'zod'
+
 import { logger } from '../../lib/logger'
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { requireCustomerContext } from '../../middleware/requireCustomerContext'
@@ -44,7 +45,7 @@ customerProfileRouter.get(
       res.json(profile)
     } catch (error) {
       const userId = (req as any).customer?.id as string | undefined
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       ;(logger as any).error('Failed to get customer profile', {
         error: error instanceof Error ? error.message : String(error),
         userId,
@@ -81,7 +82,7 @@ customerProfileRouter.patch(
         return res.status(404).json({ error: 'Profile not found' })
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       ;(logger as any).info('Customer profile updated', { userId })
 
       res.json(profile)
@@ -91,7 +92,7 @@ customerProfileRouter.patch(
       }
 
       const userId = (req as any).customer?.id as string | undefined
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       ;(logger as any).error('Failed to update customer profile', {
         error: error instanceof Error ? error.message : String(error),
         userId,

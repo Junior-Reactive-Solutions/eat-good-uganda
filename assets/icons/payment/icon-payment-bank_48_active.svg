@@ -1,19 +1,19 @@
-<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Building outline - simplified bank structure -->
-  <path d="M 10.00 36.00 L 10.00 20.00 L 24.00 12.00 L 38.00 20.00 L 38.00 36.00" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 5 18 L 5 10 L 12 6 L 19 10 L 19 18" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Base/foundation line -->
-  <line x1="10.00" y1="36.00" x2="38.00" y2="36.00" stroke="#FF6B35" stroke-width="4.00" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="5" y1="18" x2="19" y2="18" stroke="#FF6B35" stroke-width="4.00" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Left column with warm accent -->
-  <rect x="13.00" y="22.00" width="2" height="7" rx="1.00" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="6.5" y="11" width="2" height="7" rx="0.5" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Center column -->
-  <rect x="22.00" y="20.00" width="2" height="8" rx="1.00" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="11" y="10" width="2" height="8" rx="0.5" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Right column -->
-  <rect x="31.00" y="22.00" width="2" height="7" rx="1.00" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="15.5" y="11" width="2" height="7" rx="0.5" stroke="#FF6B35" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
   <!-- Roof accent (curved ridge) -->
-  <path d="M 16.00 19.00 Q 24.00 15.00 32.00 19.00" stroke="#FF6B35" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 8 9.5 Q 12 7.5 16 9.5" stroke="#FF6B35" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

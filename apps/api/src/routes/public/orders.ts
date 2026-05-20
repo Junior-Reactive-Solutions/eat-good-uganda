@@ -3,9 +3,9 @@ import { orderCreationSchema, type OrderCreation } from '@eatgood/shared'
 import { Router } from 'express'
 import type { Request, Response } from 'express'
 
-import { generateOrderNumber, generateClaimToken, hashClaimToken } from '../../services/orders'
 import { authRateLimit } from '../../middleware/rateLimit'
 import { sendOrderConfirmationEmail } from '../../services/email/orders'
+import { generateOrderNumber, generateClaimToken, hashClaimToken } from '../../services/orders'
 
 const router = Router()
 
@@ -22,7 +22,7 @@ const router = Router()
 router.post('/', authRateLimit, async (req: Request, res: Response) => {
   try {
     // Validate request body
-    const body = orderCreationSchema.parse(req.body) as OrderCreation
+    const body = orderCreationSchema.parse(req.body)
 
     // Ensure bakery_id is provided for guest checkout
     if (!body.bakeryId) {

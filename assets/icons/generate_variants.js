@@ -46,7 +46,7 @@ const STATES = {
 }
 
 function scaleSvgContent(svgContent, fromSize, toSize) {
-  const scaleFactor = toSize / fromSize
+  const strokeScaleFactor = toSize / fromSize
 
   // Extract all opacity attributes and store them
   const opacityMap = new Map()
@@ -60,43 +60,23 @@ function scaleSvgContent(svgContent, fromSize, toSize) {
 
   let result = tempContent
 
-  // Update viewBox
-  result = result.replace(/viewBox="0 0 (\d+) (\d+)"/, `viewBox="0 0 ${toSize} ${toSize}"`)
+  // IMPORTANT: Keep viewBox at base 24x24 (do NOT scale it)
+  result = result.replace(/viewBox="0 0 (\d+) (\d+)"/, 'viewBox="0 0 24 24"')
 
-  // Update width and height
+  // Update width and height attributes only
   result = result.replace(/width="\d+"/, `width="${toSize}"`)
   result = result.replace(/height="\d+"/, `height="${toSize}"`)
 
-  // Scale numeric attributes
-  const attrs = ['cx', 'cy', 'r', 'x', 'y', 'x1', 'x2', 'y1', 'y2']
-  for (const attr of attrs) {
-    const regex = new RegExp(`${attr}="([0-9.]+)"`, 'g')
-    result = result.replace(regex, (match, value) => {
-      const scaled = parseFloat(value) * scaleFactor
-      return `${attr}="${scaled.toFixed(2)}"`
-    })
-  }
-
-  // Scale stroke-width
+  // Scale stroke-width ONLY (do NOT scale coordinates)
   result = result.replace(/stroke-width="([0-9.]+)"/g, (match, value) => {
-    const scaled = parseFloat(value) * scaleFactor
+    const scaled = parseFloat(value) * strokeScaleFactor
     return `stroke-width="${scaled.toFixed(2)}"`
   })
 
-  // Scale font-size
+  // Scale font-size if present
   result = result.replace(/font-size="([0-9.]+)"/g, (match, value) => {
-    const scaled = parseFloat(value) * scaleFactor
+    const scaled = parseFloat(value) * strokeScaleFactor
     return `font-size="${scaled.toFixed(2)}"`
-  })
-
-  // Scale path d values
-  result = result.replace(/d="([^"]*)"/g, (match, pathValue) => {
-    const scaled = pathValue.replace(/([0-9.]+)/g, (num) => {
-      const parsed = parseFloat(num)
-      const scaledVal = parsed * scaleFactor
-      return scaledVal.toFixed(2)
-    })
-    return `d="${scaled}"`
   })
 
   // Restore opacity values

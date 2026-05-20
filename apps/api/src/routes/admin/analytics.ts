@@ -4,11 +4,11 @@ import {
   getAdminMetricsTimeSeries,
   getAdminTopBakeries,
 } from '@eatgood/db'
+import { pool } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Router } from 'express'
 import { z } from 'zod'
 
-import { pool } from '@eatgood/db'
 import { logger } from '../../lib/logger'
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { requireSuperAdminContext } from '../../middleware/requireSuperAdminContext'

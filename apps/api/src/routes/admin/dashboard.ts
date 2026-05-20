@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
-import { Router as createRouter } from 'express'
-import type { Router } from 'express'
-
 import {
   adminGetDashboardMetrics,
   type DashboardMetrics,
-} from '../../../../packages/db/src/queries/admin/dashboard-metrics'
+} from '@eatgood/db'
+import { Router as createRouter } from 'express'
+import type { Router } from 'express'
+
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { requireSuperAdminContext } from '../../middleware/requireSuperAdminContext'
 

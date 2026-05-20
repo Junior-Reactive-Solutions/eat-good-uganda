@@ -1,5 +1,5 @@
-import { pool } from '@eatgood/db'
 import {
+  pool,
   getTickets,
   getTicketDetail,
   createTicket,
@@ -8,7 +8,7 @@ import {
   assignTicketToAdmin,
   updateTicketPriority,
   getTicketById,
-} from '@eatgood/db/queries/support'
+} from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Router } from 'express'
 import { z } from 'zod'

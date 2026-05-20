@@ -27,9 +27,11 @@ import { customerAddressesRouter } from './routes/customer/addresses'
 import { customerAuthRouter } from './routes/customer/auth'
 import { customerNotificationsRouter } from './routes/customer/notifications'
 import { customerOrdersRouter } from './routes/customer/orders'
+import { customerPaymentsRouter } from './routes/customer/payments'
 import { customerProfileRouter } from './routes/customer/profile'
 import { publicBakeriesRouter } from './routes/public/bakeries'
 import publicOrdersRouter from './routes/public/orders'
+import { mtnMomoWebhookRouter } from './routes/webhooks/mtn-momo'
 
 const corsOrigins = env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
 
@@ -50,6 +52,7 @@ app.use('/v1/public/bakeries', publicBakeriesRouter)
 app.use('/v1/public/orders', publicOrdersRouter)
 app.use('/v1/customer/auth', customerAuthRouter)
 app.use('/v1/customer/orders', customerOrdersRouter)
+app.use('/v1/customer/orders', customerPaymentsRouter)
 app.use('/v1/customer/profile', customerProfileRouter)
 app.use('/v1/customer/addresses', customerAddressesRouter)
 app.use('/v1/customer/account-settings', customerAccountSettingsRouter)
@@ -70,3 +73,4 @@ app.use('/v1/admin', auditLogsRouter)
 app.use('/v1/admin', supportRouter)
 app.use('/v1/admin/users', usersRouter)
 app.use('/v1/admin/exports', exportsRouter)
+app.use('/v1/webhooks/mtn-momo', mtnMomoWebhookRouter)

@@ -136,3 +136,17 @@ export const orderResponseSchema = z.object({
 })
 
 export type OrderResponse = z.infer<typeof orderResponseSchema>
+
+/**
+ * Schema for initiating a MoMo payment against an existing pending order.
+ *
+ * The phone is strict-form (already in canonical +256XXXXXXXXX). Optional
+ * idempotency key lets the client retry safely without double-charging.
+ */
+export const initiateMomoPaymentSchema = z.object({
+  method: z.literal('mtn_momo'),
+  phone: z.string().regex(/^\+256\d{9}$/, 'Invalid Uganda phone number'),
+  idempotencyKey: z.string().uuid().optional(),
+})
+
+export type InitiateMomoPaymentBody = z.infer<typeof initiateMomoPaymentSchema>
