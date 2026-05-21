@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+  <!-- Croissant main crescent shape -->
+  <path d="M 7 19 Q 9 9 16 6 Q 17 10 14 19 Z" stroke="#CCCCCC" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Flaky layer lines (curved parallel lines) -->
+  <path d="M 8 17.5 Q 10 10 15 7" stroke="#CCCCCC" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 9 16 Q 11 9 15.5 6.5" stroke="#CCCCCC" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 10 15 Q 12 8.5 16 6" stroke="#CCCCCC" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Subtle texture lines for warmth -->
+  <path d="M 12 18 Q 13 12 15.5 8" stroke="#CCCCCC" stroke-width="1.33" fill="none" stroke-linecap="round" opacity="0.6"/>
+</svg>

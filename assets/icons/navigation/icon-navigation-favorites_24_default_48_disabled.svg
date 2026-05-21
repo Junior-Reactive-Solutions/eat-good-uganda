@@ -1,0 +1,7 @@
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+  <!-- Heart shape (warm variant) -->
+  <path d="M12 21C12 21 4 15 4 10C4 7.5 5.5 6 8 6C9.5 6 11 7 12 8.5C13 7 14.5 6 16 6C18.5 6 20 7.5 20 10C20 15 12 21 12 21Z" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Warm accent fill on heart -->
+  <path d="M12 19C12 19 6 14.5 6 10.5C6 8.5 7 7.5 8.5 7.5C9.5 7.5 10.5 8 11.5 9C11.83 8.5 12 7.75 12 7.75" fill="#CCCCCC" opacity="0.4"/>
+</svg>

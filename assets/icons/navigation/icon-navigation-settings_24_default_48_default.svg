@@ -1,0 +1,23 @@
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gear body (friendly, rounded) -->
+  <circle cx="12" cy="12" r="3" stroke="#333333" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Gear teeth (6 rounded teeth) -->
+  <g stroke="#333333" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top -->
+    <rect x="11" y="2" width="2" height="2.5" rx="1" stroke="#333333" stroke-width="4.00" fill="none"/>
+    <!-- Top-right -->
+    <rect x="16.5" y="4.5" width="2" height="2.5" rx="1" stroke="#333333" stroke-width="4.00" fill="none" transform="rotate(60 17.5 5.75)"/>
+    <!-- Bottom-right -->
+    <rect x="16.5" y="17" width="2" height="2.5" rx="1" stroke="#333333" stroke-width="4.00" fill="none" transform="rotate(120 17.5 18.25)"/>
+    <!-- Bottom -->
+    <rect x="11" y="19.5" width="2" height="2.5" rx="1" stroke="#333333" stroke-width="4.00" fill="none"/>
+    <!-- Bottom-left -->
+    <rect x="5.5" y="17" width="2" height="2.5" rx="1" stroke="#333333" stroke-width="4.00" fill="none" transform="rotate(-120 6.5 18.25)"/>
+    <!-- Top-left -->
+    <rect x="5.5" y="4.5" width="2" height="2.5" rx="1" stroke="#333333" stroke-width="4.00" fill="none" transform="rotate(-60 6.5 5.75)"/>
+  </g>
+
+  <!-- Center dot (accent) -->
+  <circle cx="12" cy="12" r="0.6" fill="#FF6B35" stroke="none"/>
+</svg>

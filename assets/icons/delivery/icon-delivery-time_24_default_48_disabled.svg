@@ -1,0 +1,20 @@
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+  <!-- Outer hourglass body (rounded top and bottom) -->
+  <path d="M 7 3 L 17 3 Q 18 3 18 4 L 18 7 L 6 7 L 6 4 Q 6 3 7 3 Z" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Bottom hourglass body (rounded) -->
+  <path d="M 6 17 L 6 20 Q 6 21 7 21 L 17 21 Q 18 21 18 20 L 18 17 L 6 17 Z" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Middle neck (thin line) -->
+  <line x1="12" y1="7" x2="12" y2="17" stroke="#CCCCCC" stroke-width="3.00" stroke-linecap="round"/>
+
+  <!-- Top hourglass sand (warm accent) -->
+  <path d="M 8 4 L 16 4 L 14 7 L 10 7 Z" fill="#CCCCCC" stroke="none" opacity="0.8"/>
+
+  <!-- Sand falling indicator (small arc) -->
+  <path d="M 11.5 9 Q 12 10 12.5 11" stroke="#CCCCCC" stroke-width="3.00" fill="none" stroke-linecap="round"/>
+  <path d="M 11 10 Q 11.5 11 12 12" stroke="#CCCCCC" stroke-width="3.00" fill="none" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- Bottom sand accumulation (warm) -->
+  <path d="M 10 17 L 14 17 L 16 20 L 8 20 Z" fill="#CCCCCC" stroke="none" opacity="0.6"/>
+</svg>

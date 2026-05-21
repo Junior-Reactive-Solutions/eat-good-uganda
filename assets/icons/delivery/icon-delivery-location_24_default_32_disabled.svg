@@ -1,0 +1,15 @@
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+  <!-- Map pin outer shape (rounded top, pointed bottom) -->
+  <path d="M 12 3 C 14.8 3 17 5.2 17 8 C 17 11.5 12 19 12 19 C 12 19 7 11.5 7 8 C 7 5.2 9.2 3 12 3 Z" stroke="#CCCCCC" stroke-width="2.67" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Inner circle indicator (at pin head) -->
+  <circle cx="12" cy="8" r="2" stroke="#CCCCCC" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+
+  <!-- Center dot (warm accent) -->
+  <circle cx="12" cy="8" r="1" fill="#CCCCCC" stroke="none"/>
+
+  <!-- Small radiating lines for emphasis (warm) -->
+  <line x1="12" y1="5.5" x2="12" y2="4" stroke="#CCCCCC" stroke-width="2.00" stroke-linecap="round" opacity="0.7"/>
+  <line x1="14.3" y1="5.7" x2="15.5" y2="4.5" stroke="#CCCCCC" stroke-width="2.00" stroke-linecap="round" opacity="0.6"/>
+  <line x1="9.7" y1="5.7" x2="8.5" y2="4.5" stroke="#CCCCCC" stroke-width="2.00" stroke-linecap="round" opacity="0.6"/>
+</svg>

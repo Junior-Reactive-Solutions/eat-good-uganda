@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.4">
+  <!-- Cake main body (layered) -->
+  <path d="M 5 10 L 5 19 Q 5 21 7 21 L 17 21 Q 19 21 19 19 L 19 10 Z" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Layer lines (frosting between layers) -->
+  <path d="M 6 15.5 Q 7 15 12 15 Q 17 15 18 15.5" stroke="#CCCCCC" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 6 18 Q 7 17.5 12 17.5 Q 17 17.5 18 18" stroke="#CCCCCC" stroke-width="3.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Frosting swirl on top (curlicue decoration) -->
+  <path d="M 9 8 Q 12 5 15 8" stroke="#CCCCCC" stroke-width="4.00" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Cherry on top -->
+  <circle cx="12" cy="4" r="1.5" fill="#CCCCCC"/>
+</svg>
