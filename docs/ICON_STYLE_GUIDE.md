@@ -17,6 +17,16 @@ Our icons are **warm and organic**, not cold or generic. They feature:
 
 This system serves as the visual signature of Eat Good Uganda, instantly recognizable across the customer app, bakery admin portal, and super admin dashboard.
 
+## Additional Resources
+
+For complete implementation guidance, see:
+
+- [Icon Usage Guide](./ICON_USAGE_GUIDE.md) - How to use each icon in React components
+- [Icon Accessibility Guide](./ICON_ACCESSIBILITY.md) - Accessibility labels and ARIA attributes
+- [Brand Guidelines](./ICON_BRAND_GUIDELINES.md) - Design standards and visual language
+- [Do's and Don'ts](./ICON_DO_AND_DONT.md) - Best practices and common mistakes
+- [Animation Guidelines](./ICON_ANIMATIONS.md) - Animation recommendations and examples
+
 ---
 
 ## 1. Grid & Metrics
