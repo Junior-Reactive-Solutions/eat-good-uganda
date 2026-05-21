@@ -1,9 +1,9 @@
 import type { CheckoutForm } from '@eatgood/shared'
-import { MapPin, Clock } from 'lucide-react'
 import { useFormContext, Controller } from 'react-hook-form'
 
 import { Button } from '../Button'
 import { Card } from '../Card'
+import { IconDeliveryLocation, IconDeliveryTime } from '../icons'
 import { Input } from '../Input'
 
 type DeliveryFieldErrors = {
@@ -25,7 +25,11 @@ type DeliveryFieldErrors = {
  * conditionally render pickup or delivery sections
  */
 export default function FulfillmentSection() {
-  const { control, watch, formState: { errors } } = useFormContext<CheckoutForm>()
+  const {
+    control,
+    watch,
+    formState: { errors },
+  } = useFormContext<CheckoutForm>()
 
   // Watch fulfillment mode to conditionally render sections
   const fulfillmentMode = watch('fulfillment.mode')
@@ -44,7 +48,7 @@ export default function FulfillmentSection() {
       },
       () => {
         alert('Unable to get your location. Please enable location access.')
-      }
+      },
     )
   }
 
@@ -65,7 +69,9 @@ export default function FulfillmentSection() {
                   type="radio"
                   value="pickup"
                   checked={field.value === 'pickup'}
-                  onChange={() => { field.onChange('pickup'); }}
+                  onChange={() => {
+                    field.onChange('pickup')
+                  }}
                   className="h-4 w-4 rounded-full border-platform-border text-platform-primary"
                 />
                 <span className="text-sm font-medium text-platform-fg">Pickup</span>
@@ -83,7 +89,9 @@ export default function FulfillmentSection() {
                   type="radio"
                   value="delivery"
                   checked={field.value === 'delivery'}
-                  onChange={() => { field.onChange('delivery'); }}
+                  onChange={() => {
+                    field.onChange('delivery')
+                  }}
                   className="h-4 w-4 rounded-full border-platform-border text-platform-primary"
                 />
                 <span className="text-sm font-medium text-platform-fg">Delivery</span>
@@ -110,7 +118,9 @@ export default function FulfillmentSection() {
                     type="datetime-local"
                     placeholder="2026-05-07T14:30"
                     className="w-full rounded-lg border border-platform-border bg-platform-surface px-3 py-2 text-sm text-platform-fg placeholder:text-platform-fg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-platform-primary focus:ring-offset-1"
-                    onChange={(e) => { field.onChange(e.target.value || undefined); }}
+                    onChange={(e) => {
+                      field.onChange(e.target.value || undefined)
+                    }}
                     onBlur={field.onBlur}
                     value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
                   />
@@ -124,7 +134,7 @@ export default function FulfillmentSection() {
         {isDelivery && (
           <div className="rounded-lg border border-platform-border bg-platform-surface-subtle p-4 space-y-4">
             <div className="flex items-center gap-2 text-sm text-platform-fg-muted">
-              <MapPin className="h-4 w-4" />
+              <IconDeliveryLocation size="md" color="default" />
               <span>We'll deliver to your address</span>
             </div>
 
@@ -139,7 +149,8 @@ export default function FulfillmentSection() {
                   placeholder="123 Main Street"
                   error={
                     errors.fulfillment && 'deliveryAddress' in errors.fulfillment
-                      ? (errors.fulfillment as unknown as DeliveryFieldErrors).deliveryAddress?.line1?.message
+                      ? (errors.fulfillment as unknown as DeliveryFieldErrors).deliveryAddress
+                          ?.line1?.message
                       : undefined
                   }
                   {...field}
@@ -173,7 +184,8 @@ export default function FulfillmentSection() {
                   placeholder="Kampala"
                   error={
                     errors.fulfillment && 'deliveryAddress' in errors.fulfillment
-                      ? (errors.fulfillment as unknown as DeliveryFieldErrors).deliveryAddress?.city?.message
+                      ? (errors.fulfillment as unknown as DeliveryFieldErrors).deliveryAddress?.city
+                          ?.message
                       : undefined
                   }
                   {...field}
@@ -208,7 +220,7 @@ export default function FulfillmentSection() {
               onClick={handleGetGeolocation}
               className="w-full"
             >
-              <MapPin className="h-4 w-4 mr-2" />
+              <IconDeliveryLocation size="md" color="default" className="mr-2" />
               Use My Location
             </Button>
 
@@ -225,7 +237,9 @@ export default function FulfillmentSection() {
                     type="datetime-local"
                     placeholder="2026-05-07T14:30"
                     className="w-full rounded-lg border border-platform-border bg-platform-surface px-3 py-2 text-sm text-platform-fg placeholder:text-platform-fg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-platform-primary focus:ring-offset-1"
-                    onChange={(e) => { field.onChange(e.target.value || undefined); }}
+                    onChange={(e) => {
+                      field.onChange(e.target.value || undefined)
+                    }}
                     onBlur={field.onBlur}
                     value={field.value ? new Date(field.value).toISOString().slice(0, 16) : ''}
                   />
@@ -235,8 +249,8 @@ export default function FulfillmentSection() {
 
             {/* Delivery Fee Info (Placeholder) */}
             <div className="rounded-lg bg-platform-info/10 border border-platform-info/20 p-3">
-              <p className="text-sm text-platform-info">
-                <Clock className="h-4 w-4 inline mr-2" />
+              <p className="text-sm text-platform-info flex items-center gap-2">
+                <IconDeliveryTime size="md" color="info" />
                 Delivery fee will be calculated at checkout based on your location
               </p>
             </div>
