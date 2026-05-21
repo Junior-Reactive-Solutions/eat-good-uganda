@@ -44,3 +44,13 @@ export { IconAdminRevenue } from './admin/IconAdminRevenue'
 export { IconAdminInventory } from './admin/IconAdminInventory'
 export { IconAdminStaff } from './admin/IconAdminStaff'
 export { IconAdminAuditLog } from './admin/IconAdminAuditLog'
+
+// Interaction icons
+export { IconInteractionEdit } from './interaction/IconInteractionEdit'
+export { IconInteractionDelete } from './interaction/IconInteractionDelete'
+export { IconInteractionDownload } from './interaction/IconInteractionDownload'
+export { IconInteractionShare } from './interaction/IconInteractionShare'
+export { IconInteractionBellNotification } from './interaction/IconInteractionBellNotification'
+export { IconInteractionClock } from './interaction/IconInteractionClock'
+export { IconInteractionPhone } from './interaction/IconInteractionPhone'
+export { IconInteractionHelp } from './interaction/IconInteractionHelp'
