@@ -7,9 +7,8 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const baseDir = 'D:/Junior Reactive Projects/eatgooduganda'
-const iconsDir = path.join(baseDir, 'apps/customer/src/components/icons')
-const assetsDir = path.join(baseDir, 'assets/icons')
+const iconsDir = path.join(__dirname, 'apps/customer/src/components/icons')
+const assetsDir = path.join(__dirname, 'assets/icons')
 
 // Mapping of categories to icon names
 const categories = {
