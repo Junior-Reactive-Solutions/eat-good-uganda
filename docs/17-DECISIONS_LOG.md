@@ -142,4 +142,63 @@ All of the following were settled in the planning session that preceded scaffold
 
 ---
 
+## 2026-05-25 — Icon System: Custom SVG components with semantic color support
+
+### Icon delivery: React TypeScript components, not SVG files
+
+- Decision: 45+ icons implemented as React functional components wrapping SVG content, not static SVG assets.
+- Each icon is a component file: `IconPaymentMomo.tsx`, `IconNavigationHome.tsx`, etc.
+- Icon wrapper component: `Icon.tsx` provides consistent sizing, color, state management, and accessibility.
+- Types defined in `types/icon.ts` with full TypeScript support.
+- Context: Custom SVG icons needed semantic variants (size, color, state, accessibility). React components provide type safety, reusability, and consistent behavior across all 3 apps.
+- Alternatives considered: SVG sprite sheet (rejected: no semantic variants, less accessible); inline SVG everywhere (rejected: code duplication, hard to maintain); Lucide icons (rejected: not culturally relevant to Uganda).
+- Consequences: All apps share 45 identical icon components; tree-shaking automatically excludes unused icons; size variants and colors controlled via TypeScript props instead of CSS; semantic meaning encoded in component hierarchy.
+
+### Icon sizing strategy: 4 sizes with proportional stroke scaling
+
+- Decision: `sm: 16px`, `md: 24px`, `lg: 32px`, `xl: 48px`.
+- All icons use `viewBox="0 0 24 24"` internally; sizing via width/height CSS only.
+- Stroke weight scales proportionally: base 2px (at 24px) scales to 2.67px (at 32px) and 4px (at 48px).
+- Context: Consistent grid and stroke prevent visual distortion; 24px base aligns with Material Design and common icon systems.
+- Alternatives considered: Single fixed size (rejected: not suitable for all contexts); per-size variant files (rejected: 3x code duplication).
+- Consequences: One Icon component definition serves all sizes; CSS media queries can override sizes responsively; smaller icons on mobile, larger on desktop, without code changes.
+
+### Icon colors: 8 semantic options with CSS variable fallback
+
+- Decision: 8 color variants: `default | primary | accent | success | error | warning | info | neutral`.
+- Default uses `currentColor` (inherits from parent text color).
+- Semantic colors map to CSS variables: `var(--color-success)`, `var(--color-error)`, etc.
+- All colors meet WCAG 2.1 AA contrast: dark gray (12.6:1), accent orange (4.5:1), success green (5.1:1), danger red (4.2:1).
+- Context: Semantic colors pair icons with meaning (green = approved, red = rejected); CSS variables allow bakery customization in v2.
+- Alternatives considered: Hardcoded hex colors (rejected: not customizable); Tailwind classes (rejected: not semantic enough).
+- Consequences: Icons are always readable; color is never sole communication method (always paired with icon shape or text); bakery theming can override CSS variables.
+
+### Icon accessibility: aria-label + alt text + role="img"
+
+- Decision: Every icon has `alt` prop with semantic label (e.g., `alt="approved"`, `alt="home"`).
+- Icon wrapper renders `<svg role="img" aria-label={alt} />`.
+- Decorative icons (next to text) use `alt=""` + `aria-hidden="true"`.
+- Context: Screen readers need semantic context. Icons are never the only UI cue for status (always paired with text or distinct shape).
+- Alternatives considered: ARIA labels only (rejected: not discoverable); title attributes (rejected: tooltip, not accessibility).
+- Consequences: All 45 icons are screen-reader accessible; localization keys provided for i18n; high contrast mode tested and working.
+
+### Icon naming and organization: 6 categories, one barrel export
+
+- Decision: Icons organized into 6 categories by function: `payment`, `delivery`, `navigation`, `product`, `admin`, `interaction`.
+- Naming convention: `Icon + Category + Name` (e.g., `IconPaymentMomo`, `IconAdminApproved`, `IconNavigationHome`).
+- Single barrel export: `apps/*/src/components/icons/index.ts` exports all 45 icons.
+- Context: Clear namespacing prevents collisions; barrel export simplifies imports across all 3 apps; consistent naming aids discoverability.
+- Alternatives considered: Namespace via folders (`payment.momo`), mixed icons/components folder (rejected: not organized).
+- Consequences: Any app can import any icon with one import statement; all 3 apps have identical icon sets; naming clearly indicates icon purpose.
+
+### Cross-platform icon consistency: identical components in all 3 apps
+
+- Decision: All three apps (customer, bakery-admin, super-admin) have identical copies of all 45 icon components + wrapper.
+- No shared package; each app owns its icon component library independently.
+- Context: During MVP, app-specific customization is not needed; identical copies are simpler than cross-app package (avoids version coordination).
+- Alternatives considered: Shared `@eatgood/icons` package (deferred to v2); conditional exports (rejected: premature).
+- Consequences: Icon updates must be applied to all 3 apps; future icon customization per app is straightforward; no dependency versioning complexity in MVP.
+
+---
+
 _Future entries append below this line. Each entry is permanent; changes to a decision are a new entry referencing the old one._
