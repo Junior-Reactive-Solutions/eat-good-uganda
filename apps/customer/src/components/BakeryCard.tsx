@@ -1,7 +1,8 @@
-import { MapPin, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import type { PublicBakery } from '../features/bakery/api'
+
+import { IconDeliveryLocation } from './icons'
 
 type Props = { bakery: PublicBakery }
 
@@ -24,7 +25,12 @@ export function BakeryCard({ bakery }: Props) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <ShoppingBag className="h-12 w-12 text-platform-fg-muted" aria-hidden="true" />
+            <div className="text-platform-fg-muted">
+              <svg className="h-12 w-12" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 4v5h10V4H7zm2 2h6v1H9V6z" />
+                <path d="M4 11h16v8c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2v-8z" />
+              </svg>
+            </div>
           </div>
         )}
       </div>
@@ -38,7 +44,7 @@ export function BakeryCard({ bakery }: Props) {
 
         <div className="mt-auto flex items-center justify-between pt-2">
           <div className="flex min-w-0 items-center gap-1 text-xs text-platform-fg-muted">
-            <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
+            <IconDeliveryLocation size="sm" color="default" alt="" />
             <span className="truncate">{address}</span>
           </div>
           {bakery.distance_km !== null && (

@@ -1,6 +1,6 @@
-import { ShoppingCart } from 'lucide-react'
-
 import { Button } from './Button'
+import { IconNavigationCart } from './icons'
+
 
 interface CartIconProps {
   onOpen: () => void
@@ -22,7 +22,7 @@ export default function CartIcon({ onOpen, itemCount }: CartIconProps) {
             : `Open shopping cart with ${String(itemCount)} items`
         }
       >
-        <ShoppingCart className="h-5 w-5" />
+        <IconNavigationCart size="md" color="default" alt="" />
       </Button>
 
       {itemCount > 0 && (

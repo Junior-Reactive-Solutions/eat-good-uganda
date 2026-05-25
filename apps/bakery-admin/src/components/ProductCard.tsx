@@ -1,9 +1,9 @@
 import type { Product } from '@eatgood/shared'
-import { Edit2, EyeOff, Eye, Trash2, Utensils } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { Button } from './Button'
 import { Card } from './Card'
+import { IconInteractionEdit, IconInteractionDelete, IconAdminInventory } from './icons'
 
 interface ProductCardProps {
   product: Product
@@ -35,7 +35,7 @@ export function ProductCard({
             className="w-full h-full object-cover"
           />
         ) : (
-          <Utensils className="h-8 w-8 text-platform-fg-muted" aria-hidden="true" />
+          <IconAdminInventory size="lg" color="default" alt="" />
         )}
       </div>
 
@@ -92,7 +92,7 @@ export function ProductCard({
             className="w-full gap-1.5"
             aria-label={`Edit ${product.name}`}
           >
-            <Edit2 className="h-4 w-4" aria-hidden="true" />
+            <IconInteractionEdit size="sm" color="default" alt="" />
             Edit
           </Button>
         </Link>
@@ -107,11 +107,7 @@ export function ProductCard({
             product.is_published ? `Unpublish ${product.name}` : `Publish ${product.name}`
           }
         >
-          {product.is_published ? (
-            <EyeOff className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            <Eye className="h-4 w-4" aria-hidden="true" />
-          )}
+          {product.is_published ? '🔒' : '🔓'}
         </Button>
 
         <Button
@@ -121,7 +117,7 @@ export function ProductCard({
           className="text-platform-error"
           aria-label={`Delete ${product.name}`}
         >
-          <Trash2 className="h-4 w-4" aria-hidden="true" />
+          <IconInteractionDelete size="sm" color="default" alt="" />
         </Button>
       </div>
     </Card>

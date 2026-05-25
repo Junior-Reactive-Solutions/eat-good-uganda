@@ -1,8 +1,13 @@
-import { Search, MapPin, Loader2, X, AlertCircle } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { BakeryCard } from '../components/BakeryCard'
 import { Button } from '../components/Button'
+import {
+  IconNavigationSearch,
+  IconDeliveryLocation,
+  IconInteractionDelete,
+} from '../components/icons'
 import { usePublicBakeries } from '../features/bakery/api'
 import { useCurrentLocation } from '../features/geolocation/useCurrentLocation'
 import { useDebounce } from '../hooks/useDebounce'
@@ -47,9 +52,11 @@ export default function HomePage() {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
-              <Search
-                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-platform-fg-muted"
-                aria-hidden="true"
+              <IconNavigationSearch
+                size="sm"
+                color="default"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-platform-fg-muted"
+                alt=""
               />
               <input
                 type="search"
@@ -69,7 +76,7 @@ export default function HomePage() {
               size="lg"
               className="shrink-0"
             >
-              <MapPin className="h-4 w-4" aria-hidden="true" />
+              <IconDeliveryLocation size="sm" color="default" alt="" />
               Find bakeries near me
             </Button>
           </div>
@@ -95,7 +102,7 @@ export default function HomePage() {
                 aria-label="Dismiss location banner"
                 className="rounded p-1 text-platform-fg-muted transition-colors hover:text-platform-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platform-primary"
               >
-                <X className="h-4 w-4" aria-hidden="true" />
+                <IconInteractionDelete size="sm" color="default" alt="" />
               </button>
             </div>
           </div>
@@ -106,7 +113,12 @@ export default function HomePage() {
       {geo.status === 'denied' && (
         <div className="border-b border-platform-border bg-amber-50 px-4 py-3">
           <div className="mx-auto flex max-w-6xl items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-platform-warning" aria-hidden="true" />
+            <IconInteractionHelp
+              size="sm"
+              color="default"
+              className="shrink-0 text-platform-warning"
+              alt=""
+            />
             <p className="text-sm text-platform-fg-muted">
               Location access was denied. Enable it in your browser settings to sort by distance.
             </p>
@@ -154,7 +166,7 @@ export default function HomePage() {
 
         {!isLoading && !isError && bakeries?.length === 0 && (
           <div className="flex flex-col items-center gap-3 py-24 text-center">
-            <Search className="h-12 w-12 text-platform-fg-muted" aria-hidden="true" />
+            <IconNavigationSearch size="lg" color="default" alt="" />
             <p className="text-lg font-medium text-platform-fg">No bakeries found</p>
             <p className="text-sm text-platform-fg-muted">
               {search

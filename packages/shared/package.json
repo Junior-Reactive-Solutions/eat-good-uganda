@@ -14,5 +14,9 @@
   },
   "dependencies": {
     "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "react": "^19.0.0-rc.0",
+    "typescript": "^5.0.0"
   }
 }

@@ -1,6 +1,7 @@
-import { ChevronRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import type { Order } from '@eatgood/shared'
+import { Link } from 'react-router-dom'
+
+import { IconInteractionEdit } from './icons'
 
 interface OrderRowProps {
   order: Order
@@ -46,28 +47,19 @@ export function OrderRow({ order }: OrderRowProps) {
   }).format(order.total_minor / 100)
 
   return (
-    <Link
-      to={`/account/orders/${order.id}`}
-      className="block hover:shadow-md transition-shadow"
-    >
+    <Link to={`/account/orders/${order.id}`} className="block hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between p-4 rounded-lg border border-platform-border bg-platform-surface">
         {/* Order Info */}
         <div className="flex-1">
-          <p className="font-semibold text-platform-fg">
-            Order #{order.order_number}
-          </p>
-          <p className="text-sm text-platform-fg-muted">
-            {formattedDate}
-          </p>
+          <p className="font-semibold text-platform-fg">Order #{order.order_number}</p>
+          <p className="text-sm text-platform-fg-muted">{formattedDate}</p>
         </div>
 
         {/* Amount and Status */}
         <div className="flex items-center gap-6">
           {/* Amount */}
           <div className="text-right">
-            <p className="font-semibold text-platform-fg">
-              {formattedTotal}
-            </p>
+            <p className="font-semibold text-platform-fg">{formattedTotal}</p>
             <p className="text-xs text-platform-fg-muted">
               {order.fulfilment_mode === 'delivery' ? 'Delivery' : 'Pickup'}
             </p>
@@ -81,7 +73,7 @@ export function OrderRow({ order }: OrderRowProps) {
           </span>
 
           {/* Chevron */}
-          <ChevronRight className="h-5 w-5 text-platform-fg-muted" />
+          <IconInteractionEdit size="md" color="default" alt="" />
         </div>
       </div>
     </Link>

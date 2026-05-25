@@ -1,9 +1,10 @@
-import { CheckCircle, PauseCircle, RotateCcw, Store } from 'lucide-react'
 
 import type { BakeryListItem } from '../features/bakeries/api'
 
 import { BakeryStatusBadge } from './BakeryStatusBadge'
 import { Button } from './Button'
+
+import { IconAdminApproved, IconAdminAnalytics } from '@/components/icons'
 
 interface BakeryCardProps {
   bakery: BakeryListItem
@@ -38,7 +39,7 @@ export function BakeryCard({
             />
           ) : (
             <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-platform-accent">
-              <Store className="h-8 w-8 text-platform-fg-muted" />
+              <IconAdminAnalytics size="lg" color="default" alt="" />
             </div>
           )}
         </div>
@@ -73,22 +74,20 @@ export function BakeryCard({
 
         {bakery.status === 'pending_approval' && onApprove && (
           <Button variant="primary" size="sm" onClick={onApprove} className="gap-1">
-            <CheckCircle className="h-4 w-4" />
+            <IconAdminApproved size="sm" color="default" alt="" />
             Approve
           </Button>
         )}
 
         {bakery.status === 'active' && onSuspend && (
           <Button variant="danger" size="sm" onClick={onSuspend} className="gap-1">
-            <PauseCircle className="h-4 w-4" />
-            Suspend
+            🔒 Suspend
           </Button>
         )}
 
         {bakery.status === 'suspended' && onReactivate && (
           <Button variant="secondary" size="sm" onClick={onReactivate} className="gap-1">
-            <RotateCcw className="h-4 w-4" />
-            Reactivate
+            🔓 Reactivate
           </Button>
         )}
       </div>

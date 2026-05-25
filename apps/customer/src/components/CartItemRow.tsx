@@ -1,8 +1,8 @@
-import { Minus, Plus, Trash2 } from 'lucide-react'
 
 import type { CartItem } from '../features/cart/store'
 
 import { Button } from './Button'
+import { IconInteractionDelete } from './icons'
 
 interface CartItemRowProps {
   item: CartItem
@@ -35,7 +35,7 @@ export default function CartItemRow({ item, onUpdateQuantity, onRemove }: CartIt
           disabled={item.quantity <= 1}
           aria-label="Decrease quantity"
         >
-          <Minus className="h-4 w-4" />
+          −
         </Button>
         <span className="w-8 text-center text-sm font-medium text-platform-fg">
           {item.quantity}
@@ -48,7 +48,7 @@ export default function CartItemRow({ item, onUpdateQuantity, onRemove }: CartIt
           }}
           aria-label="Increase quantity"
         >
-          <Plus className="h-4 w-4" />
+          +
         </Button>
       </div>
 
@@ -61,7 +61,7 @@ export default function CartItemRow({ item, onUpdateQuantity, onRemove }: CartIt
         }}
         aria-label={`Remove ${item.productName} from cart`}
       >
-        <Trash2 className="h-4 w-4 text-platform-error" />
+        <IconInteractionDelete size="sm" color="default" alt="" />
       </Button>
 
       {/* Subtotal */}

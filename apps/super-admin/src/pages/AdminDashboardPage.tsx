@@ -1,4 +1,3 @@
-import { AlertCircle, DollarSign, ShoppingCart, Store, Users } from 'lucide-react'
 import { useEffect, useState, type JSX } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -13,6 +12,13 @@ import {
   useAnalyticsTimeSeries,
   useTopBakeries,
 } from '../features/analytics/api'
+
+import {
+  IconAdminRevenue,
+  IconAdminCustomers,
+  IconAdminAnalytics,
+  IconInteractionHelp,
+} from '@/components/icons'
 
 type DateRange = 'week' | 'month' | 'year'
 
@@ -129,7 +135,7 @@ export default function AdminDashboardPage(): JSX.Element {
       {/* Pending Approvals Alert */}
       {analyticsMetrics.pendingApprovalCount > 0 && (
         <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 flex items-center gap-3">
-          <AlertCircle className="h-5 w-5 text-yellow-600" />
+          <IconInteractionHelp size="md" color="default" alt="" />
           <div className="flex-1">
             <p className="text-sm font-medium text-yellow-900">
               {analyticsMetrics.pendingApprovalCount} bakeries pending approval
@@ -192,28 +198,28 @@ export default function AdminDashboardPage(): JSX.Element {
         <MetricCard
           title="Total Bakeries"
           value={analyticsMetrics.totalBakeries}
-          icon={<Store className="h-6 w-6" />}
+          icon={<IconAdminAnalytics size="lg" color="default" alt="" />}
           trend={{ direction: 'up', percentage: 5 }}
         />
 
         <MetricCard
           title="Active Bakeries"
           value={analyticsMetrics.activeBakeries}
-          icon={<Store className="h-6 w-6" />}
+          icon={<IconAdminAnalytics size="lg" color="default" alt="" />}
           trend={{ direction: 'up', percentage: 3 }}
         />
 
         <MetricCard
           title="Total Customers"
           value={analyticsMetrics.totalCustomers}
-          icon={<Users className="h-6 w-6" />}
+          icon={<IconAdminCustomers size="lg" color="default" alt="" />}
           trend={{ direction: 'up', percentage: 12 }}
         />
 
         <MetricCard
           title="Total Orders"
           value={analyticsMetrics.totalOrders}
-          icon={<ShoppingCart className="h-6 w-6" />}
+          icon={<IconAdminAnalytics size="lg" color="default" alt="" />}
           trend={{ direction: 'up', percentage: 8 }}
         />
       </div>
@@ -223,7 +229,7 @@ export default function AdminDashboardPage(): JSX.Element {
         title="Total Revenue"
         value={(analyticsMetrics.totalRevenueMinor / 100).toLocaleString()}
         prefix="UGX"
-        icon={<DollarSign className="h-6 w-6" />}
+        icon={<IconAdminRevenue size="lg" color="default" alt="" />}
         trend={{ direction: 'up', percentage: 15, period: 'vs last period' }}
       />
 

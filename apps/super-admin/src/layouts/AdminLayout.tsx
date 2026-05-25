@@ -1,10 +1,16 @@
-import { Menu, X, LogOut, LayoutDashboard, Store } from 'lucide-react'
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { useMe } from '../features/auth/hooks'
 import { logoutAdmin } from '../features/auth/hooks'
+
+import {
+  IconNavigationHome,
+  IconAdminAnalytics,
+  IconInteractionDelete,
+  IconNavigationMenu,
+} from '@/components/icons'
 
 export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -22,8 +28,8 @@ export function AdminLayout() {
   }
 
   const navItems = [
-    { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { label: 'Bakeries', icon: Store, path: '/bakeries' },
+    { label: 'Dashboard', icon: IconNavigationHome, path: '/dashboard' },
+    { label: 'Bakeries', icon: IconAdminAnalytics, path: '/bakeries' },
   ]
 
   return (
@@ -55,7 +61,7 @@ export function AdminLayout() {
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left hover:bg-white/10 transition-colors text-sm font-medium"
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon size="md" color="default" alt="" />
                     {item.label}
                   </button>
                 )
@@ -79,7 +85,7 @@ export function AdminLayout() {
               }}
               className="w-full justify-start text-white hover:bg-white/10"
             >
-              <LogOut className="h-4 w-4" />
+              <IconInteractionDelete size="sm" color="default" alt="" />
               Logout
             </Button>
           </div>
@@ -98,7 +104,11 @@ export function AdminLayout() {
             }}
             className="md:hidden"
           >
-            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {sidebarOpen ? (
+              <IconInteractionDelete size="md" color="default" alt="" />
+            ) : (
+              <IconNavigationMenu size="md" color="default" alt="" />
+            )}
           </Button>
         </header>
 

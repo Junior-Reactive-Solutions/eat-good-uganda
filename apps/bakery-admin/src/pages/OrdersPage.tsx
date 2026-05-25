@@ -1,5 +1,4 @@
 import type { OrderStatus } from '@eatgood/shared'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -173,8 +172,7 @@ export default function OrdersPage() {
                 }}
                 aria-label="Previous page"
               >
-                <ChevronLeft className="h-4 w-4" />
-                Previous
+                ← Previous
               </Button>
               <div className="flex items-center px-3 text-sm font-medium">
                 Page {currentPage} of {totalPages || 1}
@@ -187,8 +185,7 @@ export default function OrdersPage() {
                   setOffset(offset + ORDER_LIMIT)
                 }}
               >
-                Next
-                <ChevronRight className="h-4 w-4" />
+                Next →
               </Button>
             </div>
           </div>

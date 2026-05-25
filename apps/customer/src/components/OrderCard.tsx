@@ -1,8 +1,8 @@
-import { ChevronRight } from 'lucide-react'
 
 import type { OrderListItem } from '../features/orders/api'
 
 import { Card } from './Card'
+import { IconInteractionEdit } from './icons'
 
 interface OrderCardProps {
   order: OrderListItem
@@ -96,7 +96,7 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
         {/* Footer: View Order Link */}
         <div className="flex items-center justify-end gap-2 border-t border-platform-border pt-4 text-sm text-platform-primary hover:underline">
           <span>View Order</span>
-          <ChevronRight className="h-4 w-4" />
+          <IconInteractionEdit size="sm" color="default" alt="" />
         </div>
       </div>
     </Card>

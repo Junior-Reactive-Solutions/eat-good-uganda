@@ -1,5 +1,3 @@
-import { TrendingUp, TrendingDown } from 'lucide-react'
-
 interface DashboardCardProps {
   label: string
   value: string | number
@@ -25,17 +23,12 @@ export function DashboardCard({ label, value, icon, trend, loading = false }: Da
 
       {trend && (
         <div className="flex items-center gap-1">
-          {trend.direction === 'up' ? (
-            <TrendingUp className="h-4 w-4 text-green-600" />
-          ) : (
-            <TrendingDown className="h-4 w-4 text-red-600" />
-          )}
           <span
             className={`text-sm font-medium ${
               trend.direction === 'up' ? 'text-green-600' : 'text-red-600'
             }`}
           >
-            {trend.percentage}%
+            {trend.direction === 'up' ? '↑' : '↓'} {trend.percentage}%
           </span>
           <span className="text-sm text-platform-fg-muted">vs last month</span>
         </div>

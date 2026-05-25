@@ -1,6 +1,7 @@
-import { X } from 'lucide-react'
 import { useState } from 'react'
+
 import { Button } from './Button'
+import { IconInteractionDelete } from './icons'
 import { Input } from './Input'
 
 interface OrderFiltersProps {
@@ -126,7 +127,7 @@ export function OrderFilters({ onFiltersChange, isLoading = false }: OrderFilter
           onClick={handleClearFilters}
           disabled={isLoading}
         >
-          <X className="h-4 w-4" />
+          <IconInteractionDelete size="sm" color="default" alt="" />
           Clear Filters
         </Button>
       )}

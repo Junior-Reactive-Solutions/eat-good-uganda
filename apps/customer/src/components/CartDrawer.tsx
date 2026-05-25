@@ -1,4 +1,3 @@
-import { ShoppingCart, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 import {
@@ -10,6 +9,7 @@ import {
 
 import { Button } from './Button'
 import CartItemRow from './CartItemRow'
+import { IconNavigationCart, IconInteractionDelete } from './icons'
 
 interface CartDrawerProps {
   isOpen: boolean
@@ -62,7 +62,7 @@ export default function CartDrawer({ isOpen, onClose, bakerySlug }: CartDrawerPr
         <div className="flex items-center justify-between border-b border-platform-border px-4 py-4">
           <h2 className="text-lg font-semibold text-platform-fg">Shopping Cart</h2>
           <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close shopping cart">
-            <X className="h-5 w-5" />
+            <IconInteractionDelete size="md" color="default" alt="" />
           </Button>
         </div>
 
@@ -70,7 +70,7 @@ export default function CartDrawer({ isOpen, onClose, bakerySlug }: CartDrawerPr
         {items.length === 0 ? (
           // Empty State
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-8">
-            <ShoppingCart className="h-12 w-12 text-platform-fg-muted" />
+            <IconNavigationCart size="lg" color="default" alt="" />
             <div className="text-center">
               <h3 className="text-lg font-semibold text-platform-fg">Your cart is empty</h3>
               <p className="mt-2 text-sm text-platform-fg-muted">

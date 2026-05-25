@@ -1,6 +1,8 @@
-import { Bell } from 'lucide-react'
 import { useState } from 'react'
+
 import { useNotifications, useMarkNotificationAsRead, useDeleteNotification } from '../features/notifications/api'
+
+import { IconInteractionBellNotification, IconInteractionDelete } from './icons'
 
 function formatTimeAgo(date: Date): string {
   const now = new Date()
@@ -8,11 +10,11 @@ function formatTimeAgo(date: Date): string {
 
   if (seconds < 60) return 'just now'
   const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 60) return `${String(minutes)}m ago`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return `${String(hours)}h ago`
   const days = Math.floor(hours / 24)
-  if (days < 7) return `${days}d ago`
+  if (days < 7) return `${String(days)}d ago`
   return date.toLocaleDateString('en-UG')
 }
 
@@ -37,11 +39,11 @@ export function NotificationBell() {
     <div className="relative">
       {/* Bell Icon Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => { setIsOpen(!isOpen); }}
         className="relative p-2 text-platform-fg hover:text-platform-fg-muted transition-colors"
         aria-label="Notifications"
       >
-        <Bell className="h-6 w-6" />
+        <IconInteractionBellNotification size="md" color="default" alt="" />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-semibold">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -89,7 +91,7 @@ export function NotificationBell() {
                       <div className="flex gap-1 flex-shrink-0">
                         {!notification.read && (
                           <button
-                            onClick={() => handleMarkAsRead(notification.id)}
+                            onClick={() => { handleMarkAsRead(notification.id); }}
                             className="p-1 text-platform-fg-muted hover:text-platform-fg transition-colors"
                             title="Mark as read"
                           >
@@ -97,11 +99,11 @@ export function NotificationBell() {
                           </button>
                         )}
                         <button
-                          onClick={() => handleDelete(notification.id)}
+                          onClick={() => { handleDelete(notification.id); }}
                           className="p-1 text-platform-fg-muted hover:text-red-600 transition-colors"
                           title="Delete"
                         >
-                          ×
+                          <IconInteractionDelete size="sm" color="default" alt="" />
                         </button>
                       </div>
                     </div>
@@ -126,7 +128,7 @@ export function NotificationBell() {
       {isOpen && (
         <div
           className="fixed inset-0 z-40"
-          onClick={() => setIsOpen(false)}
+          onClick={() => { setIsOpen(false); }}
         />
       )}
     </div>

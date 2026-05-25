@@ -1,10 +1,17 @@
-import { Menu, X, LogOut, LayoutDashboard, ClipboardList, Package } from 'lucide-react'
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { useBakery } from '../contexts/bakery'
 import { useMe } from '../features/auth/hooks'
+
+import {
+  IconNavigationHome,
+  IconAdminCustomers,
+  IconAdminInventory,
+  IconInteractionDelete,
+  IconNavigationMenu,
+} from '@/components/icons'
 
 export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -19,9 +26,9 @@ export function DashboardLayout() {
   }
 
   const navItems = [
-    { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { label: 'Orders', icon: ClipboardList, path: '/orders' },
-    { label: 'Menu', icon: Package, path: '/menu' },
+    { label: 'Dashboard', icon: IconNavigationHome, path: '/dashboard' },
+    { label: 'Orders', icon: IconAdminCustomers, path: '/orders' },
+    { label: 'Menu', icon: IconAdminInventory, path: '/menu' },
   ]
 
   return (
@@ -53,7 +60,7 @@ export function DashboardLayout() {
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left hover:bg-white/10 transition-colors text-sm font-medium"
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon size="md" color="default" alt="" />
                     {item.label}
                   </button>
                 )
@@ -74,7 +81,7 @@ export function DashboardLayout() {
               onClick={handleLogout}
               className="w-full justify-start text-white hover:bg-white/10"
             >
-              <LogOut className="h-4 w-4" />
+              <IconInteractionDelete size="sm" color="default" alt="" />
               Logout
             </Button>
           </div>
@@ -101,7 +108,11 @@ export function DashboardLayout() {
             }}
             className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg hover:bg-platform-accent transition-colors"
           >
-            {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {sidebarOpen ? (
+              <IconInteractionDelete size="md" color="default" alt="" />
+            ) : (
+              <IconNavigationMenu size="md" color="default" alt="" />
+            )}
           </button>
           <div className="flex-1" />
           <div className="text-sm text-platform-fg-muted">
