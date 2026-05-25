@@ -1,4 +1,4 @@
-import { CheckCircle2, Loader2, Plus, TestTube2, Trash2, XCircle } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '../components/Button'
@@ -6,6 +6,13 @@ import { Card } from '../components/Card'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
 import { PaymentCredentialForm } from '../components/PaymentCredentialForm'
+import {
+  IconAdminApproved,
+  IconAdminRejected,
+  IconNavigationCart,
+  IconInteractionDelete,
+  IconPaymentMomo,
+} from '../components/icons'
 import {
   useCreatePaymentCredential,
   useDeletePaymentCredential,
@@ -168,7 +175,7 @@ export default function PaymentSetupPage() {
             }}
             className="gap-2"
           >
-            <Plus className="h-4 w-4" />
+            <IconNavigationCart size="sm" color="default" alt="" />
             Add Payment Method
           </Button>
         )}
@@ -294,7 +301,7 @@ export default function PaymentSetupPage() {
                           {testPhase === 'initiating' || testPhase === 'polling' ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
-                            <TestTube2 className="h-3.5 w-3.5" />
+                            <IconPaymentMomo size="sm" color="default" alt="" />
                           )}
                           Test Payment
                         </Button>
@@ -309,7 +316,7 @@ export default function PaymentSetupPage() {
                         className="text-platform-error"
                         aria-label="Delete payment method"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <IconInteractionDelete size="sm" color="error" alt="" />
                       </Button>
                     </div>
                   </div>
@@ -328,7 +335,7 @@ export default function PaymentSetupPage() {
 
                       {testPhase === 'success' && (
                         <div className="flex items-center gap-2 rounded-md bg-green-50 px-3 py-2 text-sm text-green-800 border border-green-200">
-                          <CheckCircle2 className="h-4 w-4 shrink-0" />
+                          <IconAdminApproved size="sm" color="success" className="shrink-0" alt="" />
                           <span>Payment received! MoMo integration is working correctly.</span>
                           <button
                             onClick={resetTestPayment}
@@ -342,7 +349,7 @@ export default function PaymentSetupPage() {
                       {(testPhase === 'failed' || testPhase === 'timeout') && testError && (
                         <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 border border-red-200">
                           <div className="flex items-start gap-2">
-                            <XCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                            <IconAdminRejected size="sm" color="error" className="mt-0.5 shrink-0" alt="" />
                             <div className="flex-1">
                               <p className="font-medium">
                                 {testPhase === 'timeout' ? 'Payment timed out' : 'Payment failed'}
@@ -382,7 +389,7 @@ export default function PaymentSetupPage() {
                   variant="secondary"
                   className="mt-4 gap-2"
                 >
-                  <Plus className="h-4 w-4" />
+                  <IconNavigationCart size="sm" color="default" alt="" />
                   Add Payment Method
                 </Button>
               )}

@@ -1,11 +1,14 @@
 import type { Product, ProductCategory } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { Button } from './Button'
 import { Card } from './Card'
+import {
+  IconNavigationCart,
+  IconInteractionDelete,
+} from './icons'
 
 // Validation schema
 const productFormSchema = z.object({
@@ -221,7 +224,7 @@ export function ProductForm({
                 onClick={() => handleRemoveImage(index)}
                 aria-label="Remove image"
               >
-                <X className="h-4 w-4" aria-hidden="true" />
+                <IconInteractionDelete size="sm" color="default" alt="" />
               </Button>
             </div>
           ))}
@@ -232,7 +235,7 @@ export function ProductForm({
             onClick={handleAddImage}
             className="gap-2"
           >
-            <Plus className="h-4 w-4" aria-hidden="true" />
+            <IconNavigationCart size="sm" color="default" alt="" />
             Add Image
           </Button>
         </fieldset>
@@ -255,7 +258,7 @@ export function ProductForm({
                 onClick={() => handleRemoveTag(index)}
                 aria-label="Remove tag"
               >
-                <X className="h-4 w-4" aria-hidden="true" />
+                <IconInteractionDelete size="sm" color="default" alt="" />
               </Button>
             </div>
           ))}
@@ -266,7 +269,7 @@ export function ProductForm({
             onClick={handleAddTag}
             className="gap-2"
           >
-            <Plus className="h-4 w-4" aria-hidden="true" />
+            <IconNavigationCart size="sm" color="default" alt="" />
             Add Tag
           </Button>
         </fieldset>

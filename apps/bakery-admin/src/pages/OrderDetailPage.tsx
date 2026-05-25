@@ -1,5 +1,4 @@
 import type { OrderStatus } from '@eatgood/shared'
-import { ChevronLeft } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -9,6 +8,7 @@ import { CustomerInfoCard } from '../components/CustomerInfoCard'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { OrderItemsTable } from '../components/OrderItemsTable'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
+import { IconNavigationMenu } from '../components/icons'
 import { useOrderDetail, useUpdateOrderStatus } from '../features/orders/api'
 
 function formatPrice(minor: number): string {
@@ -106,7 +106,7 @@ export default function OrderDetailPage() {
         }}
         className="mb-6 inline-flex items-center gap-2 text-platform-primary hover:underline"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <IconNavigationMenu size="sm" color="default" alt="" />
         Back to Orders
       </button>
 

@@ -1,4 +1,3 @@
-import { Plus } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -7,6 +6,7 @@ import { EmptyState } from '../components/EmptyState'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
 import { ProductCard } from '../components/ProductCard'
+import { IconNavigationCart } from '../components/icons'
 import { useProducts, useDeleteProduct, useUpdateProduct } from '../features/menu/api'
 
 export default function MenuPage() {
@@ -54,7 +54,7 @@ export default function MenuPage() {
         <PageHeader title="Menu Management" subtitle="Create and edit your bakery products" />
         <Link to="/menu/create">
           <Button className="gap-2">
-            <Plus className="h-4 w-4" />
+            <IconNavigationCart size="sm" color="default" alt="" />
             Create Product
           </Button>
         </Link>

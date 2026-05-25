@@ -1,4 +1,3 @@
-import { ChevronLeft } from 'lucide-react'
 import { useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { z } from 'zod'
@@ -8,6 +7,7 @@ import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
 import { ProductForm } from '../components/ProductForm'
 import { VariantManager } from '../components/VariantManager'
+import { IconNavigationMenu } from '../components/icons'
 import {
   useProductDetail,
   useCreateProduct,
@@ -110,7 +110,7 @@ export function ProductFormPage() {
       <div className="flex items-center gap-3">
         <Link to="/menu">
           <Button variant="ghost" size="sm" className="gap-2">
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            <IconNavigationMenu size="sm" color="default" alt="" />
             Back
           </Button>
         </Link>
