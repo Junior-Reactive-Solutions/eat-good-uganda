@@ -1,9 +1,15 @@
 import { useState } from 'react'
-import { Bell, Lock, Globe, Shield, CheckCircle2, AlertCircle } from 'lucide-react'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { Input as InputComponent } from '../components/Input'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import {
+  IconInteractionBellNotification,
+  IconInteractionPhone,
+  IconNavigationSettings,
+  IconAdminApproved,
+  IconAdminRejected,
+} from '../components/icons'
 import {
   useAccountSettings,
   useUpdateNotificationPreferences,
@@ -105,7 +111,7 @@ export default function AccountSettingsPage() {
       {/* Email Verification */}
       {settings && !settings.email_verified && (
         <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <IconAdminRejected size="sm" color="warning" className="flex-shrink-0" alt="" />
           <div className="flex-1">
             <h3 className="font-semibold text-yellow-900">Verify your email</h3>
             <p className="text-sm text-yellow-800 mt-1">
@@ -127,7 +133,7 @@ export default function AccountSettingsPage() {
       {/* Notification Preferences */}
       <Card>
         <div className="flex items-start gap-3 mb-4">
-          <Bell className="h-5 w-5 text-platform-fg mt-0.5" />
+          <IconInteractionBellNotification size="sm" color="default" alt="" />
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-platform-fg">Notifications</h2>
             <p className="text-sm text-platform-fg-muted">
@@ -195,7 +201,7 @@ export default function AccountSettingsPage() {
       {/* Security Settings */}
       <Card>
         <div className="flex items-start gap-3 mb-4">
-          <Lock className="h-5 w-5 text-platform-fg mt-0.5" />
+          <IconAdminApproved size="sm" color="success" alt="" />
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-platform-fg">Security</h2>
             <p className="text-sm text-platform-fg-muted">
@@ -207,14 +213,14 @@ export default function AccountSettingsPage() {
         <form onSubmit={handleChangePassword} className="space-y-4 border-t border-platform-border pt-4">
           {passwordSuccess && (
             <div className="flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <IconAdminApproved size="sm" color="success" className="flex-shrink-0" alt="" />
               <p className="text-sm text-green-800">{passwordSuccess}</p>
             </div>
           )}
 
           {passwordError && (
             <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
-              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <IconAdminRejected size="sm" color="error" className="flex-shrink-0" alt="" />
               <p className="text-sm text-red-800">{passwordError}</p>
             </div>
           )}
@@ -261,7 +267,7 @@ export default function AccountSettingsPage() {
       {/* Language Preference */}
       <Card>
         <div className="flex items-start gap-3 mb-4">
-          <Globe className="h-5 w-5 text-platform-fg mt-0.5" />
+          <IconNavigationSettings size="sm" color="default" alt="" />
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-platform-fg">Language</h2>
             <p className="text-sm text-platform-fg-muted">
@@ -292,7 +298,7 @@ export default function AccountSettingsPage() {
       {/* Privacy Settings */}
       <Card>
         <div className="flex items-start gap-3 mb-4">
-          <Shield className="h-5 w-5 text-platform-fg mt-0.5" />
+          <IconInteractionPhone size="sm" color="default" alt="" />
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-platform-fg">Privacy</h2>
             <p className="text-sm text-platform-fg-muted">

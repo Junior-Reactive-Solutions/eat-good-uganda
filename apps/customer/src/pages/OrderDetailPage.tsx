@@ -1,19 +1,18 @@
 import type { Order, OrderItem } from '@eatgood/shared'
-import {
-  Package,
-  MapPin,
-  CreditCard,
-  Calendar,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  Truck,
-} from 'lucide-react'
 import { useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import {
+  IconProductBreadLoaf,
+  IconDeliveryLocation,
+  IconPaymentMomo,
+  IconInteractionClock,
+  IconAdminRejected,
+  IconAdminApproved,
+  IconDeliveryBoda,
+} from '../components/icons'
 import { useOrderDetail } from '../features/orders/api'
 
 /**
@@ -62,14 +61,14 @@ const statusColors: Record<string, string> = {
 }
 
 const statusIcons: Record<string, React.ReactNode> = {
-  pending_payment: <Clock className="h-4 w-4" />,
-  confirmed: <CheckCircle2 className="h-4 w-4" />,
-  preparing: <Package className="h-4 w-4" />,
-  ready: <Package className="h-4 w-4" />,
-  out_for_delivery: <Truck className="h-4 w-4" />,
-  delivered: <CheckCircle2 className="h-4 w-4" />,
-  cancelled: <AlertCircle className="h-4 w-4" />,
-  refunded: <AlertCircle className="h-4 w-4" />,
+  pending_payment: <IconInteractionClock size="sm" color="default" alt="" />,
+  confirmed: <IconAdminApproved size="sm" color="success" alt="" />,
+  preparing: <IconProductBreadLoaf size="sm" color="default" alt="" />,
+  ready: <IconProductBreadLoaf size="sm" color="default" alt="" />,
+  out_for_delivery: <IconDeliveryBoda size="sm" color="default" alt="" />,
+  delivered: <IconAdminApproved size="sm" color="success" alt="" />,
+  cancelled: <IconAdminRejected size="sm" color="error" alt="" />,
+  refunded: <IconAdminRejected size="sm" color="error" alt="" />,
 }
 
 function StatusTimeline({ order }: { order: Order }) {
@@ -188,7 +187,7 @@ export default function OrderDetailPage() {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8">
         <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-600" />
+          <IconAdminRejected size="lg" color="error" className="mx-auto mb-4" alt="" />
           <h1 className="mb-2 text-xl font-bold text-red-900">
             Order Not Found
           </h1>
@@ -293,7 +292,7 @@ export default function OrderDetailPage() {
             {order.fulfillment_mode === 'pickup' ? (
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <Calendar className="mt-1 h-5 w-5 flex-shrink-0 text-platform-primary" />
+                  <IconInteractionClock size="sm" color="primary" className="mt-1 flex-shrink-0" alt="" />
                   <div>
                     <p className="text-sm font-medium text-platform-fg-muted">
                       Pickup Time
@@ -306,7 +305,7 @@ export default function OrderDetailPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Package className="mt-1 h-5 w-5 flex-shrink-0 text-platform-primary" />
+                  <IconProductBreadLoaf size="sm" color="primary" className="mt-1 flex-shrink-0" alt="" />
                   <div>
                     <p className="text-sm font-medium text-platform-fg-muted">
                       Ready at the bakery
@@ -320,7 +319,7 @@ export default function OrderDetailPage() {
             ) : (
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <MapPin className="mt-1 h-5 w-5 flex-shrink-0 text-platform-primary" />
+                  <IconDeliveryLocation size="sm" color="primary" className="mt-1 flex-shrink-0" alt="" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-platform-fg-muted">
                       Delivery Address
@@ -339,7 +338,7 @@ export default function OrderDetailPage() {
 
                 {order.scheduled_for && (
                   <div className="flex items-start gap-3">
-                    <Calendar className="mt-1 h-5 w-5 flex-shrink-0 text-platform-primary" />
+                    <IconInteractionClock size="sm" color="primary" className="mt-1 flex-shrink-0" alt="" />
                     <div>
                       <p className="text-sm font-medium text-platform-fg-muted">
                         Delivery Time
@@ -402,7 +401,7 @@ export default function OrderDetailPage() {
           {/* Payment Information */}
           <Card>
             <div className="flex items-start gap-3">
-              <CreditCard className="mt-1 h-5 w-5 flex-shrink-0 text-platform-primary" />
+              <IconPaymentMomo size="sm" color="primary" className="mt-1 flex-shrink-0" alt="" />
               <div>
                 <h3 className="font-semibold text-platform-fg">Payment</h3>
                 <p className="mt-1 text-sm text-platform-fg-muted">

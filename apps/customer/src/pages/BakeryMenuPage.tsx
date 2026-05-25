@@ -1,9 +1,12 @@
-import { ChevronLeft, ChevronRight, Utensils } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import {
+  IconNavigationMenu,
+  IconProductBreadLoaf,
+} from '../components/icons'
 import { usePublicBakery, usePublicCategories, usePublicProducts } from '../features/bakery/api'
 import cloudinaryImage from '../lib/cloudinary'
 
@@ -62,7 +65,7 @@ export default function BakeryMenuPage() {
         to={`/b/${slug}`}
         className="mb-4 inline-flex items-center gap-2 text-sm text-platform-fg-muted hover:text-platform-fg"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <IconNavigationMenu size="sm" color="default" alt="" />
         Back to bakery
       </Link>
 
@@ -194,7 +197,7 @@ export default function BakeryMenuPage() {
                     disabled={!hasPrevPage}
                     className="inline-flex items-center gap-2 rounded-lg border border-platform-border px-3 py-2 text-sm font-medium text-platform-fg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-platform-accent"
                   >
-                    <ChevronLeft className="h-4 w-4" />
+                    <IconNavigationMenu size="sm" color="default" alt="" />
                     Previous
                   </button>
                   <span className="text-sm text-platform-fg-muted">
@@ -208,16 +211,18 @@ export default function BakeryMenuPage() {
                     className="inline-flex items-center gap-2 rounded-lg border border-platform-border px-3 py-2 text-sm font-medium text-platform-fg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-platform-accent"
                   >
                     Next
-                    <ChevronRight className="h-4 w-4" />
+                    <IconNavigationMenu size="sm" color="default" alt="" />
                   </button>
                 </div>
               )}
             </>
           ) : (
             <div className="rounded-lg border border-platform-border bg-platform-surface p-8 text-center">
-              <Utensils
-                className="mx-auto mb-4 h-12 w-12 text-platform-fg-muted"
-                aria-hidden="true"
+              <IconProductBreadLoaf
+                size="lg"
+                color="default"
+                className="mx-auto mb-4"
+                alt=""
               />
               <h3 className="text-lg font-semibold text-platform-fg">
                 No products in this category

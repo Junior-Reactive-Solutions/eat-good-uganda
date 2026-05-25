@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Plus, Trash2, Edit2 } from 'lucide-react'
 import {
   useCustomerAddresses,
   useCreateAddress,
@@ -11,6 +10,11 @@ import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
+import {
+  IconNavigationCart,
+  IconInteractionEdit,
+  IconInteractionDelete,
+} from '../components/icons'
 import type { CustomerAddress } from '@eatgood/shared'
 
 export default function AddressesPage() {
@@ -58,7 +62,7 @@ export default function AddressesPage() {
         />
         {!isAdding && !editingId && (
           <Button onClick={() => setIsAdding(true)} className="gap-2">
-            <Plus className="h-4 w-4" />
+            <IconNavigationCart size="sm" color="default" alt="" />
             Add Address
           </Button>
         )}
@@ -166,7 +170,7 @@ export default function AddressesPage() {
                         onClick={() => setEditingId(address.id)}
                         disabled={createAddress.isPending || updateAddress.isPending}
                       >
-                        <Edit2 className="h-4 w-4" />
+                        <IconInteractionEdit size="sm" color="default" alt="" />
                       </Button>
                       <Button
                         variant="secondary"
@@ -175,7 +179,7 @@ export default function AddressesPage() {
                         disabled={deleteAddress.isPending}
                         className="text-platform-error"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <IconInteractionDelete size="sm" color="error" alt="" />
                       </Button>
                     </div>
                   </div>
@@ -193,7 +197,7 @@ export default function AddressesPage() {
                   variant="secondary"
                   className="gap-2 inline-flex"
                 >
-                  <Plus className="h-4 w-4" />
+                  <IconNavigationCart size="sm" color="default" alt="" />
                   Add Your First Address
                 </Button>
               )}

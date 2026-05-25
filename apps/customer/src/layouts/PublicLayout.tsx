@@ -1,10 +1,13 @@
-import { User, UtensilsCrossed } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Outlet, useMatch } from 'react-router-dom'
 
 import logo from '../assets/brand/logo.svg'
 import CartDrawer from '../components/CartDrawer'
 import CartIcon from '../components/CartIcon'
+import {
+  IconNavigationProfile,
+  IconProductBreadLoaf,
+} from '../components/icons'
 import { useMe } from '../features/auth/hooks'
 import { BakeryThemeProvider } from '../features/bakery/BakeryThemeProvider'
 import { useCart } from '../features/cart/hooks'
@@ -45,7 +48,7 @@ function Nav({ onOpenCart, cartItemCount }: NavProps) {
             aria-label={me ? 'My account' : 'Log in'}
             className="rounded-lg p-2 text-platform-fg-muted hover:bg-platform-accent hover:text-platform-fg transition-colors"
           >
-            <User className="h-5 w-5" aria-hidden="true" />
+            <IconNavigationProfile size="sm" color="default" alt="" />
           </Link>
           <CartIcon onOpen={onOpenCart} itemCount={cartItemCount} />
         </nav>
@@ -60,7 +63,7 @@ function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-center gap-2">
-            <UtensilsCrossed className="h-5 w-5 text-platform-primary" aria-hidden="true" />
+            <IconProductBreadLoaf size="sm" color="primary" alt="" />
             <span className="font-semibold text-platform-fg">Eat Good Uganda</span>
           </div>
           <nav

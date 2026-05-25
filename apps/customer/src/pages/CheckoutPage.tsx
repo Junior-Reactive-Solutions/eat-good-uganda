@@ -1,7 +1,7 @@
 import type { CheckoutForm, OrderResponse } from '@eatgood/shared'
 import { checkoutFormSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import type { SubmitHandler } from 'react-hook-form';
@@ -12,6 +12,10 @@ import CustomerDetailsSection from '../components/checkout/CustomerDetailsSectio
 import FulfillmentSection from '../components/checkout/FulfillmentSection'
 import OrderReviewSection from '../components/checkout/OrderReviewSection'
 import PaymentMethodSection from '../components/checkout/PaymentMethodSection'
+import {
+  IconAdminApproved,
+  IconAdminRejected,
+} from '../components/icons'
 import { useMe } from '../features/auth/hooks'
 import { useCart } from '../features/cart/hooks'
 import {
@@ -241,7 +245,7 @@ export default function CheckoutPage() {
 
         {momoPhase === 'success' && (
           <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center">
-            <CheckCircle2 className="mx-auto mb-3 h-8 w-8 text-green-600" />
+            <IconAdminApproved size="lg" color="success" className="mx-auto mb-3" alt="" />
             <p className="text-base font-semibold text-green-800">
               Payment confirmed! Your order is confirmed.
             </p>
@@ -254,7 +258,7 @@ export default function CheckoutPage() {
         {(momoPhase === 'failed' || momoPhase === 'timeout') && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-6">
             <div className="flex items-start gap-3">
-              <XCircle className="mt-0.5 h-6 w-6 shrink-0 text-red-600" />
+              <IconAdminRejected size="md" color="error" className="shrink-0" alt="" />
               <div>
                 <p className="font-semibold text-red-800">
                   {momoPhase === 'timeout'

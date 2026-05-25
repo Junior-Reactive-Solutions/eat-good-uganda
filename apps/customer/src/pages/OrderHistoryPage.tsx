@@ -1,4 +1,3 @@
-import { ShoppingBag } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
@@ -6,6 +5,7 @@ import { OrderFilters } from '../components/OrderFilters'
 import { OrderRow } from '../components/OrderRow'
 import { useCustomerOrders } from '../features/orders/api'
 import { useNavigate } from 'react-router-dom'
+import { IconNavigationCart } from '../components/icons'
 import type { OrderListFilters } from '../features/orders/api'
 
 export default function OrderHistoryPage() {
@@ -66,7 +66,7 @@ export default function OrderHistoryPage() {
       {/* Empty State */}
       {!isLoading && !error && items.length === 0 ? (
         <div className="rounded-lg border border-dashed border-platform-border bg-platform-surface/50 p-8 text-center">
-          <ShoppingBag className="mx-auto mb-4 h-12 w-12 text-platform-fg-muted" />
+          <IconNavigationCart size="lg" color="default" className="mx-auto mb-4" alt="" />
           <h2 className="mb-2 text-lg font-semibold text-platform-fg">
             No orders found
           </h2>

@@ -1,4 +1,3 @@
-import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -7,6 +6,7 @@ import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { OrderCard } from '../components/OrderCard'
 import { useOrders } from '../features/orders/api'
+import { IconNavigationCart, IconNavigationMenu } from '../components/icons'
 
 const ITEMS_PER_PAGE = 20
 
@@ -73,7 +73,7 @@ export default function OrdersPage(): ReactNode {
       {/* Empty State */}
       {orders.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-platform-border bg-platform-surface/50 py-12">
-          <ShoppingBag className="mb-4 h-12 w-12 text-platform-fg-muted" />
+          <IconNavigationCart size="lg" color="default" className="mb-4" alt="" />
           <h2 className="mb-2 text-lg font-semibold text-platform-fg">
             No orders yet
           </h2>
@@ -132,7 +132,7 @@ export default function OrdersPage(): ReactNode {
                 disabled={currentPage === 1}
                 onClick={handlePreviousPage}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <IconNavigationMenu size="sm" color="default" alt="" />
                 Previous
               </Button>
 
@@ -147,7 +147,7 @@ export default function OrdersPage(): ReactNode {
                 onClick={handleNextPage}
               >
                 Next
-                <ChevronRight className="h-4 w-4" />
+                <IconNavigationMenu size="sm" color="default" alt="" />
               </Button>
             </div>
           )}

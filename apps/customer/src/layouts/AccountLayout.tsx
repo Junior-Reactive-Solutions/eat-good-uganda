@@ -1,17 +1,42 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Heart, LogOut, Package, User } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 
 import logo from '../assets/brand/logo.svg'
+import {
+  IconNavigationProfile,
+  IconNavigationOrders,
+  IconNavigationFavorites,
+  IconInteractionPhone,
+} from '../components/icons'
 import { useMe } from '../features/auth/hooks'
 import { api } from '../lib/api'
 
-const navItems = [
-  { to: '/account', label: 'Profile', icon: User, end: true },
-  { to: '/account/orders', label: 'Orders', icon: Package, end: false },
-  { to: '/account/favourites', label: 'Favourites', icon: Heart, end: false },
+type NavItem = {
+  to: string
+  label: string
+  iconName: 'profile' | 'orders' | 'favorites'
+  end: boolean
+}
+
+const navItems: NavItem[] = [
+  { to: '/account', label: 'Profile', iconName: 'profile', end: true },
+  { to: '/account/orders', label: 'Orders', iconName: 'orders', end: false },
+  { to: '/account/favourites', label: 'Favourites', iconName: 'favorites', end: false },
 ]
+
+const getIcon = (iconName: string) => {
+  switch (iconName) {
+    case 'profile':
+      return IconNavigationProfile
+    case 'orders':
+      return IconNavigationOrders
+    case 'favorites':
+      return IconNavigationFavorites
+    default:
+      return IconNavigationProfile
+  }
+}
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
@@ -45,12 +70,15 @@ export function AccountLayout() {
         </div>
         {me && <p className="mb-4 truncate text-sm text-platform-fg-muted">{me.email}</p>}
         <nav className="flex flex-col gap-1">
-          {navItems.map(({ to, label, icon: Icon, end }) => (
-            <NavLink key={to} to={to} end={end} className={navLinkClass}>
-              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              {label}
-            </NavLink>
-          ))}
+          {navItems.map(({ to, label, iconName, end }) => {
+            const Icon = getIcon(iconName)
+            return (
+              <NavLink key={to} to={to} end={end} className={navLinkClass}>
+                <Icon size="sm" color="default" alt="" className="shrink-0" />
+                {label}
+              </NavLink>
+            )
+          })}
           <button
             onClick={() => {
               logout.mutate()
@@ -58,7 +86,7 @@ export function AccountLayout() {
             disabled={logout.isPending}
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-platform-fg-muted hover:bg-platform-accent hover:text-platform-fg transition-colors disabled:opacity-50"
           >
-            <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <IconInteractionPhone size="sm" color="default" alt="" className="shrink-0" />
             {logout.isPending ? 'Signing out…' : 'Sign out'}
           </button>
         </nav>

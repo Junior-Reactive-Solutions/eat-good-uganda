@@ -1,8 +1,11 @@
-import { ArrowRight, Utensils } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import {
+  IconNavigationMenu,
+  IconProductBreadLoaf,
+} from '../components/icons'
 import { usePublicBakery, usePublicCategories, usePublicProducts } from '../features/bakery/api'
 import cloudinaryImage from '../lib/cloudinary'
 
@@ -77,7 +80,7 @@ export default function BakeryPage() {
           <Link to={`/b/${bakerySlug}/menu`}>
             <Button className="bg-bakery-primary text-bakery-primary-foreground">
               Browse menu
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <IconNavigationMenu size="sm" color="default" className="ml-2" alt="" />
             </Button>
           </Link>
         </div>
@@ -149,9 +152,11 @@ export default function BakeryPage() {
         {!productsData ||
           (productsData.products.length === 0 && (
             <div className="rounded-lg border border-platform-border bg-platform-surface p-8 text-center">
-              <Utensils
-                className="mx-auto mb-4 h-12 w-12 text-platform-fg-muted"
-                aria-hidden="true"
+              <IconProductBreadLoaf
+                size="lg"
+                color="default"
+                className="mx-auto mb-4"
+                alt=""
               />
               <h3 className="text-lg font-semibold text-platform-fg">No products yet</h3>
               <p className="mt-1 text-platform-fg-muted">

@@ -1,7 +1,10 @@
-import { Bell, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import {
+  IconInteractionBellNotification,
+  IconInteractionDelete,
+} from '../components/icons'
 import {
   useNotifications,
   useMarkNotificationAsRead,
@@ -111,7 +114,7 @@ export default function NotificationPage() {
       {/* Empty State */}
       {notifications.length === 0 && (
         <div className="rounded-lg border border-dashed border-platform-border bg-platform-surface/50 p-8 text-center">
-          <Bell className="mx-auto mb-4 h-12 w-12 text-platform-fg-muted" />
+          <IconInteractionBellNotification size="lg" color="default" className="mx-auto mb-4" alt="" />
           <h2 className="mb-2 text-lg font-semibold text-platform-fg">
             No notifications
           </h2>
@@ -182,7 +185,7 @@ export default function NotificationPage() {
                       title="Delete notification"
                       disabled={deleteNotification.isPending}
                     >
-                      <Trash2 className="h-5 w-5" />
+                      <IconInteractionDelete size="sm" color="default" alt="" />
                     </button>
                   </div>
                 </div>

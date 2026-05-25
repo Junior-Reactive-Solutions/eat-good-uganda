@@ -1,10 +1,13 @@
-import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import {
+  IconNavigationMenu,
+  IconNavigationCart,
+} from '../components/icons'
 import { usePublicBakery, usePublicProduct, usePublicProducts } from '../features/bakery/api'
 import { CartSwitchDialog } from '../features/cart/CartSwitchDialog'
 import { useAddToCart, useCart, useIsFromAnotherBakery } from '../features/cart/hooks'
@@ -153,7 +156,7 @@ export default function ProductDetailPage() {
         to={`/b/${bakerySlug}`}
         className="mb-4 inline-flex items-center gap-2 text-sm text-platform-fg-muted hover:text-platform-fg"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <IconNavigationMenu size="sm" color="default" alt="" />
         Back to bakery
       </Link>
 
@@ -184,14 +187,14 @@ export default function ProductDetailPage() {
                       className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
                       aria-label="Previous image"
                     >
-                      <ChevronLeft className="h-6 w-6" />
+                      <IconNavigationMenu size="md" color="default" alt="" />
                     </button>
                     <button
                       onClick={nextImage}
                       className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
                       aria-label="Next image"
                     >
-                      <ChevronRight className="h-6 w-6" />
+                      <IconNavigationMenu size="md" color="default" alt="" />
                     </button>
                   </>
                 )}
@@ -360,7 +363,7 @@ export default function ProductDetailPage() {
             className="bg-bakery-primary text-bakery-primary-foreground flex items-center justify-center gap-2 py-3"
             size="lg"
           >
-            <ShoppingCart className="h-5 w-5" />
+            <IconNavigationCart size="sm" color="default" alt="" />
             Add to cart
           </Button>
         </div>
