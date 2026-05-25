@@ -1,10 +1,9 @@
 import type { CheckoutForm, OrderResponse } from '@eatgood/shared'
 import { checkoutFormSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
-import type { SubmitHandler } from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
@@ -12,10 +11,7 @@ import CustomerDetailsSection from '../components/checkout/CustomerDetailsSectio
 import FulfillmentSection from '../components/checkout/FulfillmentSection'
 import OrderReviewSection from '../components/checkout/OrderReviewSection'
 import PaymentMethodSection from '../components/checkout/PaymentMethodSection'
-import {
-  IconAdminApproved,
-  IconAdminRejected,
-} from '../components/icons'
+import { IconAdminApproved, IconAdminRejected, IconInteractionClock } from '../components/icons'
 import { useMe } from '../features/auth/hooks'
 import { useCart } from '../features/cart/hooks'
 import {
@@ -166,12 +162,8 @@ export default function CheckoutPage() {
       const orderId = response.data.id
 
       // Handle MoMo payment: initiate after order creation and poll for status
-      if (
-        data.payment.method === 'mtn_momo' &&
-        currentUser &&
-        'phoneNumber' in data.payment
-      ) {
-        const phone = data.payment.phoneNumber as string
+      if (data.payment.method === 'mtn_momo' && currentUser && 'phoneNumber' in data.payment) {
+        const phone = data.payment.phoneNumber
         const normalized = normalizeUgandaPhone(phone)
         if (!normalized) {
           setSubmitError('Invalid Uganda phone number')
@@ -190,13 +182,10 @@ export default function CheckoutPage() {
           // 5-minute timeout
           momoTimeoutRef.current = setTimeout(() => {
             setMomoPhase('timeout')
-            setMomoError(
-              'Payment timed out after 5 minutes. Please try again or contact support.',
-            )
+            setMomoError('Payment timed out after 5 minutes. Please try again or contact support.')
           }, MOMO_POLL_TIMEOUT_MS)
         } catch (momoErr) {
-          const message =
-            momoErr instanceof Error ? momoErr.message : 'Failed to initiate payment'
+          const message = momoErr instanceof Error ? momoErr.message : 'Failed to initiate payment'
           setMomoError(message)
           setMomoPhase('failed')
         }
@@ -233,7 +222,14 @@ export default function CheckoutPage() {
 
         {(momoPhase === 'initiating' || momoPhase === 'polling') && (
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-6 text-center">
-            <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-blue-600" />
+            <div className="mx-auto mb-3 inline-block">
+              <IconInteractionClock
+                size="lg"
+                color="default"
+                className="animate-spin text-blue-600"
+                alt=""
+              />
+            </div>
             <p className="text-base font-semibold text-blue-800">
               Payment initiated — check your phone for the MoMo prompt
             </p>
@@ -249,9 +245,7 @@ export default function CheckoutPage() {
             <p className="text-base font-semibold text-green-800">
               Payment confirmed! Your order is confirmed.
             </p>
-            <p className="mt-2 text-sm text-green-600">
-              Redirecting to your order...
-            </p>
+            <p className="mt-2 text-sm text-green-600">Redirecting to your order...</p>
           </div>
         )}
 
@@ -313,7 +307,12 @@ export default function CheckoutPage() {
 
       {/* Checkout Form */}
       <FormProvider {...methods}>
-        <form onSubmit={(e) => { void methods.handleSubmit(onSubmit)(e) }} className="space-y-6">
+        <form
+          onSubmit={(e) => {
+            void methods.handleSubmit(onSubmit)(e)
+          }}
+          className="space-y-6"
+        >
           {/* Customer Details */}
           <CustomerDetailsSection />
 
@@ -341,11 +340,7 @@ export default function CheckoutPage() {
             >
               Continue Shopping
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || items.length === 0}
-              className="flex-1"
-            >
+            <Button type="submit" disabled={isSubmitting || items.length === 0} className="flex-1">
               {isSubmitting ? 'Creating Order...' : 'Place Order'}
             </Button>
           </div>

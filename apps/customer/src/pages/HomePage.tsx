@@ -1,4 +1,3 @@
-import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { BakeryCard } from '../components/BakeryCard'
@@ -7,6 +6,8 @@ import {
   IconNavigationSearch,
   IconDeliveryLocation,
   IconInteractionDelete,
+  IconInteractionHelp,
+  IconInteractionClock,
 } from '../components/icons'
 import { usePublicBakeries } from '../features/bakery/api'
 import { useCurrentLocation } from '../features/geolocation/useCurrentLocation'
@@ -151,7 +152,12 @@ export default function HomePage() {
             aria-label="Loading bakeries"
             className="flex items-center justify-center py-24"
           >
-            <Loader2 className="h-8 w-8 animate-spin text-platform-primary" aria-hidden="true" />
+            <IconInteractionClock
+              className="animate-spin text-platform-primary"
+              alt=""
+              size="lg"
+              color="default"
+            />
           </div>
         )}
 

@@ -1,18 +1,18 @@
-import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
-import { LoadingSpinner } from '../components/LoadingSpinner'
-import { PageHeader } from '../components/PageHeader'
-import { PaymentCredentialForm } from '../components/PaymentCredentialForm'
 import {
   IconAdminApproved,
   IconAdminRejected,
   IconNavigationCart,
   IconInteractionDelete,
   IconPaymentMomo,
+  IconInteractionClock,
 } from '../components/icons'
+import { LoadingSpinner } from '../components/LoadingSpinner'
+import { PageHeader } from '../components/PageHeader'
+import { PaymentCredentialForm } from '../components/PaymentCredentialForm'
 import {
   useCreatePaymentCredential,
   useDeletePaymentCredential,
@@ -30,13 +30,7 @@ const providerLabels = {
   bank_transfer: 'Bank Transfer',
 }
 
-type TestPaymentPhase =
-  | 'idle'
-  | 'initiating'
-  | 'polling'
-  | 'success'
-  | 'failed'
-  | 'timeout'
+type TestPaymentPhase = 'idle' | 'initiating' | 'polling' | 'success' | 'failed' | 'timeout'
 
 const TEST_PHONE = '+256700000000'
 const POLL_TIMEOUT_MS = 30 * 1000 // 30 seconds
@@ -46,9 +40,9 @@ export default function PaymentSetupPage() {
   const createCredential = useCreatePaymentCredential()
   const deleteCredential = useDeletePaymentCredential()
   const [isAdding, setIsAdding] = useState(false)
-  const [selectedProvider, setSelectedProvider] = useState<'mtn_momo' | 'airtel_money' | 'bank_transfer'>(
-    'mtn_momo',
-  )
+  const [selectedProvider, setSelectedProvider] = useState<
+    'mtn_momo' | 'airtel_money' | 'bank_transfer'
+  >('mtn_momo')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   // Test payment state
@@ -60,10 +54,7 @@ export default function PaymentSetupPage() {
   const createTestOrder = useCreateTestOrder()
   const initiateTestPayment = useInitiateTestPayment()
 
-  const { data: paymentStatus } = useTestPaymentStatus(
-    testOrderId ?? '',
-    testPhase === 'polling',
-  )
+  const { data: paymentStatus } = useTestPaymentStatus(testOrderId ?? '', testPhase === 'polling')
 
   // React to polling result
   useEffect(() => {
@@ -200,9 +191,7 @@ export default function PaymentSetupPage() {
           {/* Add New Credential Form */}
           {isAdding && (
             <Card className="rounded-lg border border-platform-border bg-platform-surface p-6">
-              <h3 className="text-lg font-semibold text-platform-fg mb-4">
-                Add Payment Method
-              </h3>
+              <h3 className="text-lg font-semibold text-platform-fg mb-4">Add Payment Method</h3>
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-platform-fg mb-2">
@@ -261,126 +250,141 @@ export default function PaymentSetupPage() {
           {data && data.items.length > 0 ? (
             <div className="space-y-3">
               {data.items.map((credential) => {
-                const isMomoEnabled =
-                  credential.provider === 'mtn_momo' && credential.is_enabled
+                const isMomoEnabled = credential.provider === 'mtn_momo' && credential.is_enabled
 
                 return (
-                <Card
-                  key={credential.id}
-                  className="rounded-lg border border-platform-border bg-platform-surface p-4"
-                >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <h4 className="font-semibold text-platform-fg">
-                        {providerLabels[credential.provider]}
-                      </h4>
-                      <p className="text-sm text-platform-fg-muted">
-                        Added {new Date(credential.created_at).toLocaleDateString()}
-                      </p>
-                      <p className="text-xs text-platform-fg-muted mt-1">
-                        Status: {credential.is_enabled ? 'Enabled' : 'Disabled'}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      {isMomoEnabled && (
+                  <Card
+                    key={credential.id}
+                    className="rounded-lg border border-platform-border bg-platform-surface p-4"
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <h4 className="font-semibold text-platform-fg">
+                          {providerLabels[credential.provider]}
+                        </h4>
+                        <p className="text-sm text-platform-fg-muted">
+                          Added {new Date(credential.created_at).toLocaleDateString()}
+                        </p>
+                        <p className="text-xs text-platform-fg-muted mt-1">
+                          Status: {credential.is_enabled ? 'Enabled' : 'Disabled'}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        {isMomoEnabled && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => {
+                              void handleTestPaymentClick()
+                            }}
+                            disabled={
+                              testPhase === 'initiating' ||
+                              testPhase === 'polling' ||
+                              deleteCredential.isPending
+                            }
+                            className="gap-1.5"
+                            aria-label="Test MoMo payment"
+                            data-testid="test-payment-button"
+                          >
+                            {testPhase === 'initiating' || testPhase === 'polling' ? (
+                              <IconInteractionClock
+                                size="sm"
+                                color="default"
+                                className="animate-spin"
+                                alt=""
+                              />
+                            ) : (
+                              <IconPaymentMomo size="sm" color="default" alt="" />
+                            )}
+                            Test Payment
+                          </Button>
+                        )}
                         <Button
                           variant="secondary"
                           size="sm"
                           onClick={() => {
-                            void handleTestPaymentClick()
+                            setDeleteConfirm(credential.id)
                           }}
-                          disabled={
-                            testPhase === 'initiating' ||
-                            testPhase === 'polling' ||
-                            deleteCredential.isPending
-                          }
-                          className="gap-1.5"
-                          aria-label="Test MoMo payment"
-                          data-testid="test-payment-button"
+                          disabled={deleteCredential.isPending}
+                          className="text-platform-error"
+                          aria-label="Delete payment method"
                         >
-                          {testPhase === 'initiating' || testPhase === 'polling' ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <IconPaymentMomo size="sm" color="default" alt="" />
-                          )}
-                          Test Payment
+                          <IconInteractionDelete size="sm" color="error" alt="" />
                         </Button>
-                      )}
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => {
-                          setDeleteConfirm(credential.id)
-                        }}
-                        disabled={deleteCredential.isPending}
-                        className="text-platform-error"
-                        aria-label="Delete payment method"
-                      >
-                        <IconInteractionDelete size="sm" color="error" alt="" />
-                      </Button>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Test Payment Status Banner */}
-                  {isMomoEnabled && testPhase !== 'idle' && (
-                    <div className="mt-3">
-                      {(testPhase === 'initiating' || testPhase === 'polling') && (
-                        <div className="flex items-center gap-2 rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 border border-blue-200">
-                          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                          <span>
-                            Payment initiated — check your phone for the MoMo prompt
-                          </span>
-                        </div>
-                      )}
+                    {/* Test Payment Status Banner */}
+                    {isMomoEnabled && testPhase !== 'idle' && (
+                      <div className="mt-3">
+                        {(testPhase === 'initiating' || testPhase === 'polling') && (
+                          <div className="flex items-center gap-2 rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 border border-blue-200">
+                            <IconInteractionClock
+                              size="sm"
+                              color="default"
+                              className="shrink-0 animate-spin"
+                              alt=""
+                            />
+                            <span>Payment initiated — check your phone for the MoMo prompt</span>
+                          </div>
+                        )}
 
-                      {testPhase === 'success' && (
-                        <div className="flex items-center gap-2 rounded-md bg-green-50 px-3 py-2 text-sm text-green-800 border border-green-200">
-                          <IconAdminApproved size="sm" color="success" className="shrink-0" alt="" />
-                          <span>Payment received! MoMo integration is working correctly.</span>
-                          <button
-                            onClick={resetTestPayment}
-                            className="ml-auto text-xs underline"
-                          >
-                            Dismiss
-                          </button>
-                        </div>
-                      )}
-
-                      {(testPhase === 'failed' || testPhase === 'timeout') && testError && (
-                        <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 border border-red-200">
-                          <div className="flex items-start gap-2">
-                            <IconAdminRejected size="sm" color="error" className="mt-0.5 shrink-0" alt="" />
-                            <div className="flex-1">
-                              <p className="font-medium">
-                                {testPhase === 'timeout' ? 'Payment timed out' : 'Payment failed'}
-                              </p>
-                              <p className="mt-0.5 text-xs text-red-700">{testError}</p>
-                              <ul className="mt-1.5 space-y-0.5 text-xs text-red-700 list-disc list-inside">
-                                <li>Verify your MTN MoMo API credentials are correct</li>
-                                <li>Check that the environment (sandbox/production) matches</li>
-                                <li>Ensure the test phone number is registered for MoMo</li>
-                              </ul>
-                            </div>
+                        {testPhase === 'success' && (
+                          <div className="flex items-center gap-2 rounded-md bg-green-50 px-3 py-2 text-sm text-green-800 border border-green-200">
+                            <IconAdminApproved
+                              size="sm"
+                              color="success"
+                              className="shrink-0"
+                              alt=""
+                            />
+                            <span>Payment received! MoMo integration is working correctly.</span>
                             <button
                               onClick={resetTestPayment}
-                              className="ml-auto shrink-0 text-xs underline"
+                              className="ml-auto text-xs underline"
                             >
                               Dismiss
                             </button>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </Card>
+                        )}
+
+                        {(testPhase === 'failed' || testPhase === 'timeout') && testError && (
+                          <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 border border-red-200">
+                            <div className="flex items-start gap-2">
+                              <IconAdminRejected
+                                size="sm"
+                                color="error"
+                                className="mt-0.5 shrink-0"
+                                alt=""
+                              />
+                              <div className="flex-1">
+                                <p className="font-medium">
+                                  {testPhase === 'timeout' ? 'Payment timed out' : 'Payment failed'}
+                                </p>
+                                <p className="mt-0.5 text-xs text-red-700">{testError}</p>
+                                <ul className="mt-1.5 space-y-0.5 text-xs text-red-700 list-disc list-inside">
+                                  <li>Verify your MTN MoMo API credentials are correct</li>
+                                  <li>Check that the environment (sandbox/production) matches</li>
+                                  <li>Ensure the test phone number is registered for MoMo</li>
+                                </ul>
+                              </div>
+                              <button
+                                onClick={resetTestPayment}
+                                className="ml-auto shrink-0 text-xs underline"
+                              >
+                                Dismiss
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Card>
                 )
               })}
             </div>
           ) : (
             <div className="rounded-lg border border-dashed border-platform-border bg-platform-surface p-8 text-center">
-              <p className="text-sm text-platform-fg-muted">
-                No payment methods configured yet.
-              </p>
+              <p className="text-sm text-platform-fg-muted">No payment methods configured yet.</p>
               {!isAdding && (
                 <Button
                   onClick={() => {
@@ -402,9 +406,7 @@ export default function PaymentSetupPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
           <div className="bg-platform-surface rounded-lg shadow-lg max-w-sm w-full p-6 border border-platform-border">
-            <h2 className="text-lg font-semibold text-platform-fg mb-2">
-              Delete Payment Method
-            </h2>
+            <h2 className="text-lg font-semibold text-platform-fg mb-2">Delete Payment Method</h2>
             <p className="text-sm text-platform-fg-muted mb-6">
               Are you sure you want to delete this payment method? This cannot be undone.
             </p>

@@ -1,16 +1,19 @@
 import type { CustomerDetail } from '@eatgood/db'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertCircle, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import z from 'zod'
 
 import { Button } from '@/components/Button'
+import { IconInteractionHelp, IconInteractionDelete } from '@/components/icons'
 import { useBanCustomer, useUnbanCustomer } from '@/features/users/api'
 
 const banReasonSchema = z.object({
-  reason: z.string().min(10, 'Reason must be at least 10 characters').max(500, 'Reason must be at most 500 characters'),
+  reason: z
+    .string()
+    .min(10, 'Reason must be at least 10 characters')
+    .max(500, 'Reason must be at most 500 characters'),
 })
 
 type BanReasonData = z.infer<typeof banReasonSchema>
@@ -91,7 +94,7 @@ export function UserBanModal({ isOpen, onClose, customer, onSuccess }: UserBanMo
             className="text-platform-fg-muted hover:text-platform-fg"
             aria-label="Close modal"
           >
-            <X className="h-5 w-5" />
+            <IconInteractionDelete size="md" color="default" alt="" />
           </button>
         </div>
 
@@ -130,7 +133,12 @@ export function UserBanModal({ isOpen, onClose, customer, onSuccess }: UserBanMo
                 </div>
               )}
               <div className="flex items-start gap-3 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-                <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <IconInteractionHelp
+                  size="md"
+                  color="default"
+                  className="flex-shrink-0 mt-0.5"
+                  alt=""
+                />
                 <p className="text-sm text-yellow-800">
                   Unbanning this user will allow them to place orders again.
                 </p>
@@ -138,13 +146,22 @@ export function UserBanModal({ isOpen, onClose, customer, onSuccess }: UserBanMo
             </div>
           ) : (
             // Ban form
-            <form onSubmit={(e) => {
-              void handleSubmit(onSubmit)(e)
-            }} className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                void handleSubmit(onSubmit)(e)
+              }}
+              className="space-y-4"
+            >
               <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <IconInteractionHelp
+                  size="md"
+                  color="default"
+                  className="flex-shrink-0 mt-0.5"
+                  alt=""
+                />
                 <p className="text-sm text-red-800">
-                  Banning this user will prevent them from placing orders. This action can be reversed.
+                  Banning this user will prevent them from placing orders. This action can be
+                  reversed.
                 </p>
               </div>
 
@@ -159,7 +176,9 @@ export function UserBanModal({ isOpen, onClose, customer, onSuccess }: UserBanMo
                   placeholder="Describe the reason for banning this user..."
                   rows={4}
                 />
-                {errors.reason && <p className="mt-1 text-sm text-platform-error">{errors.reason.message}</p>}
+                {errors.reason && (
+                  <p className="mt-1 text-sm text-platform-error">{errors.reason.message}</p>
+                )}
               </div>
 
               {hasError && (
@@ -171,11 +190,7 @@ export function UserBanModal({ isOpen, onClose, customer, onSuccess }: UserBanMo
               )}
 
               <div className="flex gap-3 pt-2">
-                <Button
-                  variant="secondary"
-                  onClick={onClose}
-                  className="flex-1"
-                >
+                <Button variant="secondary" onClick={onClose} className="flex-1">
                   Cancel
                 </Button>
                 <Button variant="danger" type="submit" loading={isLoading} className="flex-1">
@@ -199,9 +214,14 @@ export function UserBanModal({ isOpen, onClose, customer, onSuccess }: UserBanMo
                 <Button variant="secondary" onClick={onClose} className="flex-1">
                   Cancel
                 </Button>
-                <Button variant="primary" onClick={() => {
-                  void handleUnban()
-                }} loading={isLoading} className="flex-1">
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    void handleUnban()
+                  }}
+                  loading={isLoading}
+                  className="flex-1"
+                >
                   Unban User
                 </Button>
               </div>

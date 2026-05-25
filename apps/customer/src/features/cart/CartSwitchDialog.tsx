@@ -1,7 +1,7 @@
-import { AlertCircle } from 'lucide-react'
 import { useCallback } from 'react'
 
 import { Button } from '../../components/Button'
+import { IconInteractionHelp } from '../../components/icons'
 
 type CartSwitchDialogProps = {
   isOpen: boolean
@@ -29,7 +29,7 @@ export function CartSwitchDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
         <div className="mb-4 flex items-start gap-3">
-          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600" aria-hidden="true" />
+          <IconInteractionHelp size="md" color="warning" className="mt-0.5 shrink-0" alt="" />
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Clear your cart?</h2>
             <p className="mt-1 text-sm text-gray-600">

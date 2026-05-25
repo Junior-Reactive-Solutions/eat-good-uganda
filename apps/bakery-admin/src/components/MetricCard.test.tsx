@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import { DollarSign } from 'lucide-react'
 import { describe, expect, it } from 'vitest'
+
+import { IconPaymentBank } from '../components/icons'
 
 import { MetricCard } from './MetricCard'
 
@@ -13,13 +14,7 @@ describe('MetricCard', () => {
   })
 
   it('renders subtitle when provided', () => {
-    render(
-      <MetricCard
-        label="Total Sales"
-        value="500,000 UGX"
-        subtitle="Current month"
-      />
-    )
+    render(<MetricCard label="Total Sales" value="500,000 UGX" subtitle="Current month" />)
 
     expect(screen.getByText('Current month')).toBeInTheDocument()
   })
@@ -29,8 +24,8 @@ describe('MetricCard', () => {
       <MetricCard
         label="Total Sales"
         value="500,000 UGX"
-        icon={<DollarSign className="h-6 w-6" />}
-      />
+        icon={<IconPaymentBank size="md" color="default" alt="" />}
+      />,
     )
 
     // Icon should render as SVG element
@@ -43,7 +38,7 @@ describe('MetricCard', () => {
         label="Total Sales"
         value="500,000 UGX"
         trend={{ direction: 'up', percentage: 12 }}
-      />
+      />,
     )
 
     expect(screen.getByText('12%')).toBeInTheDocument()
@@ -59,7 +54,7 @@ describe('MetricCard', () => {
         label="Total Sales"
         value="500,000 UGX"
         trend={{ direction: 'down', percentage: 5 }}
-      />
+      />,
     )
 
     expect(screen.getByText('5%')).toBeInTheDocument()
@@ -72,7 +67,7 @@ describe('MetricCard', () => {
         label="Total Sales"
         value="500,000 UGX"
         trend={{ direction: 'up', percentage: 12 }}
-      />
+      />,
     )
 
     const trendText = screen.getByText('12%')
@@ -85,7 +80,7 @@ describe('MetricCard', () => {
         label="Total Sales"
         value="500,000 UGX"
         trend={{ direction: 'down', percentage: 5 }}
-      />
+      />,
     )
 
     const trendText = screen.getByText('5%')
@@ -99,9 +94,7 @@ describe('MetricCard', () => {
   })
 
   it('has proper card styling classes', () => {
-    render(
-      <MetricCard label="Total Sales" value="500,000 UGX" />
-    )
+    render(<MetricCard label="Total Sales" value="500,000 UGX" />)
 
     const card = document.querySelector('.rounded-lg')
     expect(card).toHaveClass('border-platform-border')
@@ -115,9 +108,9 @@ describe('MetricCard', () => {
         label="Total Sales"
         value="500,000 UGX"
         subtitle="Current month"
-        icon={<DollarSign className="h-6 w-6" />}
+        icon={<IconPaymentBank size="md" color="default" alt="" />}
         trend={{ direction: 'up', percentage: 12 }}
-      />
+      />,
     )
 
     expect(screen.getByText('Total Sales')).toBeInTheDocument()

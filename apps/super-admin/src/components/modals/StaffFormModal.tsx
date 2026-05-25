@@ -1,18 +1,21 @@
 import type { BakeryStaff } from '@eatgood/db'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { X } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import z from 'zod'
 
 import { Button } from '@/components/Button'
+import { IconInteractionDelete } from '@/components/icons'
 import { useAddStaffMember, useUpdateStaffRole } from '@/features/staff/api'
 
 const staffFormSchema = z.object({
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   email: z.string().email(),
-  fullName: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name must be at most 100 characters'),
+  fullName: z
+    .string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must be at most 100 characters'),
   phone: z.string().optional(),
   role: z.enum(['owner', 'manager', 'staff']),
 })
@@ -110,14 +113,17 @@ export function StaffFormModal({
             className="text-platform-fg-muted hover:text-platform-fg"
             aria-label="Close modal"
           >
-            <X className="h-5 w-5" />
+            <IconInteractionDelete size="md" color="default" alt="" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={(e) => {
-          void handleSubmit(onSubmit)(e)
-        }} className="space-y-4 p-6">
+        <form
+          onSubmit={(e) => {
+            void handleSubmit(onSubmit)(e)
+          }}
+          className="space-y-4 p-6"
+        >
           {/* Email Field */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-platform-fg mb-1">
@@ -131,7 +137,9 @@ export function StaffFormModal({
               className="w-full rounded-lg border border-platform-border bg-platform-bg px-3 py-2 text-platform-fg placeholder-platform-fg-muted focus:border-platform-primary focus:outline-none focus:ring-1 focus:ring-platform-primary disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="staff@bakery.com"
             />
-            {errors.email && <p className="mt-1 text-sm text-platform-error">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="mt-1 text-sm text-platform-error">{errors.email.message}</p>
+            )}
           </div>
 
           {/* Full Name Field */}
@@ -147,7 +155,9 @@ export function StaffFormModal({
               className="w-full rounded-lg border border-platform-border bg-platform-bg px-3 py-2 text-platform-fg placeholder-platform-fg-muted focus:border-platform-primary focus:outline-none focus:ring-1 focus:ring-platform-primary disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="John Doe"
             />
-            {errors.fullName && <p className="mt-1 text-sm text-platform-error">{errors.fullName.message}</p>}
+            {errors.fullName && (
+              <p className="mt-1 text-sm text-platform-error">{errors.fullName.message}</p>
+            )}
           </div>
 
           {/* Phone Field */}
@@ -162,7 +172,9 @@ export function StaffFormModal({
               className="w-full rounded-lg border border-platform-border bg-platform-bg px-3 py-2 text-platform-fg placeholder-platform-fg-muted focus:border-platform-primary focus:outline-none focus:ring-1 focus:ring-platform-primary"
               placeholder="+256 700 123 456"
             />
-            {errors.phone && <p className="mt-1 text-sm text-platform-error">{errors.phone.message}</p>}
+            {errors.phone && (
+              <p className="mt-1 text-sm text-platform-error">{errors.phone.message}</p>
+            )}
           </div>
 
           {/* Role Field */}
@@ -179,7 +191,9 @@ export function StaffFormModal({
               <option value="manager">Manager</option>
               <option value="owner">Owner</option>
             </select>
-            {errors.role && <p className="mt-1 text-sm text-platform-error">{errors.role.message}</p>}
+            {errors.role && (
+              <p className="mt-1 text-sm text-platform-error">{errors.role.message}</p>
+            )}
           </div>
 
           {/* Error State */}
@@ -193,11 +207,7 @@ export function StaffFormModal({
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <Button
-              variant="secondary"
-              onClick={onClose}
-              className="flex-1"
-            >
+            <Button variant="secondary" onClick={onClose} className="flex-1">
               Cancel
             </Button>
             <Button variant="primary" type="submit" loading={isLoading} className="flex-1">

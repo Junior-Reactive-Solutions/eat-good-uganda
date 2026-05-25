@@ -1,10 +1,10 @@
 import type { CheckoutForm } from '@eatgood/shared'
-import { ChevronRight } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 
 import { useCart } from '../../features/cart/hooks'
 import { Button } from '../Button'
 import { Card } from '../Card'
+import { IconNavigationMenu } from '../icons'
 
 /**
  * Order Review Section for Checkout
@@ -26,7 +26,7 @@ export default function OrderReviewSection() {
   const payment = watch('payment')
 
   // Mock subtotal calculation (in reality, this comes from the backend)
-  const subtotalMinor = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  const subtotalMinor = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const deliveryFeeMinor = fulfillment.mode === 'delivery' ? 5000 : 0 // Placeholder: 50,000 UGX = 5000 cents
   const totalMinor = subtotalMinor + deliveryFeeMinor
 
@@ -89,14 +89,9 @@ export default function OrderReviewSection() {
                 </div>
               )}
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="text-platform-primary"
-            >
+            <Button type="button" variant="ghost" size="sm" className="text-platform-primary">
               Edit
-              <ChevronRight className="h-4 w-4 ml-1" />
+              <IconNavigationMenu size="sm" color="default" className="ml-1" alt="" />
             </Button>
           </div>
         </div>
@@ -112,14 +107,9 @@ export default function OrderReviewSection() {
                 <p>{customer.phone}</p>
               </div>
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="text-platform-primary"
-            >
+            <Button type="button" variant="ghost" size="sm" className="text-platform-primary">
               Edit
-              <ChevronRight className="h-4 w-4 ml-1" />
+              <IconNavigationMenu size="sm" color="default" className="ml-1" alt="" />
             </Button>
           </div>
         </div>
@@ -132,18 +122,13 @@ export default function OrderReviewSection() {
               <p className="text-sm text-platform-fg-muted">
                 {getPaymentMethodLabel(
                   payment.method,
-                  'phoneNumber' in payment ? payment.phoneNumber : undefined
+                  'phoneNumber' in payment ? payment.phoneNumber : undefined,
                 )}
               </p>
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="text-platform-primary"
-            >
+            <Button type="button" variant="ghost" size="sm" className="text-platform-primary">
               Edit
-              <ChevronRight className="h-4 w-4 ml-1" />
+              <IconNavigationMenu size="sm" color="default" className="ml-1" alt="" />
             </Button>
           </div>
         </div>
