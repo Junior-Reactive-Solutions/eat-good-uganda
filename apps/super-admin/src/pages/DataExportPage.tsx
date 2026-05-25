@@ -1,8 +1,11 @@
-import { ChevronLeft, ChevronRight, Download } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/Button'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
+import {
+  IconNavigationMenu,
+  IconInteractionDownload,
+} from '@/components/icons'
 import { downloadExport, useExports, useTriggerExport } from '@/features/exports/api'
 
 const formatDate = (dateString: string | undefined): string => {
@@ -254,7 +257,7 @@ export default function DataExportPage() {
                               aria-label="Download export"
                               title="Download CSV"
                             >
-                              <Download className="w-4 h-4 text-platform-primary" />
+                              <IconInteractionDownload size="sm" color="primary" alt="" />
                             </button>
                           </div>
                         </td>
@@ -279,7 +282,7 @@ export default function DataExportPage() {
                       variant="secondary"
                       className="px-3 py-1 text-sm"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <IconNavigationMenu size="sm" color="default" alt="" />
                     </Button>
                     <Button
                       onClick={(): void => {
@@ -289,7 +292,7 @@ export default function DataExportPage() {
                       variant="secondary"
                       className="px-3 py-1 text-sm"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <IconNavigationMenu size="sm" color="default" alt="" />
                     </Button>
                   </div>
                 </div>

@@ -1,4 +1,3 @@
-import { ArrowLeft, Mail, MapPin, Phone } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -6,6 +5,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { BakeryStatusBadge } from '../components/BakeryStatusBadge'
 import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import {
+  IconNavigationMenu,
+  IconInteractionPhone,
+  IconDeliveryLocation,
+} from '../components/icons'
 import {
   useApproveBakery,
   useBakeryDetail,
@@ -93,7 +97,7 @@ export default function BakeryDetailPage() {
           }}
           className="text-platform-fg-muted hover:text-platform-fg"
         >
-          <ArrowLeft className="h-6 w-6" />
+          <IconNavigationMenu size="md" color="default" alt="" />
         </button>
         <div>
           <h1 className="text-3xl font-bold text-platform-fg">{bakery.display_name}</h1>
@@ -140,11 +144,11 @@ export default function BakeryDetailPage() {
             {/* Contact */}
             <div className="mb-4 space-y-2">
               <div className="flex items-center gap-2 text-platform-fg-muted">
-                <Mail className="h-4 w-4" />
+                <IconInteractionPhone size="sm" color="default" alt="" />
                 <span>{bakery.email}</span>
               </div>
               <div className="flex items-center gap-2 text-platform-fg-muted">
-                <Phone className="h-4 w-4" />
+                <IconInteractionPhone size="sm" color="default" alt="" />
                 <span>{bakery.phone}</span>
               </div>
             </div>
@@ -152,7 +156,7 @@ export default function BakeryDetailPage() {
             {/* Address */}
             <div className="mb-4">
               <div className="flex items-start gap-2">
-                <MapPin className="mt-1 h-4 w-4 flex-shrink-0 text-platform-fg-muted" />
+                <IconDeliveryLocation size="sm" color="default" className="mt-1 flex-shrink-0" alt="" />
                 <div>
                   <p className="text-platform-fg-muted">{bakery.address_line1}</p>
                   {bakery.address_line2 && (

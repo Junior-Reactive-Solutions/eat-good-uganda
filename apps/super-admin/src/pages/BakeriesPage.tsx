@@ -1,10 +1,14 @@
-import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { BakeryCard } from '../components/BakeryCard'
 import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import {
+  IconNavigationMenu,
+  IconNavigationSearch,
+  IconInteractionDelete,
+} from '../components/icons'
 import { useBakeries } from '../features/bakeries/api'
 
 export default function BakeriesPage() {
@@ -156,7 +160,7 @@ export default function BakeriesPage() {
       <div className="space-y-4 rounded-lg border border-platform-border bg-platform-surface p-4">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-platform-fg-muted" />
+          <IconNavigationSearch className="absolute left-3 top-3 text-platform-fg-muted" size="sm" color="default" alt="" />
           <input
             type="text"
             placeholder="Search bakeries..."
@@ -173,7 +177,7 @@ export default function BakeriesPage() {
               }}
               className="absolute right-3 top-3 text-platform-fg-muted hover:text-platform-fg"
             >
-              <X className="h-4 w-4" />
+              <IconInteractionDelete size="sm" color="default" alt="" />
             </button>
           )}
         </div>
@@ -211,7 +215,7 @@ export default function BakeriesPage() {
           {/* Clear Filters */}
           {(search || status) && (
             <Button variant="ghost" size="sm" onClick={handleClearFilters} className="gap-1">
-              <X className="h-4 w-4" />
+              <IconInteractionDelete size="sm" color="default" alt="" />
               Clear Filters
             </Button>
           )}
@@ -247,7 +251,7 @@ export default function BakeriesPage() {
             disabled={page === 1}
             className="gap-1"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <IconNavigationMenu size="sm" color="default" alt="" />
             Previous
           </Button>
 
@@ -263,7 +267,7 @@ export default function BakeriesPage() {
             className="gap-1"
           >
             Next
-            <ChevronRight className="h-4 w-4" />
+            <IconNavigationMenu size="sm" color="default" alt="" />
           </Button>
         </div>
       )}

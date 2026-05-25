@@ -1,5 +1,4 @@
 import type { BakeryStaff } from '@eatgood/db'
-import { ArrowLeft, Edit2, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -8,6 +7,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/Button'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { StaffFormModal } from '@/components/modals/StaffFormModal'
+import {
+  IconNavigationMenu,
+  IconInteractionEdit,
+  IconInteractionDelete,
+} from '@/components/icons'
 import { useRemoveStaffMember, useStaff } from '@/features/staff/api'
 
 const formatDate = (dateString: string | undefined) => {
@@ -105,7 +109,7 @@ export default function BakeryStaffPage() {
           className="text-platform-fg-muted hover:text-platform-fg transition-colors"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <IconNavigationMenu size="md" color="default" alt="" />
         </button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-platform-fg">Bakery Staff</h1>
@@ -158,14 +162,14 @@ export default function BakeryStaffPage() {
                         className="inline-flex items-center gap-1 px-2 py-1 rounded text-platform-fg hover:bg-platform-bg transition-colors"
                         title="Edit staff member"
                       >
-                        <Edit2 className="h-4 w-4" />
+                        <IconInteractionEdit size="sm" color="default" alt="" />
                       </button>
                       <button
                         onClick={() => { handleDeleteClick(member); }}
                         className="inline-flex items-center gap-1 px-2 py-1 rounded text-platform-error hover:bg-red-50 transition-colors"
                         title="Remove staff member"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <IconInteractionDelete size="sm" color="error" alt="" />
                       </button>
                     </td>
                   </tr>

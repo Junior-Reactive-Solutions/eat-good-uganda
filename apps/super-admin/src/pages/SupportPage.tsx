@@ -1,9 +1,14 @@
 import type { SupportTicket, TicketDetail } from '@eatgood/db'
-import { ChevronLeft, ChevronRight, MessageSquare, Send, X } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/Button'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
+import {
+  IconNavigationMenu,
+  IconAdminAuditLog,
+  IconInteractionPhone,
+  IconInteractionDelete,
+} from '@/components/icons'
 import {
   useSendMessage,
   useTicketDetail,
@@ -106,7 +111,7 @@ function TicketDetailModal({ ticket, isOpen, isLoading, onClose }: TicketDetailM
             className="p-1 hover:bg-platform-bg rounded transition-colors"
             aria-label="Close modal"
           >
-            <X className="w-5 h-5 text-platform-fg-muted" />
+            <IconInteractionDelete size="sm" color="default" alt="" />
           </button>
         </div>
 
@@ -192,7 +197,7 @@ function TicketDetailModal({ ticket, isOpen, isLoading, onClose }: TicketDetailM
               {/* Messages */}
               <div className="space-y-3">
                 <h3 className="font-medium text-platform-fg flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4" />
+                  <IconAdminAuditLog size="sm" color="default" alt="" />
                   Messages
                 </h3>
 
@@ -249,7 +254,7 @@ function TicketDetailModal({ ticket, isOpen, isLoading, onClose }: TicketDetailM
                 'Sending...'
               ) : (
                 <>
-                  <Send className="w-4 h-4" /> Send
+                  <IconInteractionPhone size="sm" color="default" alt="" /> Send
                 </>
               )}
             </Button>
@@ -454,7 +459,7 @@ export default function SupportPage() {
                     variant="secondary"
                     className="px-3 py-1 text-sm"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <IconNavigationMenu size="sm" color="default" alt="" />
                   </Button>
                   <Button
                     onClick={(): void => {
@@ -464,7 +469,7 @@ export default function SupportPage() {
                     variant="secondary"
                     className="px-3 py-1 text-sm"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <IconNavigationMenu size="sm" color="default" alt="" />
                   </Button>
                 </div>
               </div>

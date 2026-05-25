@@ -1,11 +1,14 @@
 import type { CustomerDetail } from '@eatgood/db'
-import { ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 
 
 import { Button } from '@/components/Button'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { UserBanModal } from '@/components/modals/UserBanModal'
+import {
+  IconNavigationMenu,
+  IconAdminRejected,
+} from '@/components/icons'
 import { useCustomers } from '@/features/users/api'
 import { useDebounce } from '@/lib/hooks'
 

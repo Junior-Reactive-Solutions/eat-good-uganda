@@ -1,10 +1,14 @@
 import type { AuditLog } from '@eatgood/db'
-import { ChevronLeft, ChevronRight, Eye, X } from 'lucide-react'
 import { useState } from 'react'
 
 
 import { Button } from '@/components/Button'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
+import {
+  IconNavigationMenu,
+  IconAdminAuditLog,
+  IconInteractionDelete,
+} from '@/components/icons'
 import { useAuditLogs } from '@/features/audit-logs/api'
 import { useDebounce } from '@/lib/hooks'
 
@@ -174,7 +178,7 @@ export default function AuditLogsPage() {
                           className="inline-flex items-center gap-1 px-2 py-1 rounded text-platform-primary hover:bg-platform-bg transition-colors"
                           title="View changes"
                         >
-                          <Eye className="h-4 w-4" />
+                          <IconAdminAuditLog size="sm" color="default" alt="" />
                           View
                         </button>
                       )}
@@ -196,7 +200,7 @@ export default function AuditLogsPage() {
             onClick={() => { setPage((p) => Math.max(1, p - 1)); }}
             disabled={page === 1}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <IconNavigationMenu size="sm" color="default" alt="" />
             Previous
           </Button>
 
@@ -211,7 +215,7 @@ export default function AuditLogsPage() {
             disabled={page === pagination.totalPages}
           >
             Next
-            <ChevronRight className="h-4 w-4" />
+            <IconNavigationMenu size="sm" color="default" alt="" />
           </Button>
         </div>
       )}
@@ -226,7 +230,7 @@ export default function AuditLogsPage() {
                 onClick={() => { setSelectedLog(undefined); }}
                 className="text-platform-fg-muted hover:text-platform-fg"
               >
-                <X className="h-5 w-5" />
+                <IconInteractionDelete size="sm" color="default" alt="" />
               </button>
             </div>
 
