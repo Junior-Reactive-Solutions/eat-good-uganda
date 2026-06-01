@@ -146,7 +146,7 @@ export type OrderResponse = z.infer<typeof orderResponseSchema>
 export const initiateMomoPaymentSchema = z.object({
   method: z.literal('mtn_momo'),
   phone: z.string().regex(/^\+256\d{9}$/, 'Invalid Uganda phone number'),
-  idempotencyKey: z.string().uuid().optional(),
+  idempotencyKey: z.uuid().optional(),
 })
 
 export type InitiateMomoPaymentBody = z.infer<typeof initiateMomoPaymentSchema>

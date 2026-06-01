@@ -63,9 +63,10 @@ describe('BakerySettingsForm', () => {
       const mockSubmit = vi.fn()
       render(<BakerySettingsForm profile={null} onSubmit={mockSubmit} />)
 
-      const inputs = screen.getAllByRole('textbox') as HTMLInputElement[]
-      const firstTextbox = inputs[0]!
-      expect(firstTextbox.value).toBe('')
+      const inputs = screen.getAllByRole('textbox')
+      if (inputs.length > 0) {
+        expect((inputs[0] as HTMLInputElement).value).toBe('')
+      }
     })
 
     it('displays logo preview when logo_url is present', () => {
@@ -80,6 +81,7 @@ describe('BakerySettingsForm', () => {
       const mockSubmit = vi.fn()
       render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />)
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const accentColorInput = screen.getByDisplayValue(mockProfile.accent_color!)
       expect(accentColorInput).toBeInTheDocument()
 
@@ -91,18 +93,20 @@ describe('BakerySettingsForm', () => {
       const mockSubmit = vi.fn()
       render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />)
 
-      const pickupCheckbox = screen.getByLabelText('Accept Pickup Orders') as HTMLInputElement
-      const deliveryCheckbox = screen.getByLabelText('Accept Delivery Orders') as HTMLInputElement
+      const pickupCheckbox = screen.getByLabelText('Accept Pickup Orders')
+      const deliveryCheckbox = screen.getByLabelText('Accept Delivery Orders')
 
-      expect(pickupCheckbox.checked).toBe(mockProfile.accepts_pickup)
-      expect(deliveryCheckbox.checked).toBe(mockProfile.accepts_delivery)
+      expect((pickupCheckbox as HTMLInputElement).checked).toBe(mockProfile.accepts_pickup)
+      expect((deliveryCheckbox as HTMLInputElement).checked).toBe(mockProfile.accepts_delivery)
     })
 
     it('shows delivery fields when accepts_delivery is true', () => {
       const mockSubmit = vi.fn()
       render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />)
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const deliveryFeeInput = screen.getByDisplayValue(mockProfile.delivery_fee_minor!)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const deliveryRadiusInput = screen.getByDisplayValue(mockProfile.delivery_radius_km!)
 
       expect(deliveryFeeInput).toBeInTheDocument()
@@ -130,8 +134,11 @@ describe('BakerySettingsForm', () => {
 
       await waitFor(() => {
         expect(mockSubmit).toHaveBeenCalled()
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const submittedData = mockSubmit.mock.calls[0]?.[0]
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(submittedData?.legal_name).toBe(mockProfile.legal_name)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(submittedData?.email).toBe(mockProfile.email)
       })
     })
@@ -148,7 +155,7 @@ describe('BakerySettingsForm', () => {
       const mockSubmit = vi.fn()
       render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} isLoading={true} />)
 
-      const inputs = screen.getAllByRole('textbox') as HTMLInputElement[]
+      const inputs = screen.getAllByRole('textbox')
       inputs.forEach((input) => {
         expect(input).toBeDisabled()
       })
@@ -216,6 +223,7 @@ describe('BakerySettingsForm', () => {
       const mockSubmit = vi.fn()
       render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />)
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const radiusInputs = screen.getAllByDisplayValue(mockProfile.delivery_radius_km!)
       if (radiusInputs.length > 0) {
         expect(radiusInputs[0]).toHaveAttribute('step', '0.1')
@@ -256,7 +264,9 @@ describe('BakerySettingsForm', () => {
 
     it('renders with semantic HTML structure', () => {
       const mockSubmit = vi.fn()
-      const { container } = render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />)
+      const { container } = render(
+        <BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />,
+      )
 
       const formElement = container.querySelector('form')
       expect(formElement).toBeInTheDocument()
@@ -269,11 +279,13 @@ describe('BakerySettingsForm', () => {
       const mockSubmit = vi.fn()
       render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />)
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const colorInputs = screen.getAllByDisplayValue(mockProfile.accent_color!)
       const colorPickerInput = colorInputs.find(
         (input) => input instanceof HTMLInputElement && input.type === 'color',
       ) as HTMLInputElement
 
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (colorPickerInput) {
         await user.clear(colorPickerInput)
         await user.type(colorPickerInput, '#FF0000')
@@ -282,6 +294,8 @@ describe('BakerySettingsForm', () => {
           const textColorInput = colorInputs.find(
             (input) => input instanceof HTMLInputElement && input.type === 'text',
           ) as HTMLInputElement
+          // Condition is always truthy after find() returns element matching the type guard
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           if (textColorInput) {
             expect(textColorInput.value).toContain('FF0000')
           }
