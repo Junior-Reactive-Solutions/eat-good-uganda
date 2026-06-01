@@ -8,15 +8,15 @@ import { Button } from './Button'
 const settingsFormSchema = z.object({
   legal_name: z.string().min(1, 'Legal name is required').max(255),
   display_name: z.string().min(1, 'Display name is required').max(255),
-  email: z.string().email('Invalid email address'),
+  email: z.email('Invalid email address'),
   phone: z.string().max(20),
   address_line1: z.string().max(500),
   address_line2: z.string().max(500).nullable(),
   city: z.string().max(100),
   description: z.string().max(1000).nullable(),
-  logo_url: z.string().url('Invalid logo URL').nullable(),
+  logo_url: z.url('Invalid logo URL').nullable(),
   accent_color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color format'),
-  website: z.string().url('Invalid website URL').nullable(),
+  website: z.url('Invalid website URL').nullable(),
   accepts_pickup: z.boolean(),
   accepts_delivery: z.boolean(),
   delivery_fee_minor: z.number().int().nonnegative().nullable(),
@@ -88,6 +88,7 @@ export function BakerySettingsForm({
   const acceptsDelivery = watch('accepts_delivery')
 
   return (
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Basic Information */}
       <div className="space-y-4">
@@ -116,7 +117,10 @@ export function BakerySettingsForm({
           </div>
 
           <div>
-            <label htmlFor="display_name" className="block text-sm font-medium text-platform-fg mb-1">
+            <label
+              htmlFor="display_name"
+              className="block text-sm font-medium text-platform-fg mb-1"
+            >
               Display Name *
             </label>
             <input
@@ -182,7 +186,10 @@ export function BakerySettingsForm({
         </div>
 
         <div>
-          <label htmlFor="address_line1" className="block text-sm font-medium text-platform-fg mb-1">
+          <label
+            htmlFor="address_line1"
+            className="block text-sm font-medium text-platform-fg mb-1"
+          >
             Address Line 1
           </label>
           <input
@@ -203,7 +210,10 @@ export function BakerySettingsForm({
         </div>
 
         <div>
-          <label htmlFor="address_line2" className="block text-sm font-medium text-platform-fg mb-1">
+          <label
+            htmlFor="address_line2"
+            className="block text-sm font-medium text-platform-fg mb-1"
+          >
             Address Line 2
           </label>
           <input
@@ -365,7 +375,7 @@ export function BakerySettingsForm({
             </p>
           )}
           <p className="mt-1 text-xs text-platform-fg-muted">
-            {(watch('description')?.length || 0) || 0}/1000 characters
+            {watch('description')?.length || 0}/1000 characters
           </p>
         </div>
       </div>
@@ -399,7 +409,10 @@ export function BakerySettingsForm({
         {acceptsDelivery && (
           <div className="space-y-4 bg-platform-accent p-4 rounded-md">
             <div>
-              <label htmlFor="delivery_fee_minor" className="block text-sm font-medium text-platform-fg mb-1">
+              <label
+                htmlFor="delivery_fee_minor"
+                className="block text-sm font-medium text-platform-fg mb-1"
+              >
                 Delivery Fee (UGX)
               </label>
               <input
@@ -410,7 +423,9 @@ export function BakerySettingsForm({
                 disabled={isLoading}
                 className="w-full px-3 py-2 border border-platform-border rounded-md bg-platform-surface text-platform-fg placeholder-platform-fg-muted focus:outline-none focus:ring-2 focus:ring-bakery-primary disabled:opacity-50"
                 aria-invalid={errors.delivery_fee_minor ? 'true' : 'false'}
-                aria-describedby={errors.delivery_fee_minor ? 'delivery_fee_minor-error' : undefined}
+                aria-describedby={
+                  errors.delivery_fee_minor ? 'delivery_fee_minor-error' : undefined
+                }
               />
               {errors.delivery_fee_minor && (
                 <p id="delivery_fee_minor-error" className="mt-1 text-xs text-platform-error">
@@ -420,7 +435,10 @@ export function BakerySettingsForm({
             </div>
 
             <div>
-              <label htmlFor="delivery_radius_km" className="block text-sm font-medium text-platform-fg mb-1">
+              <label
+                htmlFor="delivery_radius_km"
+                className="block text-sm font-medium text-platform-fg mb-1"
+              >
                 Delivery Radius (km)
               </label>
               <input
@@ -432,7 +450,9 @@ export function BakerySettingsForm({
                 disabled={isLoading}
                 className="w-full px-3 py-2 border border-platform-border rounded-md bg-platform-surface text-platform-fg placeholder-platform-fg-muted focus:outline-none focus:ring-2 focus:ring-bakery-primary disabled:opacity-50"
                 aria-invalid={errors.delivery_radius_km ? 'true' : 'false'}
-                aria-describedby={errors.delivery_radius_km ? 'delivery_radius_km-error' : undefined}
+                aria-describedby={
+                  errors.delivery_radius_km ? 'delivery_radius_km-error' : undefined
+                }
               />
               {errors.delivery_radius_km && (
                 <p id="delivery_radius_km-error" className="mt-1 text-xs text-platform-error">
@@ -444,7 +464,10 @@ export function BakerySettingsForm({
         )}
 
         <div>
-          <label htmlFor="min_order_minor" className="block text-sm font-medium text-platform-fg mb-1">
+          <label
+            htmlFor="min_order_minor"
+            className="block text-sm font-medium text-platform-fg mb-1"
+          >
             Minimum Order Amount (UGX)
           </label>
           <input

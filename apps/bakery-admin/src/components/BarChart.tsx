@@ -8,12 +8,7 @@ interface BarChartProps {
   color?: string
 }
 
-export function BarChart({
-  data,
-  title,
-  height = 300,
-  color = '#3b82f6',
-}: BarChartProps) {
+export function BarChart({ data, title, height = 300, color = '#3b82f6' }: BarChartProps) {
   if (data.length === 0) {
     return (
       <div
@@ -29,14 +24,12 @@ export function BarChart({
 
   return (
     <div className="rounded-lg border border-platform-border bg-platform-surface p-6">
-      <h3 className="text-lg font-semibold text-platform-fg mb-4">
-        {title}
-      </h3>
+      <h3 className="text-lg font-semibold text-platform-fg mb-4">{title}</h3>
 
       <svg
         width="100%"
         height={height}
-        viewBox={`0 0 ${(data.length * 60).toString()} ${(height).toString()}`}
+        viewBox={`0 0 ${(data.length * 60).toString()} ${height.toString()}`}
         className="overflow-x-auto"
       >
         {data.map((item, index) => {
@@ -54,24 +47,11 @@ export function BarChart({
           const valueY = valueYNum.toString()
 
           return (
-            <g key={`bar-${index}`}>
+            <g key={`bar-${index.toString()}`}>
               {/* Bar */}
-              <rect
-                x={x}
-                y={y}
-                width="40"
-                height={barHeightStr}
-                fill={color}
-                rx="4"
-              />
+              <rect x={x} y={y} width="40" height={barHeightStr} fill={color} rx="4" />
               {/* Label */}
-              <text
-                x={labelX}
-                y={labelY}
-                textAnchor="middle"
-                fontSize="12"
-                fill="#666"
-              >
+              <text x={labelX} y={labelY} textAnchor="middle" fontSize="12" fill="#666">
                 {item.label}
               </text>
               {/* Value */}

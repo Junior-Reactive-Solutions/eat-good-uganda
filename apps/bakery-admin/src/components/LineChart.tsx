@@ -8,12 +8,7 @@ interface LineChartProps {
   color?: string
 }
 
-export function LineChart({
-  data,
-  title,
-  height = 300,
-  color = '#10b981',
-}: LineChartProps) {
+export function LineChart({ data, title, height = 300, color = '#10b981' }: LineChartProps) {
   if (data.length === 0) {
     return (
       <div
@@ -34,19 +29,14 @@ export function LineChart({
   const points = data
     .map((item, index) => {
       const x = (index / (data.length - 1 || 1)) * (width - padding * 2) + padding
-      const y =
-        height -
-        (item.value / (maxValue || 1)) * chartHeight -
-        padding
+      const y = height - (item.value / (maxValue || 1)) * chartHeight - padding
       return `${x.toString()},${y.toString()}`
     })
     .join(' ')
 
   return (
     <div className="rounded-lg border border-platform-border bg-platform-surface p-6">
-      <h3 className="text-lg font-semibold text-platform-fg mb-4">
-        {title}
-      </h3>
+      <h3 className="text-lg font-semibold text-platform-fg mb-4">{title}</h3>
 
       <svg
         width="100%"
@@ -62,7 +52,7 @@ export function LineChart({
           const x2Str = (width - padding).toString()
           return (
             <line
-              key={`grid-${i}`}
+              key={`grid-${i.toString()}`}
               x1={x1Str}
               y1={gridY}
               x2={x2Str}
@@ -74,25 +64,17 @@ export function LineChart({
         })}
 
         {/* Line */}
-        <polyline
-          points={points}
-          fill="none"
-          stroke={color}
-          strokeWidth="2"
-        />
+        <polyline points={points} fill="none" stroke={color} strokeWidth="2" />
 
         {/* Points */}
         {data.map((item, index) => {
           const pointX = (index / (data.length - 1 || 1)) * (width - padding * 2) + padding
-          const pointY =
-            height -
-            (item.value / (maxValue || 1)) * chartHeight -
-            padding
+          const pointY = height - (item.value / (maxValue || 1)) * chartHeight - padding
           const pointXStr = pointX.toString()
           const pointYStr = pointY.toString()
           return (
             <circle
-              key={`point-${index}`}
+              key={`point-${index.toString()}`}
               cx={pointXStr}
               cy={pointYStr}
               r="4"
@@ -108,7 +90,7 @@ export function LineChart({
           const labelYStr = (height - 10).toString()
           return (
             <text
-              key={`label-${index}`}
+              key={`label-${index.toString()}`}
               x={labelXStr}
               y={labelYStr}
               textAnchor="middle"

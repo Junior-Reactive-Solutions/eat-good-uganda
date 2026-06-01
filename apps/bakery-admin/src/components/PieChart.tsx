@@ -51,9 +51,7 @@ export function PieChart({
 
   return (
     <div className="rounded-lg border border-platform-border bg-platform-surface p-6">
-      <h3 className="text-lg font-semibold text-platform-fg mb-4">
-        {title}
-      </h3>
+      <h3 className="text-lg font-semibold text-platform-fg mb-4">{title}</h3>
 
       <div className="flex gap-8">
         <svg width="300" height="300" viewBox="0 0 300 300">
@@ -63,7 +61,7 @@ export function PieChart({
             const textX = textXNum.toString()
             const textY = textYNum.toString()
             return (
-              <g key={`slice-${index}`}>
+              <g key={`slice-${index.toString()}`}>
                 <path
                   d={slice.path}
                   fill={colors[index % colors.length]}
@@ -79,8 +77,7 @@ export function PieChart({
                   fontWeight="bold"
                   fill="white"
                 >
-                  {slice.percentage}
-                  %
+                  {slice.percentage}%
                 </text>
               </g>
             )
@@ -89,7 +86,7 @@ export function PieChart({
 
         <div className="flex flex-col gap-2 justify-center">
           {slices.map((slice, index) => (
-            <div key={`legend-${index}`} className="flex items-center gap-2">
+            <div key={`legend-${index.toString()}`} className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded"
                 style={{ backgroundColor: colors[index % colors.length] }}
