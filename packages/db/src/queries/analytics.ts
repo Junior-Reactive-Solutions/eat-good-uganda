@@ -1,4 +1,6 @@
+import { query } from '../client'
 import type { Database } from '../client'
+import { sql } from '../sql'
 
 export interface PlatformMetrics {
   totalBakeries: number
@@ -34,30 +36,31 @@ export interface TopBakery {
 }
 
 export async function getAdminPlatformMetrics(db: Database): Promise<PlatformMetrics> {
-  const { rows } = await db.query<{
-    total_bakeries: string
-    active_bakeries: string
-    total_customers: string
-    total_orders: string
-    total_revenue_minor: string
-    pending_approval: string
+  const result = await query<{
+    total_bakeries: number
+    active_bakeries: number
+    total_customers: number
+    total_orders: number
+    total_revenue_minor: number
+    pending_approval: number
   }>(
-    `
-    SELECT
-      COUNT(DISTINCT b.id)::text as total_bakeries,
-      COUNT(DISTINCT CASE WHEN b.status = 'active' THEN b.id END)::text as active_bakeries,
-      COUNT(DISTINCT c.id)::text as total_customers,
-      COUNT(DISTINCT o.id)::text as total_orders,
-      COALESCE(SUM(o.total_amount_minor), 0)::text as total_revenue_minor,
-      COUNT(DISTINCT CASE WHEN b.status = 'pending_approval' THEN b.id END)::text as pending_approval
-    FROM bakeries b
-    LEFT JOIN customers c ON c.deleted_at IS NULL
-    LEFT JOIN orders o ON o.deleted_at IS NULL
-    WHERE b.deleted_at IS NULL
+    db,
+    sql`
+      SELECT
+        COUNT(DISTINCT b.id)::integer as total_bakeries,
+        COUNT(DISTINCT CASE WHEN b.status = 'active' THEN b.id END)::integer as active_bakeries,
+        COUNT(DISTINCT c.id)::integer as total_customers,
+        COUNT(DISTINCT o.id)::integer as total_orders,
+        COALESCE(SUM(o.total_minor), 0)::integer as total_revenue_minor,
+        COUNT(DISTINCT CASE WHEN b.status = 'pending_approval' THEN b.id END)::integer as pending_approval
+      FROM bakeries b
+      LEFT JOIN customers c ON c.deleted_at IS NULL
+      LEFT JOIN orders o ON o.deleted_at IS NULL
+      WHERE b.deleted_at IS NULL
     `,
   )
 
-  const row = rows[0]
+  const row = result.rows[0]
   if (!row) {
     return {
       totalBakeries: 0,
@@ -69,12 +72,12 @@ export async function getAdminPlatformMetrics(db: Database): Promise<PlatformMet
     }
   }
   return {
-    totalBakeries: parseInt(row.total_bakeries, 10),
-    activeBakeries: parseInt(row.active_bakeries, 10),
-    totalCustomers: parseInt(row.total_customers, 10),
-    totalOrders: parseInt(row.total_orders, 10),
-    totalRevenueMinor: parseInt(row.total_revenue_minor, 10),
-    pendingApprovalCount: parseInt(row.pending_approval, 10),
+    totalBakeries: row.total_bakeries,
+    activeBakeries: row.active_bakeries,
+    totalCustomers: row.total_customers,
+    totalOrders: row.total_orders,
+    totalRevenueMinor: row.total_revenue_minor,
+    pendingApprovalCount: row.pending_approval,
   }
 }
 
@@ -83,40 +86,29 @@ export async function getAdminBakeryAnalytics(
   bakeryId: string,
 ): Promise<BakeryAnalytics> {
   // Get bakery info and order metrics
-  const { rows: bakeryRows } = await db.query<{
+  const bakeryResult = await query<{
     id: string
     display_name: string
-    orders_count: string
-    total_revenue_minor: string
-    customers_count: string
+    orders_count: number
+    total_revenue_minor: number
+    customers_count: number
   }>(
-    `
-    SELECT
-      b.id,
-      b.display_name,
-      COUNT(DISTINCT o.id)::text as orders_count,
-      COALESCE(SUM(o.total_amount_minor), 0)::text as total_revenue_minor,
-      COUNT(DISTINCT o.customer_id)::text as customers_count
-    FROM bakeries b
-    LEFT JOIN orders o ON o.bakery_id = b.id AND o.deleted_at IS NULL
-    WHERE b.id = $1 AND b.deleted_at IS NULL
-    GROUP BY b.id, b.display_name
+    db,
+    sql`
+      SELECT
+        b.id,
+        b.display_name,
+        COUNT(DISTINCT o.id)::integer as orders_count,
+        COALESCE(SUM(o.total_minor), 0)::integer as total_revenue_minor,
+        COUNT(DISTINCT o.customer_id)::integer as customers_count
+      FROM bakeries b
+      LEFT JOIN orders o ON o.bakery_id = b.id AND o.deleted_at IS NULL
+      WHERE b.id = ${bakeryId} AND b.deleted_at IS NULL
+      GROUP BY b.id, b.display_name
     `,
-    [bakeryId],
   )
 
-  if (bakeryRows.length === 0) {
-    return {
-      bakeryId,
-      bakeryName: '',
-      ordersCount: 0,
-      revenueMinor: 0,
-      customersCount: 0,
-      topProducts: [],
-    }
-  }
-
-  const bakeryRow = bakeryRows[0]
+  const bakeryRow = bakeryResult.rows[0]
   if (!bakeryRow) {
     return {
       bakeryId,
@@ -129,37 +121,37 @@ export async function getAdminBakeryAnalytics(
   }
 
   // Get top products
-  const { rows: productRows } = await db.query<{
+  const productsResult = await query<{
     id: string
     name: string
-    order_count: string
+    order_count: number
   }>(
-    `
-    SELECT
-      p.id,
-      p.name,
-      COUNT(oi.id)::text as order_count
-    FROM products p
-    LEFT JOIN order_items oi ON oi.product_id = p.id AND oi.deleted_at IS NULL
-    LEFT JOIN orders o ON o.id = oi.order_id AND o.deleted_at IS NULL
-    WHERE p.bakery_id = $1 AND p.deleted_at IS NULL
-    GROUP BY p.id, p.name
-    ORDER BY order_count DESC
-    LIMIT 5
+    db,
+    sql`
+      SELECT
+        p.id,
+        p.name,
+        COUNT(DISTINCT oi.id)::integer as order_count
+      FROM products p
+      LEFT JOIN order_items oi ON oi.product_id = p.id
+      LEFT JOIN orders o ON o.id = oi.order_id AND o.deleted_at IS NULL
+      WHERE p.bakery_id = ${bakeryId} AND p.deleted_at IS NULL
+      GROUP BY p.id, p.name
+      ORDER BY order_count DESC
+      LIMIT 5
     `,
-    [bakeryId],
   )
 
   return {
     bakeryId,
     bakeryName: bakeryRow.display_name,
-    ordersCount: parseInt(bakeryRow.orders_count, 10),
-    revenueMinor: parseInt(bakeryRow.total_revenue_minor, 10),
-    customersCount: parseInt(bakeryRow.customers_count, 10),
-    topProducts: productRows.map((row) => ({
+    ordersCount: bakeryRow.orders_count,
+    revenueMinor: bakeryRow.total_revenue_minor,
+    customersCount: bakeryRow.customers_count,
+    topProducts: productsResult.rows.map((row) => ({
       id: row.id,
       name: row.name,
-      orderCount: parseInt(row.order_count, 10),
+      orderCount: row.order_count,
     })),
   }
 }
@@ -175,42 +167,194 @@ export async function getAdminMetricsTimeSeries(
 ): Promise<TimeSeriesPoint[]> {
   const { startDate, endDate, metric, groupBy } = options
 
-  let selectClause = ''
-  if (metric === 'revenue') {
-    selectClause = 'COALESCE(SUM(o.total_amount_minor), 0) as value'
-  } else if (metric === 'orders') {
-    selectClause = 'COUNT(DISTINCT o.id) as value'
-  } else {
-    selectClause = 'COUNT(DISTINCT o.customer_id) as value'
+  // Use separate queries for different metrics and groupBy combinations
+  if (metric === 'revenue' && groupBy === 'day') {
+    const result = await query<{
+      date: string
+      value: number
+    }>(
+      db,
+      sql`
+        SELECT
+          TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') as date,
+          COALESCE(SUM(o.total_minor), 0)::integer as value
+        FROM orders o
+        WHERE o.created_at >= ${startDate}
+          AND o.created_at <= ${endDate}
+          AND o.deleted_at IS NULL
+        GROUP BY TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD')
+        ORDER BY date ASC
+      `,
+    )
+    return result.rows
   }
 
-  let dateFormat = "'YYYY-MM-DD'"
-  if (groupBy === 'week') {
-    dateFormat = '\'YYYY-"W"IW\''
-  } else if (groupBy === 'month') {
-    dateFormat = "'YYYY-MM'"
+  if (metric === 'revenue' && groupBy === 'week') {
+    const result = await query<{
+      date: string
+      value: number
+    }>(
+      db,
+      sql`
+        SELECT
+          TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-"W"IW') as date,
+          COALESCE(SUM(o.total_minor), 0)::integer as value
+        FROM orders o
+        WHERE o.created_at >= ${startDate}
+          AND o.created_at <= ${endDate}
+          AND o.deleted_at IS NULL
+        GROUP BY TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-"W"IW')
+        ORDER BY date ASC
+      `,
+    )
+    return result.rows
   }
 
-  const { rows } = await db.query<{
+  if (metric === 'revenue' && groupBy === 'month') {
+    const result = await query<{
+      date: string
+      value: number
+    }>(
+      db,
+      sql`
+        SELECT
+          TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM') as date,
+          COALESCE(SUM(o.total_minor), 0)::integer as value
+        FROM orders o
+        WHERE o.created_at >= ${startDate}
+          AND o.created_at <= ${endDate}
+          AND o.deleted_at IS NULL
+        GROUP BY TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM')
+        ORDER BY date ASC
+      `,
+    )
+    return result.rows
+  }
+
+  if (metric === 'orders' && groupBy === 'day') {
+    const result = await query<{
+      date: string
+      value: number
+    }>(
+      db,
+      sql`
+        SELECT
+          TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') as date,
+          COUNT(DISTINCT o.id)::integer as value
+        FROM orders o
+        WHERE o.created_at >= ${startDate}
+          AND o.created_at <= ${endDate}
+          AND o.deleted_at IS NULL
+        GROUP BY TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD')
+        ORDER BY date ASC
+      `,
+    )
+    return result.rows
+  }
+
+  if (metric === 'orders' && groupBy === 'week') {
+    const result = await query<{
+      date: string
+      value: number
+    }>(
+      db,
+      sql`
+        SELECT
+          TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-"W"IW') as date,
+          COUNT(DISTINCT o.id)::integer as value
+        FROM orders o
+        WHERE o.created_at >= ${startDate}
+          AND o.created_at <= ${endDate}
+          AND o.deleted_at IS NULL
+        GROUP BY TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-"W"IW')
+        ORDER BY date ASC
+      `,
+    )
+    return result.rows
+  }
+
+  if (metric === 'orders' && groupBy === 'month') {
+    const result = await query<{
+      date: string
+      value: number
+    }>(
+      db,
+      sql`
+        SELECT
+          TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM') as date,
+          COUNT(DISTINCT o.id)::integer as value
+        FROM orders o
+        WHERE o.created_at >= ${startDate}
+          AND o.created_at <= ${endDate}
+          AND o.deleted_at IS NULL
+        GROUP BY TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM')
+        ORDER BY date ASC
+      `,
+    )
+    return result.rows
+  }
+
+  if (metric === 'customers' && groupBy === 'day') {
+    const result = await query<{
+      date: string
+      value: number
+    }>(
+      db,
+      sql`
+        SELECT
+          TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') as date,
+          COUNT(DISTINCT o.customer_id)::integer as value
+        FROM orders o
+        WHERE o.created_at >= ${startDate}
+          AND o.created_at <= ${endDate}
+          AND o.deleted_at IS NULL
+        GROUP BY TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD')
+        ORDER BY date ASC
+      `,
+    )
+    return result.rows
+  }
+
+  if (metric === 'customers' && groupBy === 'week') {
+    const result = await query<{
+      date: string
+      value: number
+    }>(
+      db,
+      sql`
+        SELECT
+          TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-"W"IW') as date,
+          COUNT(DISTINCT o.customer_id)::integer as value
+        FROM orders o
+        WHERE o.created_at >= ${startDate}
+          AND o.created_at <= ${endDate}
+          AND o.deleted_at IS NULL
+        GROUP BY TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-"W"IW')
+        ORDER BY date ASC
+      `,
+    )
+    return result.rows
+  }
+
+  // metric === 'customers' && groupBy === 'month'
+  const result = await query<{
     date: string
-    value: string
+    value: number
   }>(
-    `
-    SELECT
-      TO_CHAR(o.created_at, ${dateFormat}) as date,
-      ${selectClause}
-    FROM orders o
-    WHERE o.created_at >= $1 AND o.created_at <= $2 AND o.deleted_at IS NULL
-    GROUP BY TO_CHAR(o.created_at, ${dateFormat})
-    ORDER BY date ASC
+    db,
+    sql`
+      SELECT
+        TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM') as date,
+        COUNT(DISTINCT o.customer_id)::integer as value
+      FROM orders o
+      WHERE o.created_at >= ${startDate}
+        AND o.created_at <= ${endDate}
+        AND o.deleted_at IS NULL
+      GROUP BY TO_CHAR(o.created_at AT TIME ZONE 'UTC', 'YYYY-MM')
+      ORDER BY date ASC
     `,
-    [startDate, endDate],
   )
-
-  return rows.map((row) => ({
-    date: row.date,
-    value: parseInt(row.value, 10),
-  }))
+  return result.rows
 }
 
 export async function getAdminTopBakeries(
@@ -222,38 +366,71 @@ export async function getAdminTopBakeries(
 ): Promise<TopBakery[]> {
   const { metric, limit } = options
 
-  let selectClause = ''
   if (metric === 'revenue') {
-    selectClause = 'COALESCE(SUM(o.total_amount_minor), 0) as value'
-  } else if (metric === 'orders') {
-    selectClause = 'COUNT(DISTINCT o.id) as value'
-  } else {
-    selectClause = 'COUNT(DISTINCT o.customer_id) as value'
+    const result = await query<{
+      id: string
+      name: string
+      value: number
+    }>(
+      db,
+      sql`
+        SELECT
+          b.id,
+          b.display_name as name,
+          COALESCE(SUM(o.total_minor), 0)::integer as value
+        FROM bakeries b
+        LEFT JOIN orders o ON o.bakery_id = b.id AND o.deleted_at IS NULL
+        WHERE b.deleted_at IS NULL AND b.status = 'active'
+        GROUP BY b.id, b.display_name
+        ORDER BY value DESC
+        LIMIT ${limit}
+      `,
+    )
+    return result.rows
   }
 
-  const { rows } = await db.query<{
+  if (metric === 'orders') {
+    const result = await query<{
+      id: string
+      name: string
+      value: number
+    }>(
+      db,
+      sql`
+        SELECT
+          b.id,
+          b.display_name as name,
+          COUNT(DISTINCT o.id)::integer as value
+        FROM bakeries b
+        LEFT JOIN orders o ON o.bakery_id = b.id AND o.deleted_at IS NULL
+        WHERE b.deleted_at IS NULL AND b.status = 'active'
+        GROUP BY b.id, b.display_name
+        ORDER BY value DESC
+        LIMIT ${limit}
+      `,
+    )
+    return result.rows
+  }
+
+  // metric === 'customers'
+  const result = await query<{
     id: string
     name: string
-    value: string
+    value: number
   }>(
-    `
-    SELECT
-      b.id,
-      b.display_name as name,
-      ${selectClause}
-    FROM bakeries b
-    LEFT JOIN orders o ON o.bakery_id = b.id AND o.deleted_at IS NULL
-    WHERE b.deleted_at IS NULL AND b.status = 'active'
-    GROUP BY b.id, b.display_name
-    ORDER BY value DESC
-    LIMIT $1
+    db,
+    sql`
+      SELECT
+        b.id,
+        b.display_name as name,
+        COUNT(DISTINCT o.customer_id)::integer as value
+      FROM bakeries b
+      LEFT JOIN orders o ON o.bakery_id = b.id AND o.deleted_at IS NULL
+      WHERE b.deleted_at IS NULL AND b.status = 'active'
+      GROUP BY b.id, b.display_name
+      ORDER BY value DESC
+      LIMIT ${limit}
     `,
-    [limit],
   )
-
-  return rows.map((row) => ({
-    id: row.id,
-    name: row.name,
-    value: parseInt(row.value, 10),
-  }))
+  return result.rows
 }
