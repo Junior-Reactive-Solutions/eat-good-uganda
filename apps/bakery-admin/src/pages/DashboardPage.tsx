@@ -1,4 +1,3 @@
-
 import { BarChart } from '../components/BarChart'
 import { LineChart } from '../components/LineChart'
 import { LoadingSpinner } from '../components/LoadingSpinner'
@@ -99,7 +98,9 @@ export default function DashboardPage() {
 
         <MetricCard
           label="Top Product"
-          value={metrics.topProducts.length > 0 ? metrics.topProducts[0]?.productName ?? 'N/A' : 'N/A'}
+          value={
+            metrics.topProducts.length > 0 ? (metrics.topProducts[0]?.productName ?? 'N/A') : 'N/A'
+          }
           icon={<IconAdminInventory size="lg" color="default" alt="" />}
           subtitle={
             metrics.topProducts.length > 0

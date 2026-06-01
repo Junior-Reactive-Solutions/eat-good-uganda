@@ -92,9 +92,9 @@ describe('Email Service - Order Confirmation', () => {
       orderLink: 'https://app.eatgood.ug/account/orders/order-123',
     }
 
-    await expect(
-      sendOrderConfirmationEmail(params as any),
-    ).rejects.toThrow('Missing required email parameters')
+    await expect(sendOrderConfirmationEmail(params as any)).rejects.toThrow(
+      'Missing required email parameters',
+    )
   })
 
   it('throws error when orderLink is missing', async () => {
@@ -105,9 +105,9 @@ describe('Email Service - Order Confirmation', () => {
       orderLink: '',
     }
 
-    await expect(
-      sendOrderConfirmationEmail(params as any),
-    ).rejects.toThrow('Missing required email parameters')
+    await expect(sendOrderConfirmationEmail(params as any)).rejects.toThrow(
+      'Missing required email parameters',
+    )
   })
 
   it('includes claim token in email body for guest orders', async () => {

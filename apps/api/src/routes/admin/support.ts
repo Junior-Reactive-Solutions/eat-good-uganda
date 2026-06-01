@@ -8,6 +8,8 @@ import {
   assignTicketToAdmin,
   updateTicketPriority,
   getTicketById,
+  type GetTicketsFilters,
+  type CreateTicketInput,
 } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Router } from 'express'
@@ -73,7 +75,7 @@ supportRouter.get(
         return res.status(400).json({ error: 'bakery_id is required' })
       }
 
-      const filterObj: any = {
+      const filterObj: GetTicketsFilters = {
         bakeryId: bakery_id,
         limit,
         offset,
@@ -92,7 +94,7 @@ supportRouter.get(
         'Admin listed support tickets',
       )
 
-      const {tickets, total} = result
+      const { tickets, total } = result
       return res.status(200).json({
         data: tickets,
         pagination: {
@@ -129,7 +131,7 @@ supportRouter.post(
         })
       }
 
-      const ticketInput: any = {
+      const ticketInput: CreateTicketInput = {
         bakery_id: validation.data.bakery_id,
         subject: validation.data.subject,
         description: validation.data.description,
@@ -178,11 +180,13 @@ supportRouter.get(
         return res.status(404).json({ error: 'Ticket not found' })
       }
 
-      logger.info(`Admin retrieved support ticket ${String(ticketId)}`)
+      logger.info(`Admin retrieved support ticket ${ticketId}`)
 
       return res.status(200).json({ data: detail })
     } catch (error) {
-      logger.error(`Error retrieving support ticket: ${error instanceof Error ? error.message : 'unknown error'}`)
+      logger.error(
+        `Error retrieving support ticket: ${error instanceof Error ? error.message : 'unknown error'}`,
+      )
       return res.status(500).json({ error: 'Internal server error' })
     }
   },
@@ -231,7 +235,9 @@ supportRouter.post(
 
       return res.status(201).json({ data: message })
     } catch (error) {
-      logger.error(`Error adding message to ticket: ${error instanceof Error ? error.message : 'unknown error'}`)
+      logger.error(
+        `Error adding message to ticket: ${error instanceof Error ? error.message : 'unknown error'}`,
+      )
       return res.status(500).json({ error: 'Internal server error' })
     }
   },
@@ -265,11 +271,15 @@ supportRouter.patch(
         return res.status(404).json({ error: 'Ticket not found' })
       }
 
-      logger.info(`Admin updated support ticket ${ticketId} status to ${String(validation.data.status)}`)
+      logger.info(
+        `Admin updated support ticket ${ticketId} status to ${validation.data.status}`,
+      )
 
       return res.status(200).json({ data: ticket })
     } catch (error) {
-      logger.error(`Error updating ticket status: ${error instanceof Error ? error.message : 'unknown error'}`)
+      logger.error(
+        `Error updating ticket status: ${error instanceof Error ? error.message : 'unknown error'}`,
+      )
       return res.status(500).json({ error: 'Internal server error' })
     }
   },
@@ -309,7 +319,9 @@ supportRouter.patch(
 
       return res.status(200).json({ data: ticket })
     } catch (error) {
-      logger.error(`Error assigning ticket: ${error instanceof Error ? error.message : 'unknown error'}`)
+      logger.error(
+        `Error assigning ticket: ${error instanceof Error ? error.message : 'unknown error'}`,
+      )
       return res.status(500).json({ error: 'Internal server error' })
     }
   },
@@ -343,11 +355,15 @@ supportRouter.patch(
         return res.status(404).json({ error: 'Ticket not found' })
       }
 
-      logger.info(`Admin updated support ticket ${ticketId} priority to ${validation.data.priority}`)
+      logger.info(
+        `Admin updated support ticket ${ticketId} priority to ${validation.data.priority}`,
+      )
 
       return res.status(200).json({ data: ticket })
     } catch (error) {
-      logger.error(`Error updating ticket priority: ${error instanceof Error ? error.message : 'unknown error'}`)
+      logger.error(
+        `Error updating ticket priority: ${error instanceof Error ? error.message : 'unknown error'}`,
+      )
       return res.status(500).json({ error: 'Internal server error' })
     }
   },

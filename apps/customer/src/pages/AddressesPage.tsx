@@ -1,21 +1,18 @@
+import type { CustomerAddress } from '@eatgood/shared'
 import { useState } from 'react'
+
+import { AddressForm } from '../components/AddressForm'
+import { Button } from '../components/Button'
+import { Card } from '../components/Card'
+import { IconNavigationCart, IconInteractionEdit, IconInteractionDelete } from '../components/icons'
+import { LoadingSpinner } from '../components/LoadingSpinner'
+import { PageHeader } from '../components/PageHeader'
 import {
   useCustomerAddresses,
   useCreateAddress,
   useUpdateAddress,
   useDeleteAddress,
 } from '../features/profile/api'
-import { AddressForm } from '../components/AddressForm'
-import { Button } from '../components/Button'
-import { Card } from '../components/Card'
-import { LoadingSpinner } from '../components/LoadingSpinner'
-import { PageHeader } from '../components/PageHeader'
-import {
-  IconNavigationCart,
-  IconInteractionEdit,
-  IconInteractionDelete,
-} from '../components/icons'
-import type { CustomerAddress } from '@eatgood/shared'
 
 export default function AddressesPage() {
   const { data, isLoading, error } = useCustomerAddresses()
@@ -61,7 +58,7 @@ export default function AddressesPage() {
           subheading="Manage your delivery and billing addresses"
         />
         {!isAdding && !editingId && (
-          <Button onClick={() => setIsAdding(true)} className="gap-2">
+          <Button onClick={() => { setIsAdding(true); }} className="gap-2">
             <IconNavigationCart size="sm" color="default" alt="" />
             Add Address
           </Button>
@@ -118,7 +115,7 @@ export default function AddressesPage() {
               {(createAddress.isError || updateAddress.isError) && (
                 <div className="mt-3 rounded-lg border border-platform-error bg-red-50 p-3">
                   <p className="text-xs text-platform-error">
-                    {(createAddress.error || updateAddress.error)
+                    {createAddress.error || updateAddress.error
                       ? (createAddress.error || updateAddress.error) instanceof Error
                         ? (createAddress.error || updateAddress.error)!.message
                         : 'Failed to save address'
@@ -139,9 +136,7 @@ export default function AddressesPage() {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className="font-semibold text-platform-fg">
-                        {address.street_address}
-                      </p>
+                      <p className="font-semibold text-platform-fg">{address.street_address}</p>
                       <p className="text-sm text-platform-fg-muted">
                         {address.city}, {address.district}
                         {address.postal_code && ` ${address.postal_code}`}
@@ -169,7 +164,7 @@ export default function AddressesPage() {
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => setEditingId(address.id)}
+                        onClick={() => { setEditingId(address.id); }}
                         disabled={createAddress.isPending || updateAddress.isPending}
                       >
                         <IconInteractionEdit size="sm" color="default" alt="" />
@@ -177,7 +172,7 @@ export default function AddressesPage() {
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => setDeleteConfirm(address.id)}
+                        onClick={() => { setDeleteConfirm(address.id); }}
                         disabled={deleteAddress.isPending}
                         className="text-platform-error"
                       >
@@ -190,12 +185,10 @@ export default function AddressesPage() {
             </div>
           ) : (
             <div className="rounded-lg border border-dashed border-platform-border bg-platform-surface p-8 text-center">
-              <p className="text-sm text-platform-fg-muted mb-4">
-                No addresses saved yet.
-              </p>
+              <p className="text-sm text-platform-fg-muted mb-4">No addresses saved yet.</p>
               {!isAdding && !editingId && (
                 <Button
-                  onClick={() => setIsAdding(true)}
+                  onClick={() => { setIsAdding(true); }}
                   variant="secondary"
                   className="gap-2 inline-flex"
                 >
@@ -212,16 +205,14 @@ export default function AddressesPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
           <div className="bg-platform-surface rounded-lg shadow-lg max-w-sm w-full p-6 border border-platform-border">
-            <h2 className="text-lg font-semibold text-platform-fg mb-2">
-              Delete Address
-            </h2>
+            <h2 className="text-lg font-semibold text-platform-fg mb-2">Delete Address</h2>
             <p className="text-sm text-platform-fg-muted mb-6">
               Are you sure you want to delete this address? This cannot be undone.
             </p>
             <div className="flex gap-3">
               <Button
                 variant="secondary"
-                onClick={() => setDeleteConfirm(null)}
+                onClick={() => { setDeleteConfirm(null); }}
                 disabled={deleteAddress.isPending}
                 className="flex-1"
               >
@@ -229,7 +220,7 @@ export default function AddressesPage() {
               </Button>
               <Button
                 variant="danger"
-                onClick={() => handleDeleteConfirm(deleteConfirm)}
+                onClick={() => { handleDeleteConfirm(deleteConfirm); }}
                 disabled={deleteAddress.isPending}
                 className="flex-1"
               >

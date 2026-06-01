@@ -90,10 +90,9 @@ export const useUpdateBakeryProfile = () => {
 
 export interface PaymentCredentialInput {
   provider: 'mtn_momo' | 'airtel_money' | 'bank_transfer'
-  is_enabled?: boolean
-  target_environment?: 'sandbox' | 'production'
-  encrypted_config: string // base64-encoded
-  config_nonce: string // base64-encoded
+  account_number: string
+  account_holder: string
+  api_key?: string | null | undefined
 }
 
 export const useCreatePaymentCredential = () => {

@@ -2,8 +2,9 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect } from 'vitest'
 
-import { OrderCard } from './OrderCard'
 import type { OrderListItem } from '../features/orders/api'
+
+import { OrderCard } from './OrderCard'
 
 describe('OrderCard', () => {
   const mockOrder: OrderListItem = {

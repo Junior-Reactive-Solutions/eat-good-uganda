@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
 import {
   createPaymentCredential,
   deletePaymentCredential,
@@ -9,57 +8,22 @@ import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 import { z } from 'zod'
 
+import { aesGcmEncrypt } from '../../lib/crypto'
 import { logger } from '../../lib/logger'
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { requireBakeryContext } from '../../middleware/requireBakeryContext'
 
 const createCredentialSchema = z.object({
   provider: z.enum(['mtn_momo', 'airtel_money', 'bank_transfer']),
-  is_enabled: z.boolean().optional().default(false),
-  target_environment: z.enum(['sandbox', 'production']).optional().default('sandbox'),
-  encrypted_config: z.string().refine((val) => {
-    try {
-      Buffer.from(val, 'base64')
-      return true
-    } catch {
-      return false
-    }
-  }, 'Must be valid base64-encoded encrypted config'),
-  config_nonce: z.string().refine((val) => {
-    try {
-      Buffer.from(val, 'base64')
-      return true
-    } catch {
-      return false
-    }
-  }, 'Must be valid base64-encoded nonce'),
+  account_number: z.string().min(1, 'Account number is required'),
+  account_holder: z.string().min(1, 'Account holder name is required'),
+  api_key: z.string().optional().nullable(),
 })
 
 const updateCredentialSchema = z.object({
-  is_enabled: z.boolean().optional(),
-  target_environment: z.enum(['sandbox', 'production']).optional(),
-  encrypted_config: z
-    .string()
-    .refine((val) => {
-      try {
-        Buffer.from(val, 'base64')
-        return true
-      } catch {
-        return false
-      }
-    }, 'Must be valid base64-encoded encrypted config')
-    .optional(),
-  config_nonce: z
-    .string()
-    .refine((val) => {
-      try {
-        Buffer.from(val, 'base64')
-        return true
-      } catch {
-        return false
-      }
-    }, 'Must be valid base64-encoded nonce')
-    .optional(),
+  account_number: z.string().min(1, 'Account number is required').optional(),
+  account_holder: z.string().min(1, 'Account holder name is required').optional(),
+  api_key: z.string().optional().nullable(),
 })
 
 export const bakeryPaymentCredentialsRouter = createRouter() as Router
@@ -74,7 +38,7 @@ bakeryPaymentCredentialsRouter.get(
   requireBakeryContext,
   async (req: Request, res: Response) => {
     try {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
@@ -90,7 +54,7 @@ bakeryPaymentCredentialsRouter.get(
         total: credentials.length,
       })
     } catch (error) {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
       logger.error(
         {
           error: error instanceof Error ? error.message : String(error),
@@ -113,13 +77,14 @@ bakeryPaymentCredentialsRouter.get(
   requireBakeryContext,
   async (req: Request, res: Response) => {
     try {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { provider } = req.params as any
-      if (!['mtn_momo', 'airtel_money', 'bank_transfer'].includes(provider)) {
+      const { provider } = req.params
+      const validProviders = ['mtn_momo', 'airtel_money', 'bank_transfer']
+      if (!validProviders.includes(provider)) {
         return res.status(400).json({ error: 'Invalid provider' })
       }
 
@@ -139,7 +104,7 @@ bakeryPaymentCredentialsRouter.get(
 
       res.json(credentials[0])
     } catch (error) {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
       logger.error(
         {
           error: error instanceof Error ? error.message : String(error),
@@ -162,7 +127,7 @@ bakeryPaymentCredentialsRouter.post(
   requireBakeryContext,
   async (req: Request, res: Response) => {
     try {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
@@ -173,12 +138,21 @@ bakeryPaymentCredentialsRouter.post(
         return res.status(500).json({ error: 'Database connection unavailable' })
       }
 
+      // Encrypt credentials server-side using AES-256-GCM
+      const configJson = JSON.stringify({
+        account_number: validatedData.account_number,
+        account_holder: validatedData.account_holder,
+        api_key: validatedData.api_key ?? '',
+      })
+
+      const encryptionResult = await aesGcmEncrypt(configJson, bakeryId)
+
       const credential = await createPaymentCredential(req.db, bakeryId, {
         provider: validatedData.provider,
-        is_enabled: validatedData.is_enabled,
-        target_environment: validatedData.target_environment,
-        encrypted_config: Buffer.from(validatedData.encrypted_config, 'base64'),
-        config_nonce: Buffer.from(validatedData.config_nonce, 'base64'),
+        is_enabled: false,
+        target_environment: 'production',
+        encrypted_config: Buffer.from(encryptionResult.ciphertext, 'base64'),
+        config_nonce: Buffer.from(encryptionResult.nonce, 'base64'),
       })
 
       if (!credential) {
@@ -194,18 +168,20 @@ bakeryPaymentCredentialsRouter.post(
       )
 
       res.status(201).json(credential)
-    } catch (error) {
-      if (error instanceof z.ZodError) {
+    } catch (err) {
+      const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
+
+      if (err instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation failed',
-          details: (error as any).errors.map((e: any) => e.message),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          details: err.errors,
         })
       }
 
-      const bakeryId = (req as any).bakery?.id as string | undefined
       logger.error(
         {
-          error: error instanceof Error ? error.message : String(error),
+          error: err instanceof Error ? err.message : String(err),
           bakeryId,
         },
         'Failed to create payment credentials',
@@ -225,28 +201,36 @@ bakeryPaymentCredentialsRouter.patch(
   requireBakeryContext,
   async (req: Request, res: Response) => {
     try {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { credentialId } = req.params as any
+      const { credentialId } = req.params
       const validatedData = updateCredentialSchema.parse(req.body)
 
       if (!req.db) {
         return res.status(500).json({ error: 'Database connection unavailable' })
       }
 
-      const updateInput: any = {}
-      if (validatedData.is_enabled !== undefined) updateInput.is_enabled = validatedData.is_enabled
-      if (validatedData.target_environment !== undefined) {
-        updateInput.target_environment = validatedData.target_environment
+      // Build update object with encryption if needed
+      interface UpdateInput {
+        encrypted_config?: Buffer
+        config_nonce?: Buffer
       }
-      if (validatedData.encrypted_config !== undefined) {
-        updateInput.encrypted_config = Buffer.from(validatedData.encrypted_config, 'base64')
-      }
-      if (validatedData.config_nonce !== undefined) {
-        updateInput.config_nonce = Buffer.from(validatedData.config_nonce, 'base64')
+      const updateInput: UpdateInput = {}
+
+      if (validatedData.account_number !== undefined || validatedData.account_holder !== undefined || validatedData.api_key !== undefined) {
+        // If any credential fields are provided, re-encrypt the entire config
+        const configJson = JSON.stringify({
+          account_number: validatedData.account_number ?? '',
+          account_holder: validatedData.account_holder ?? '',
+          api_key: validatedData.api_key ?? '',
+        })
+
+        const encryptionResult = await aesGcmEncrypt(configJson, bakeryId)
+        updateInput.encrypted_config = Buffer.from(encryptionResult.ciphertext, 'base64')
+        updateInput.config_nonce = Buffer.from(encryptionResult.nonce, 'base64')
       }
 
       const credential = await updatePaymentCredential(req.db, bakeryId, credentialId, updateInput)
@@ -264,18 +248,20 @@ bakeryPaymentCredentialsRouter.patch(
       )
 
       res.json(credential)
-    } catch (error) {
-      if (error instanceof z.ZodError) {
+    } catch (err) {
+      const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
+
+      if (err instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation failed',
-          details: (error as any).errors.map((e: any) => e.message),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          details: err.errors,
         })
       }
 
-      const bakeryId = (req as any).bakery?.id as string | undefined
       logger.error(
         {
-          error: error instanceof Error ? error.message : String(error),
+          error: err instanceof Error ? err.message : String(err),
           bakeryId,
         },
         'Failed to update payment credentials',
@@ -295,12 +281,12 @@ bakeryPaymentCredentialsRouter.delete(
   requireBakeryContext,
   async (req: Request, res: Response) => {
     try {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { credentialId } = req.params as any
+      const { credentialId } = req.params
 
       if (!req.db) {
         return res.status(500).json({ error: 'Database connection unavailable' })
@@ -322,7 +308,7 @@ bakeryPaymentCredentialsRouter.delete(
 
       res.status(204).send()
     } catch (error) {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
       logger.error(
         {
           error: error instanceof Error ? error.message : String(error),

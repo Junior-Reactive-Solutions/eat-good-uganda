@@ -3,11 +3,11 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { z } from 'zod'
 
 import { Button } from '../components/Button'
+import { IconNavigationMenu } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
 import { ProductForm } from '../components/ProductForm'
 import { VariantManager } from '../components/VariantManager'
-import { IconNavigationMenu } from '../components/icons'
 import {
   useProductDetail,
   useCreateProduct,

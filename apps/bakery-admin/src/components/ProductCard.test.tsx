@@ -22,8 +22,8 @@ const mockProduct: Product = {
   requires_advance_notice_hours: null,
   sort_order: 1,
   tags: ['dessert', 'cake'],
-  created_at: '2026-01-01T00:00:00Z' as any,
-  updated_at: '2026-01-01T00:00:00Z' as any,
+  created_at: new Date('2026-01-01'),
+  updated_at: new Date('2026-01-01'),
   deleted_at: null,
 }
 

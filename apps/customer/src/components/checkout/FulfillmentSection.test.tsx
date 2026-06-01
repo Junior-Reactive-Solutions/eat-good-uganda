@@ -101,9 +101,7 @@ describe('FulfillmentSection', () => {
     const deliveryRadio = screen.getByLabelText(/delivery/i)
     await user.click(deliveryRadio)
 
-    expect(
-      screen.getByText(/delivery fee will be calculated at checkout/i),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/delivery fee will be calculated at checkout/i)).toBeInTheDocument()
   })
 
   it('displays section header', () => {

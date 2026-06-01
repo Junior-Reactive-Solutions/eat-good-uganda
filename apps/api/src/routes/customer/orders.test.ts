@@ -4,7 +4,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import { app } from '../../app'
 
-
 // Mock the database module
 vi.mock('@eatgood/db', () => ({
   pool: {},
@@ -123,9 +122,7 @@ describe('Customer Orders API', () => {
     })
 
     it('handles database errors gracefully', async () => {
-      vi.mocked(ordersDb.createOrder).mockRejectedValue(
-        new Error('Database error'),
-      )
+      vi.mocked(ordersDb.createOrder).mockRejectedValue(new Error('Database error'))
 
       const response = await request(app)
         .post('/v1/customer/orders')
@@ -166,9 +163,7 @@ describe('Customer Orders API', () => {
         },
       ]
 
-      vi.mocked(ordersDb.listOrdersForCustomer).mockResolvedValue(
-        mockOrders as any,
-      )
+      vi.mocked(ordersDb.listOrdersForCustomer).mockResolvedValue(mockOrders as any)
 
       const response = await request(app).get('/v1/customer/orders')
 
@@ -202,9 +197,7 @@ describe('Customer Orders API', () => {
     it('enforces maximum limit of 100', async () => {
       vi.mocked(ordersDb.listOrdersForCustomer).mockResolvedValue([])
 
-      const response = await request(app)
-        .get('/v1/customer/orders')
-        .query({ limit: 200 })
+      const response = await request(app).get('/v1/customer/orders').query({ limit: 200 })
 
       expect(response.status).toBe(200)
       expect(ordersDb.listOrdersForCustomer).toHaveBeenCalledWith(

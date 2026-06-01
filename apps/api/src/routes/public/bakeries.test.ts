@@ -4,7 +4,6 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 
 import { app } from '../../app'
 
-
 describe('Public Bakeries API', () => {
   let client: any
   let testBakeryId: string
@@ -77,15 +76,7 @@ describe('Public Bakeries API', () => {
       `INSERT INTO product_variants (
         id, product_id, bakery_id, name, price_minor, sort_order, is_available
       ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-      [
-        'test-variant-1',
-        testProductId,
-        testBakeryId,
-        'Small',
-        45000,
-        1,
-        true,
-      ],
+      ['test-variant-1', testProductId, testBakeryId, 'Small', 45000, 1, true],
     )
     testVariantId = variantRes.rows[0].id
 
@@ -149,7 +140,9 @@ describe('Public Bakeries API', () => {
 
   describe('GET /v1/public/bakeries/:slug', () => {
     it('should return bakery details for active bakery', async () => {
-      const res = await request(app).get(`/v1/public/bakeries/${encodeURIComponent('test-bakery-slug')}`)
+      const res = await request(app).get(
+        `/v1/public/bakeries/${encodeURIComponent('test-bakery-slug')}`,
+      )
 
       expect(res.status).toBe(200)
       expect(res.body.bakery).toBeDefined()
@@ -159,14 +152,18 @@ describe('Public Bakeries API', () => {
     })
 
     it('should return 404 for inactive bakery', async () => {
-      const res = await request(app).get(`/v1/public/bakeries/${encodeURIComponent('inactive-bakery')}`)
+      const res = await request(app).get(
+        `/v1/public/bakeries/${encodeURIComponent('inactive-bakery')}`,
+      )
 
       expect(res.status).toBe(404)
       expect(res.body.error).toBeDefined()
     })
 
     it('should return 404 for non-existent bakery', async () => {
-      const res = await request(app).get(`/v1/public/bakeries/${encodeURIComponent('non-existent')}`)
+      const res = await request(app).get(
+        `/v1/public/bakeries/${encodeURIComponent('non-existent')}`,
+      )
 
       expect(res.status).toBe(404)
     })

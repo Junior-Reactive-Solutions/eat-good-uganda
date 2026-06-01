@@ -17,9 +17,7 @@ describe('BarChart', () => {
   })
 
   it('shows bar for each data point', () => {
-    const { container } = render(
-      <BarChart data={mockData} title="Monthly Sales" />
-    )
+    const { container } = render(<BarChart data={mockData} title="Monthly Sales" />)
 
     const rects = container.querySelectorAll('rect')
     // Should have 3 bars (one for each data point)
@@ -41,18 +39,14 @@ describe('BarChart', () => {
   })
 
   it('renders SVG with correct viewBox', () => {
-    const { container } = render(
-      <BarChart data={mockData} title="Monthly Sales" />
-    )
+    const { container } = render(<BarChart data={mockData} title="Monthly Sales" />)
 
     const svg = container.querySelector('svg')
     expect(svg).toHaveAttribute('viewBox', '0 0 180 300')
   })
 
   it('uses custom color when provided', () => {
-    const { container } = render(
-      <BarChart data={mockData} title="Monthly Sales" color="#ff0000" />
-    )
+    const { container } = render(<BarChart data={mockData} title="Monthly Sales" color="#ff0000" />)
 
     const rects = container.querySelectorAll('rect')
     // First rect should be a bar with custom color
@@ -60,9 +54,7 @@ describe('BarChart', () => {
   })
 
   it('uses default color when not provided', () => {
-    const { container } = render(
-      <BarChart data={mockData} title="Monthly Sales" />
-    )
+    const { container } = render(<BarChart data={mockData} title="Monthly Sales" />)
 
     const rects = container.querySelectorAll('rect')
     // First rect should be a bar with default color
@@ -70,18 +62,14 @@ describe('BarChart', () => {
   })
 
   it('uses custom height when provided', () => {
-    const { container } = render(
-      <BarChart data={mockData} title="Monthly Sales" height={400} />
-    )
+    const { container } = render(<BarChart data={mockData} title="Monthly Sales" height={400} />)
 
     const svg = container.querySelector('svg')
     expect(svg).toHaveAttribute('height', '400')
   })
 
   it('uses default height when not provided', () => {
-    const { container } = render(
-      <BarChart data={mockData} title="Monthly Sales" />
-    )
+    const { container } = render(<BarChart data={mockData} title="Monthly Sales" />)
 
     const svg = container.querySelector('svg')
     expect(svg).toHaveAttribute('height', '300')
@@ -96,12 +84,12 @@ describe('BarChart', () => {
   })
 
   it('scales bar heights proportionally to values', () => {
-    const { container } = render(
-      <BarChart data={mockData} title="Monthly Sales" height={300} />
-    )
+    const { container } = render(<BarChart data={mockData} title="Monthly Sales" height={300} />)
 
     const rects = container.querySelectorAll('rect')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const firstBar = rects[0]!
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const secondBar = rects[1]!
 
     // Second bar should be taller (150 > 100)
@@ -112,9 +100,7 @@ describe('BarChart', () => {
   })
 
   it('renders with proper styling container', () => {
-    const { container } = render(
-      <BarChart data={mockData} title="Monthly Sales" />
-    )
+    const { container } = render(<BarChart data={mockData} title="Monthly Sales" />)
 
     const wrapper = container.querySelector('.rounded-lg')
     expect(wrapper).toHaveClass('border-platform-border')
@@ -123,12 +109,7 @@ describe('BarChart', () => {
   })
 
   it('handles single data point', () => {
-    render(
-      <BarChart
-        data={[{ label: 'Single', value: 100 }]}
-        title="Single Data"
-      />
-    )
+    render(<BarChart data={[{ label: 'Single', value: 100 }]} title="Single Data" />)
 
     expect(screen.getByText('Single')).toBeInTheDocument()
     expect(screen.getByText('100')).toBeInTheDocument()

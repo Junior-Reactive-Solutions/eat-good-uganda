@@ -28,14 +28,17 @@ export async function sendOrderConfirmationEmail(
 
   try {
     // Log email details (temporary implementation)
-    logger.info({
-      to,
-      orderNumber,
-      orderId,
-      hasClaimToken: !!claimToken,
-      orderLink,
-      total,
-    }, 'Sending order confirmation email')
+    logger.info(
+      {
+        to,
+        orderNumber,
+        orderId,
+        hasClaimToken: !!claimToken,
+        orderLink,
+        total,
+      },
+      'Sending order confirmation email',
+    )
 
     // TODO: Replace with actual email sending logic
     // const emailContent = buildOrderConfirmationEmail({
@@ -63,11 +66,14 @@ export async function sendOrderConfirmationEmail(
 
     logger.info('Email content sent')
   } catch (error) {
-    logger.error({
-      error: error instanceof Error ? error.message : String(error),
-      orderId,
-      to,
-    }, 'Failed to send order confirmation email')
+    logger.error(
+      {
+        error: error instanceof Error ? error.message : String(error),
+        orderId,
+        to,
+      },
+      'Failed to send order confirmation email',
+    )
     // Re-throw to prevent order creation if email fails
     throw new Error(
       `Failed to send confirmation email: ${error instanceof Error ? error.message : 'Unknown error'}`,

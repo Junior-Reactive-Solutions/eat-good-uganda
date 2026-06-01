@@ -165,9 +165,10 @@ describe('Metrics API - Contract Tests', () => {
       }
 
       for (let i = 1; i < mockMetrics.revenueByDay.length; i++) {
-        expect((mockMetrics.revenueByDay[i]?.date ?? '') >= (mockMetrics.revenueByDay[i - 1]?.date ?? '')).toBe(
-          true,
-        )
+        expect(
+          (mockMetrics.revenueByDay[i]?.date ?? '') >=
+            (mockMetrics.revenueByDay[i - 1]?.date ?? ''),
+        ).toBe(true)
       }
     })
 

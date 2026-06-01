@@ -11,20 +11,24 @@ export const customerAccountSettingsRouter = createRouter() as Router
 /**
  * Schema for notification preferences
  */
-const notificationPreferencesSchema = z.object({
-  email_orders: z.boolean().optional(),
-  email_promotions: z.boolean().optional(),
-  sms_orders: z.boolean().optional(),
-}).strict()
+const notificationPreferencesSchema = z
+  .object({
+    email_orders: z.boolean().optional(),
+    email_promotions: z.boolean().optional(),
+    sms_orders: z.boolean().optional(),
+  })
+  .strict()
 
 /**
  * Schema for account settings update
  */
-const updateAccountSettingsSchema = z.object({
-  notification_preferences: notificationPreferencesSchema.optional(),
-  language: z.enum(['en', 'sw', 'lg']).optional(),
-  privacy_mode: z.boolean().optional(),
-}).strict()
+const updateAccountSettingsSchema = z
+  .object({
+    notification_preferences: notificationPreferencesSchema.optional(),
+    language: z.enum(['en', 'sw', 'lg']).optional(),
+    privacy_mode: z.boolean().optional(),
+  })
+  .strict()
 
 /**
  * GET /v1/customer/account-settings
@@ -137,7 +141,8 @@ customerAccountSettingsRouter.patch(
         })
       }
 
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update account settings'
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to update account settings'
       console.error('Error updating account settings:', errorMessage)
       return res.status(500).json({ error: 'Failed to update account settings' })
     }
@@ -148,10 +153,12 @@ customerAccountSettingsRouter.patch(
  * POST /v1/customer/account-settings/change-password
  * Change password for authenticated customer
  */
-const changePasswordSchema = z.object({
-  current_password: z.string().min(1),
-  new_password: z.string().min(8, 'Password must be at least 8 characters'),
-}).strict()
+const changePasswordSchema = z
+  .object({
+    current_password: z.string().min(1),
+    new_password: z.string().min(8, 'Password must be at least 8 characters'),
+  })
+  .strict()
 
 customerAccountSettingsRouter.post(
   '/change-password',

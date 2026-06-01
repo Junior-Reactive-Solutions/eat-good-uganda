@@ -1,11 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument */
+import type { CustomerAddress } from '@eatgood/shared'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import AddressesPage from './AddressesPage'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import * as api from '../features/profile/api'
-import type { CustomerAddress } from '@eatgood/shared'
+
+import AddressesPage from './AddressesPage'
+
 
 vi.mock('../features/profile/api', () => ({
   useCustomerAddresses: vi.fn(),
@@ -506,7 +509,7 @@ describe('AddressesPage', () => {
 
     expect(screen.getByText('Delete Address')).toBeInTheDocument()
     expect(
-      screen.getByText('Are you sure you want to delete this address? This cannot be undone.')
+      screen.getByText('Are you sure you want to delete this address? This cannot be undone.'),
     ).toBeInTheDocument()
   })
 

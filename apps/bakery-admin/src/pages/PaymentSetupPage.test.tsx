@@ -3,9 +3,10 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import PaymentSetupPage from './PaymentSetupPage'
 import * as settingsApi from '../features/settings/api'
 import * as testPaymentHooks from '../features/settings/useTestPayment'
+
+import PaymentSetupPage from './PaymentSetupPage'
 
 // Mock the settings API
 vi.mock('../features/settings/api', () => ({
@@ -53,7 +54,9 @@ const mockCredentials: BakeryPaymentCredential[] = [
 // Default mock return for test payment hooks (no active test payment)
 function setupTestPaymentMocks() {
   vi.mocked(testPaymentHooks.useCreateTestOrder).mockReturnValue({
-    mutateAsync: vi.fn().mockResolvedValue({ id: 'test-order-1', order_number: 'EGU-TEST', total_minor: 1000 }),
+    mutateAsync: vi
+      .fn()
+      .mockResolvedValue({ id: 'test-order-1', order_number: 'EGU-TEST', total_minor: 1000 }),
     isPending: false,
     isError: false,
   } as any)

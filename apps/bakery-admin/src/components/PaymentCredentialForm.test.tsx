@@ -91,7 +91,9 @@ describe('PaymentCredentialForm', () => {
       const mockSubmit = vi.fn()
       render(<PaymentCredentialForm provider="mtn_momo" onSubmit={mockSubmit} />)
 
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const accountNumberInput = screen.getByLabelText('Account Number *') as HTMLInputElement
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const accountHolderInput = screen.getByLabelText('Account Holder Name *') as HTMLInputElement
 
       expect(accountNumberInput).toBeInTheDocument()

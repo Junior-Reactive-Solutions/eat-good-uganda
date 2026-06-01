@@ -82,7 +82,9 @@ describe('Bakery Metrics API - Contract Tests', () => {
       ]
 
       for (let i = 1; i < topProducts.length; i++) {
-        expect(topProducts[i]!.totalRevenueMinor <= topProducts[i - 1]!.totalRevenueMinor).toBe(true)
+        expect(topProducts[i]!.totalRevenueMinor <= topProducts[i - 1]!.totalRevenueMinor).toBe(
+          true,
+        )
       }
     })
 

@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { EmptyState } from '../components/EmptyState'
+import { IconNavigationCart } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
 import { ProductCard } from '../components/ProductCard'
-import { IconNavigationCart } from '../components/icons'
 import { useProducts, useDeleteProduct, useUpdateProduct } from '../features/menu/api'
 
 export default function MenuPage() {
@@ -120,7 +120,9 @@ export default function MenuPage() {
             <div className="flex gap-2">
               <Button
                 variant="secondary"
-                onClick={() => { setPage((p) => Math.max(1, p - 1)); }}
+                onClick={() => {
+                  setPage((p) => Math.max(1, p - 1))
+                }}
                 disabled={!hasPreviousPage}
               >
                 Previous
@@ -128,7 +130,9 @@ export default function MenuPage() {
 
               <Button
                 variant="secondary"
-                onClick={() => { setPage((p) => p + 1); }}
+                onClick={() => {
+                  setPage((p) => p + 1)
+                }}
                 disabled={!hasNextPage}
               >
                 Next

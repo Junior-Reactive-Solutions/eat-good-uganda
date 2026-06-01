@@ -1,14 +1,10 @@
 import type { CustomerDetail } from '@eatgood/db'
 import { useState } from 'react'
 
-
 import { Button } from '@/components/Button'
+import { IconNavigationMenu, IconAdminRejected } from '@/components/icons'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { UserBanModal } from '@/components/modals/UserBanModal'
-import {
-  IconNavigationMenu,
-  IconAdminRejected,
-} from '@/components/icons'
 import { useCustomers } from '@/features/users/api'
 import { useDebounce } from '@/lib/hooks'
 
@@ -83,7 +79,9 @@ export default function UserManagementPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-platform-fg">Users</h1>
-        <p className="text-sm text-platform-fg-muted mt-1">Manage customer accounts and detect fraud</p>
+        <p className="text-sm text-platform-fg-muted mt-1">
+          Manage customer accounts and detect fraud
+        </p>
       </div>
 
       {/* Filters */}
@@ -126,7 +124,10 @@ export default function UserManagementPage() {
           </div>
 
           <div>
-            <label htmlFor="fraud-status" className="block text-sm font-medium text-platform-fg mb-1">
+            <label
+              htmlFor="fraud-status"
+              className="block text-sm font-medium text-platform-fg mb-1"
+            >
               Fraud Status
             </label>
             <select
@@ -164,12 +165,24 @@ export default function UserManagementPage() {
               <thead className="border-b border-platform-border bg-platform-bg">
                 <tr>
                   <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Name</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Email</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Orders</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Total Spent</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Ban Status</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Fraud</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Actions</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Orders
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Total Spent
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Ban Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Fraud
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-platform-border">
@@ -183,7 +196,9 @@ export default function UserManagementPage() {
                     <td className="px-6 py-3 text-sm text-platform-fg">{customer.full_name}</td>
                     <td className="px-6 py-3 text-sm text-platform-fg-muted">{customer.email}</td>
                     <td className="px-6 py-3 text-sm text-platform-fg">{customer.total_orders}</td>
-                    <td className="px-6 py-3 text-sm text-platform-fg">{formatCurrency(customer.total_spent_minor)}</td>
+                    <td className="px-6 py-3 text-sm text-platform-fg">
+                      {formatCurrency(customer.total_spent_minor)}
+                    </td>
                     <td className="px-6 py-3 text-sm">
                       {customer.is_banned ? (
                         <span className="inline-block rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700">
@@ -199,8 +214,10 @@ export default function UserManagementPage() {
                       {customer.fraud_flag ? (
                         <div className="flex items-center gap-1.5">
                           <IconAdminRejected size="sm" color="error" />
-                          <span className="inline-block rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 truncate max-w-xs"
-                            title={customer.fraud_reason || 'Flagged'}>
+                          <span
+                            className="inline-block rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 truncate max-w-xs"
+                            title={customer.fraud_reason || 'Flagged'}
+                          >
                             Flagged
                           </span>
                         </div>
@@ -212,7 +229,9 @@ export default function UserManagementPage() {
                       <Button
                         variant={customer.is_banned ? 'primary' : 'danger'}
                         size="sm"
-                        onClick={() => { handleOpenBanModal(customer); }}
+                        onClick={() => {
+                          handleOpenBanModal(customer)
+                        }}
                       >
                         {customer.is_banned ? 'Unban' : 'Ban'}
                       </Button>
@@ -231,7 +250,9 @@ export default function UserManagementPage() {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => { setPage((p) => Math.max(1, p - 1)); }}
+            onClick={() => {
+              setPage((p) => Math.max(1, p - 1))
+            }}
             disabled={page === 1}
           >
             ← Previous
@@ -244,7 +265,9 @@ export default function UserManagementPage() {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => { setPage((p) => Math.min(pagination.totalPages, p + 1)); }}
+            onClick={() => {
+              setPage((p) => Math.min(pagination.totalPages, p + 1))
+            }}
             disabled={page === pagination.totalPages}
           >
             Next →

@@ -1,4 +1,3 @@
-
 import type { OrderListItem } from '../features/orders/api'
 
 import { Card } from './Card'
@@ -49,34 +48,24 @@ function timeAgo(date: string | Date): string {
 export function OrderCard({ order, onClick }: OrderCardProps) {
   const statusKey = order.status
   const statusLabel = statusLabels[statusKey] || order.status
-  const badgeColor =
-    statusBadgeColors[order.status] ||
-    'bg-gray-100 text-gray-800'
+  const badgeColor = statusBadgeColors[order.status] || 'bg-gray-100 text-gray-800'
 
   const formattedDate = timeAgo(order.created_at)
 
-  const fulfillmentLabel =
-    order.fulfilment_mode === 'pickup' ? 'Pickup' : 'Delivery'
+  const fulfillmentLabel = order.fulfilment_mode === 'pickup' ? 'Pickup' : 'Delivery'
 
   // Convert minor units to UGX (divide by 100)
   const totalUGX = (order.total_minor / 100).toLocaleString()
 
   return (
-    <Card
-      className="cursor-pointer transition-shadow hover:shadow-md"
-      onClick={onClick}
-    >
+    <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={onClick}>
       <div className="flex flex-col gap-4">
         {/* Header: Order Number + Status Badge */}
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="font-semibold text-platform-fg">
-              {order.order_number}
-            </h3>
+            <h3 className="font-semibold text-platform-fg">{order.order_number}</h3>
           </div>
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-medium ${badgeColor}`}
-          >
+          <span className={`rounded-full px-3 py-1 text-xs font-medium ${badgeColor}`}>
             {statusLabel}
           </span>
         </div>

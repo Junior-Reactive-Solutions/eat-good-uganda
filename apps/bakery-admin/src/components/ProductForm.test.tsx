@@ -2,12 +2,14 @@ import type { Product, ProductCategory } from '@eatgood/shared'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Mock } from 'vitest'
 import { z } from 'zod'
 
 import { ProductForm } from './ProductForm'
 
 // Replicate the schema from ProductForm for type checking
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const productFormSchema = z.object({
   slug: z.string().min(1, 'Slug is required').max(255),
   name: z.string().min(1, 'Name is required').max(255),
@@ -17,7 +19,7 @@ const productFormSchema = z.object({
     .positive('Price must be greater than 0'),
   category_id: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  image_urls: z.array(z.string().url('Must be a valid URL')),
+  image_urls: z.array(z.url('Must be a valid URL')),
   tags: z.array(z.string()),
   is_published: z.boolean(),
   is_available: z.boolean(),
@@ -69,6 +71,7 @@ const mockProduct: Product = {
 }
 
 describe('ProductForm', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockOnSubmit = vi.fn(async (_data: ProductFormData) => {}) as any
   const mockOnCancel = vi.fn()
 

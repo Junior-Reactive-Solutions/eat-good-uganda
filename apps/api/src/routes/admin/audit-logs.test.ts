@@ -1,4 +1,3 @@
- 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Mock the database module
@@ -263,8 +262,11 @@ describe('Admin Audit Logs API - Contract Tests', () => {
 
       // Verify descending order
       for (let i = 0; i < mockLogs.length - 1; i++) {
-        const current = new Date(mockLogs[i]!.created_at).getTime()
-        const next = new Date(mockLogs[i + 1]!.created_at).getTime()
+        const currentLog = mockLogs[i]
+        const nextLog = mockLogs[i + 1]
+        if (!currentLog || !nextLog) continue
+        const current = new Date(currentLog.created_at).getTime()
+        const next = new Date(nextLog.created_at).getTime()
         expect(current).toBeGreaterThanOrEqual(next)
       }
     })

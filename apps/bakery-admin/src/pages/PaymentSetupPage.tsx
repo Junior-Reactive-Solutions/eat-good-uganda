@@ -119,26 +119,14 @@ export default function PaymentSetupPage() {
     account_holder: string
     api_key?: string | null | undefined
   }) => {
-    // Create encrypted config object
-    // For now, using a simple base64 encoding as placeholder
-    // In production, this would use proper encryption
-    const configJson = JSON.stringify({
-      account_number: credentialData.account_number,
-      account_holder: credentialData.account_holder,
-      api_key: credentialData.api_key ?? '',
-    })
-    const encryptedConfig = Buffer.from(configJson).toString('base64')
-    const configNonce = Buffer.from(Math.random().toString()).toString('base64')
-
+    // Send plaintext to API; server-side will encrypt using AES-256-GCM
     createCredential.mutate(
       {
         provider: selectedProvider,
-        is_enabled: true,
-        target_environment: 'production' as const,
         account_number: credentialData.account_number,
         account_holder: credentialData.account_holder,
         api_key: credentialData.api_key ?? undefined,
-      } as any,
+      },
       {
         onSuccess: () => {
           setIsAdding(false)
