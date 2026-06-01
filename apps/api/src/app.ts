@@ -70,16 +70,7 @@ app.use(
     xssFilter: true,
     // Referrer-Policy - control referrer information
     referrerPolicy: {
-      policy: 'strict-no-referrer',
-    },
-    // Permissions-Policy - control browser features
-    permissionsPolicy: {
-      features: {
-        geolocation: [],
-        microphone: [],
-        camera: [],
-        payment: [],
-      },
+      policy: 'no-referrer',
     },
   }),
 )
