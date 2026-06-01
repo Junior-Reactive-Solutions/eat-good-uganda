@@ -22,8 +22,8 @@ const mockProduct: Product = {
   requires_advance_notice_hours: null,
   sort_order: 1,
   tags: ['dessert', 'cake'],
-  created_at: new Date('2026-01-01'),
-  updated_at: new Date('2026-01-01'),
+  created_at: '2026-01-01T00:00:00Z' as any,
+  updated_at: '2026-01-01T00:00:00Z' as any,
   deleted_at: null,
 }
 
@@ -188,9 +188,11 @@ describe('ProductCard', () => {
       />,
     )
 
-    // Check for the Utensils icon SVG (lucide-react renders as SVG with specific class)
-    const utensilsIcon = container.querySelector('.lucide-utensils')
-    expect(utensilsIcon).toBeInTheDocument()
+    // Check that image placeholder div is present but no actual image
+    const imagePlaceholder = container.querySelector('.h-40.bg-platform-bg')
+    expect(imagePlaceholder).toBeInTheDocument()
+    const img = imagePlaceholder?.querySelector('img')
+    expect(img).not.toBeInTheDocument()
   })
 
   it('renders edit button with link to edit page', () => {
@@ -344,8 +346,8 @@ describe('ProductCard', () => {
     expect(card).toBeInTheDocument()
   })
 
-  it('shows Eye icon when product is unpublished', () => {
-    const { container } = renderWithRouter(
+  it('shows unlock emoji when product is unpublished', () => {
+    renderWithRouter(
       <ProductCard
         product={mockProductUnpublished}
         onDelete={mockOnDelete}
@@ -353,13 +355,13 @@ describe('ProductCard', () => {
       />,
     )
 
-    // Check for Eye icon SVG (unpublished state)
-    const eyeIcon = container.querySelector('.lucide-eye')
-    expect(eyeIcon).toBeInTheDocument()
+    // Check for unlock emoji (🔓) in unpublished state
+    const button = screen.getByRole('button', { name: /Publish Vanilla Cake/i })
+    expect(button).toHaveTextContent('🔓')
   })
 
-  it('shows EyeOff icon when product is published', () => {
-    const { container } = renderWithRouter(
+  it('shows lock emoji when product is published', () => {
+    renderWithRouter(
       <ProductCard
         product={mockProduct}
         onDelete={mockOnDelete}
@@ -367,9 +369,9 @@ describe('ProductCard', () => {
       />,
     )
 
-    // Check for EyeOff icon SVG (published state)
-    const eyeOffIcon = container.querySelector('.lucide-eye-off')
-    expect(eyeOffIcon).toBeInTheDocument()
+    // Check for lock emoji (🔒) in published state
+    const button = screen.getByRole('button', { name: /Unpublish Chocolate Cake/i })
+    expect(button).toHaveTextContent('🔒')
   })
 
   it('renders all three action buttons', () => {

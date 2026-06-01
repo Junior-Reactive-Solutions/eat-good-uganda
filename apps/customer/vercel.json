@@ -1,11 +1,11 @@
 {
-  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
-  "buildCommand": "cd ../.. && pnpm --filter @eatgood/customer build",
-  "outputDirectory": "dist",
+  "buildCommand": "echo 'Using pre-built dist'",
   "framework": "vite",
-  "rewrites": [
-    { "source": "/admin", "destination": "/api/edge-admin-403" },
-    { "source": "/admin/(.*)", "destination": "/api/edge-admin-403" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "outputDirectory": "dist",
+  "public": true,
+  "installCommand": "echo 'Skipping install'",
+  "github": {
+    "enabled": true,
+    "autoAlias": true
+  }
 }

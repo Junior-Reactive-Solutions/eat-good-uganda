@@ -5,18 +5,14 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { OrderCard } from '../components/OrderCard'
-import { useOrders } from '../features/orders/api'
+import { useOrders, type OrderListItem } from '../features/orders/api'
+import { type PaginatedResponse } from '@eatgood/shared'
 import { IconNavigationCart, IconNavigationMenu } from '../components/icons'
 
 const ITEMS_PER_PAGE = 20
 
-interface PaginatedOrdersResponse {
-  items: Array<{ id: string; order_number: string; status: string; total_minor: number; fulfilment_mode: string; created_at: string }>
-  total: number
-}
-
 type UseOrdersHookResult = {
-  data: PaginatedOrdersResponse | undefined
+  data: PaginatedResponse<OrderListItem> | undefined
   isLoading: boolean
   isError: boolean
   error: Error | null

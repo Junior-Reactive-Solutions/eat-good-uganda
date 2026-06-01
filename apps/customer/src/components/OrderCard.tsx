@@ -31,10 +31,10 @@ const statusLabels: Record<string, string> = {
   refunded: 'Refunded',
 }
 
-function timeAgo(dateString: string): string {
+function timeAgo(date: string | Date): string {
   const now = new Date()
-  const date = new Date(dateString)
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  const seconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000)
 
   if (seconds < 60) return 'just now'
   const minutes = Math.floor(seconds / 60)
@@ -43,7 +43,7 @@ function timeAgo(dateString: string): string {
   if (hours < 24) return `${String(hours)}h ago`
   const days = Math.floor(hours / 24)
   if (days < 7) return `${String(days)}d ago`
-  return date.toLocaleDateString('en-UG')
+  return dateObj.toLocaleDateString('en-UG')
 }
 
 export function OrderCard({ order, onClick }: OrderCardProps) {
@@ -56,7 +56,7 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
   const formattedDate = timeAgo(order.created_at)
 
   const fulfillmentLabel =
-    order.fulfillment_mode === 'pickup' ? 'Pickup' : 'Delivery'
+    order.fulfilment_mode === 'pickup' ? 'Pickup' : 'Delivery'
 
   // Convert minor units to UGX (divide by 100)
   const totalUGX = (order.total_minor / 100).toLocaleString()

@@ -47,6 +47,10 @@ bakerySettingsRouter.get(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
+
       const profile = await getBakeryProfile(req.db, bakeryId)
       if (!profile) {
         return res.status(404).json({ error: 'Bakery not found' })
@@ -55,10 +59,13 @@ bakerySettingsRouter.get(
       res.json(profile)
     } catch (error) {
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to get bakery profile', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to get bakery profile',
+      )
       res.status(500).json({ error: 'Failed to get bakery profile' })
     }
   },
@@ -81,6 +88,10 @@ bakerySettingsRouter.patch(
 
       const validatedData = updateProfileSchema.parse(req.body)
 
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
+
       const profile = await updateBakeryProfile(
         req.db,
         bakeryId,
@@ -91,19 +102,25 @@ bakerySettingsRouter.patch(
         return res.status(404).json({ error: 'Bakery not found' })
       }
 
-      logger.info('Bakery profile updated', { bakeryId })
+      logger.info({ bakeryId }, 'Bakery profile updated')
 
       res.json(profile)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: (error as any).errors.map((e: any) => e.message),
+        })
       }
 
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to update bakery profile', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to update bakery profile',
+      )
       res.status(500).json({ error: 'Failed to update bakery profile' })
     }
   },

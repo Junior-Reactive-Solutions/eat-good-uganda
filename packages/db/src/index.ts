@@ -27,10 +27,6 @@ export {
   type TimeSeriesPoint,
   type TopBakery,
 } from './queries/analytics'
-export {
-  adminGetDashboardMetrics,
-  type DashboardMetrics,
-} from './queries/admin/dashboard-metrics'
 export { createAuditLog, getAuditLogs, type AuditLog } from './queries/audit-logs'
 export {
   banCustomer,

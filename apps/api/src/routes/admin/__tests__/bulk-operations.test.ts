@@ -272,8 +272,8 @@ describe('Admin Bulk Operations API - Contract Tests', () => {
         { userId: '550e8400-e29b-41d4-a716-446655440003', error: 'Already banned' },
       ]
 
-      expect(errors[0].userId).toBe('550e8400-e29b-41d4-a716-446655440000')
-      expect(errors[1].userId).toBe('550e8400-e29b-41d4-a716-446655440003')
+      expect(errors[0]!.userId).toBe('550e8400-e29b-41d4-a716-446655440000')
+      expect(errors[1]!.userId).toBe('550e8400-e29b-41d4-a716-446655440003')
     })
   })
 })

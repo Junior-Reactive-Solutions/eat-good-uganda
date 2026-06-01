@@ -101,8 +101,8 @@ describe('BarChart', () => {
     )
 
     const rects = container.querySelectorAll('rect')
-    const firstBar = rects[0]
-    const secondBar = rects[1]
+    const firstBar = rects[0]!
+    const secondBar = rects[1]!
 
     // Second bar should be taller (150 > 100)
     const firstHeight = parseFloat(firstBar.getAttribute('height') || '0')

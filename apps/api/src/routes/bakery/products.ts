@@ -55,6 +55,10 @@ bakeryProductsRouter.get(
       const page = Math.max(1, parseInt(req.query.page as string) || 1)
       const pageSize = Math.max(1, Math.min(100, parseInt(req.query.pageSize as string) || 20))
 
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
+
       const result = await listProductsForBakeryAdmin(req.db, bakeryId, page, pageSize)
 
       res.json({
@@ -66,10 +70,13 @@ bakeryProductsRouter.get(
       })
     } catch (error) {
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to list products', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to list products',
+      )
       res.status(500).json({ error: 'Failed to list products' })
     }
   },
@@ -90,7 +97,11 @@ bakeryProductsRouter.get(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { productId } = req.params
+      const { productId } = req.params as any
+
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
 
       const product = await getProductById(req.db, bakeryId, productId)
       if (!product) {
@@ -100,11 +111,14 @@ bakeryProductsRouter.get(
       res.json(product)
     } catch (error) {
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to get product', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-        productId: req.params.productId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+          productId: req.params.productId,
+        },
+        'Failed to get product',
+      )
       res.status(500).json({ error: 'Failed to get product' })
     }
   },
@@ -127,25 +141,38 @@ bakeryProductsRouter.post(
 
       const validatedData = createProductSchema.parse(req.body)
 
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
+
       const product = await createProduct(req.db, bakeryId, validatedData as CreateProductInput)
 
-      logger.info('Product created', {
-        bakeryId,
-        productId: product.id,
-        name: product.name,
-      })
+      logger.info(
+        {
+          bakeryId,
+          productId: product.id,
+          name: product.name,
+        },
+        'Product created',
+      )
 
       res.status(201).json(product)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: (error as any).errors.map((e: any) => e.message),
+        })
       }
 
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to create product', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to create product',
+      )
       res.status(500).json({ error: 'Failed to create product' })
     }
   },
@@ -166,31 +193,44 @@ bakeryProductsRouter.patch(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { productId } = req.params
+      const { productId } = req.params as any
       const validatedData = updateProductSchema.parse(req.body)
 
-      const product = await updateProduct(req.db, bakeryId, productId, validatedData)
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
+
+      const product = await updateProduct(req.db, bakeryId, productId, validatedData as any)
       if (!product) {
         return res.status(404).json({ error: 'Product not found' })
       }
 
-      logger.info('Product updated', {
-        bakeryId,
-        productId,
-      })
+      logger.info(
+        {
+          bakeryId,
+          productId,
+        },
+        'Product updated',
+      )
 
       res.json(product)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: (error as any).errors.map((e: any) => e.message),
+        })
       }
 
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to update product', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-        productId: req.params.productId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+          productId: req.params.productId,
+        },
+        'Failed to update product',
+      )
       res.status(500).json({ error: 'Failed to update product' })
     }
   },
@@ -211,26 +251,36 @@ bakeryProductsRouter.delete(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { productId } = req.params
+      const { productId } = req.params as any
+
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
 
       const product = await softDeleteProduct(req.db, bakeryId, productId)
       if (!product) {
         return res.status(404).json({ error: 'Product not found' })
       }
 
-      logger.info('Product deleted', {
-        bakeryId,
-        productId,
-      })
+      logger.info(
+        {
+          bakeryId,
+          productId,
+        },
+        'Product deleted',
+      )
 
       res.status(204).send()
     } catch (error) {
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to delete product', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-        productId: req.params.productId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+          productId: req.params.productId,
+        },
+        'Failed to delete product',
+      )
       res.status(500).json({ error: 'Failed to delete product' })
     }
   },

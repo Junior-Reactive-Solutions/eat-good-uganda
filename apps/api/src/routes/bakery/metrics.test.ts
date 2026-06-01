@@ -82,7 +82,7 @@ describe('Bakery Metrics API - Contract Tests', () => {
       ]
 
       for (let i = 1; i < topProducts.length; i++) {
-        expect(topProducts[i].totalRevenueMinor <= topProducts[i - 1].totalRevenueMinor).toBe(true)
+        expect(topProducts[i]!.totalRevenueMinor <= topProducts[i - 1]!.totalRevenueMinor).toBe(true)
       }
     })
 
@@ -94,7 +94,7 @@ describe('Bakery Metrics API - Contract Tests', () => {
       ]
 
       for (let i = 1; i < revenueByDay.length; i++) {
-        expect(revenueByDay[i].date >= revenueByDay[i - 1].date).toBe(true)
+        expect(revenueByDay[i]!.date >= revenueByDay[i - 1]!.date).toBe(true)
       }
     })
 
@@ -127,11 +127,11 @@ describe('Bakery Metrics API - Contract Tests', () => {
 
       expect(metrics.totalSalesMinor % 1).toBe(0)
       expect(metrics.totalOrdersCount % 1).toBe(0)
-      expect(metrics.ordersByStatus[0].count % 1).toBe(0)
-      expect(metrics.topProducts[0].unitsSold % 1).toBe(0)
-      expect(metrics.topProducts[0].totalRevenueMinor % 1).toBe(0)
-      expect(metrics.revenueByDay[0].revenueMinor % 1).toBe(0)
-      expect(metrics.revenueByDay[0].orderCount % 1).toBe(0)
+      expect(metrics.ordersByStatus[0]!.count % 1).toBe(0)
+      expect(metrics.topProducts[0]!.unitsSold % 1).toBe(0)
+      expect(metrics.topProducts[0]!.totalRevenueMinor % 1).toBe(0)
+      expect(metrics.revenueByDay[0]!.revenueMinor % 1).toBe(0)
+      expect(metrics.revenueByDay[0]!.orderCount % 1).toBe(0)
     })
   })
 })

@@ -25,13 +25,22 @@ bakeryMetricsRouter.get(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
+
       const metrics = await getBakeryMetrics((req as any).db, bakeryId)
 
-      logger.info('Metrics retrieved')
+      logger.info({}, 'Metrics retrieved')
 
       res.json(metrics)
     } catch (error) {
-      logger.error('Failed to get metrics', error instanceof Error ? error.message : String(error))
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+        },
+        'Failed to get metrics',
+      )
       res.status(500).json({ error: 'Failed to get metrics' })
     }
   },

@@ -1,5 +1,16 @@
 export type Id = string
 
+/**
+ * Generic paginated response structure
+ */
+export type PaginatedResponse<T> = {
+  items: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
 export type BakeryStatus = 'pending_approval' | 'active' | 'suspended' | 'archived'
 
 export type BakeryUserRole = 'owner' | 'manager' | 'staff'
@@ -163,6 +174,7 @@ export type DeliveryAddress = {
   lat: number
   lng: number
   notes?: string
+  instructions?: string
 }
 
 export type Order = {

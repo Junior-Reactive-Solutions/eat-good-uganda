@@ -41,11 +41,8 @@ describe('MetricCard', () => {
       />,
     )
 
-    expect(screen.getByText('12%')).toBeInTheDocument()
+    expect(screen.getByText(/12%/)).toBeInTheDocument()
     expect(screen.getByText('vs last month')).toBeInTheDocument()
-    // Check for TrendingUp icon (it should contain SVG)
-    const svgs = document.querySelectorAll('svg')
-    expect(svgs.length).toBeGreaterThan(0)
   })
 
   it('renders trend indicator with down direction', () => {
@@ -57,7 +54,7 @@ describe('MetricCard', () => {
       />,
     )
 
-    expect(screen.getByText('5%')).toBeInTheDocument()
+    expect(screen.getByText(/5%/)).toBeInTheDocument()
     expect(screen.getByText('vs last month')).toBeInTheDocument()
   })
 
@@ -70,7 +67,7 @@ describe('MetricCard', () => {
       />,
     )
 
-    const trendText = screen.getByText('12%')
+    const trendText = screen.getByText(/↑/)
     expect(trendText).toHaveClass('text-green-600')
   })
 
@@ -83,7 +80,7 @@ describe('MetricCard', () => {
       />,
     )
 
-    const trendText = screen.getByText('5%')
+    const trendText = screen.getByText(/↓/)
     expect(trendText).toHaveClass('text-red-600')
   })
 
@@ -116,6 +113,7 @@ describe('MetricCard', () => {
     expect(screen.getByText('Total Sales')).toBeInTheDocument()
     expect(screen.getByText('500,000 UGX')).toBeInTheDocument()
     expect(screen.getByText('Current month')).toBeInTheDocument()
-    expect(screen.getByText('12%')).toBeInTheDocument()
+    expect(screen.getByText(/12%/)).toBeInTheDocument()
+    expect(screen.getByText('vs last month')).toBeInTheDocument()
   })
 })

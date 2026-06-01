@@ -90,7 +90,7 @@ adminBakeriesRouter.get(
       const totalPages = Math.ceil(filtered.length / params.pageSize)
       const paginatedData = filtered.slice(offset, offset + params.pageSize)
 
-      logger.info('Admin listed bakeries')
+      logger.info({}, 'Admin listed bakeries')
 
       return res.status(200).json({
         data: paginatedData.map((b) => ({
@@ -166,7 +166,7 @@ adminBakeriesRouter.get(
         return res.status(404).json({ error: 'Bakery not found' })
       }
 
-      const bakery = bakeryRows[0]
+      const bakery = bakeryRows[0]!
 
       // Get staff for bakery
       const staff = await listBakeryUsersForBakery(pool, bakeryId)
@@ -174,7 +174,7 @@ adminBakeriesRouter.get(
       // Get metrics for bakery
       const metrics = await getBakeryMetrics(pool, bakeryId)
 
-      logger.info('Admin viewed bakery details')
+      logger.info({}, 'Admin viewed bakery details')
 
       return res.status(200).json({
         bakery: {
@@ -253,7 +253,7 @@ adminBakeriesRouter.post(
         return res.status(404).json({ error: 'Bakery not found' })
       }
 
-      if (bakeryRows[0].status === 'active') {
+      if (bakeryRows[0]!.status === 'active') {
         return res.status(400).json({ error: 'Bakery is already active' })
       }
 
@@ -264,7 +264,7 @@ adminBakeriesRouter.post(
         approved_by: adminId,
       })
 
-      logger.info('Admin approved bakery')
+      logger.info({}, 'Admin approved bakery')
 
       return res.status(200).json({
         id: updatedBakery?.id,
@@ -307,7 +307,7 @@ adminBakeriesRouter.post(
         return res.status(404).json({ error: 'Bakery not found' })
       }
 
-      if (bakeryRows[0].status === 'suspended') {
+      if (bakeryRows[0]!.status === 'suspended') {
         return res.status(400).json({ error: 'Bakery is already suspended' })
       }
 
@@ -316,7 +316,7 @@ adminBakeriesRouter.post(
         status: 'suspended',
       })
 
-      logger.info(`Admin ${adminId} suspended bakery`)
+      logger.info({ adminId }, `Admin suspended bakery`)
 
       return res.status(200).json({
         id: updatedBakery?.id,
@@ -357,7 +357,7 @@ adminBakeriesRouter.post(
         return res.status(404).json({ error: 'Bakery not found' })
       }
 
-      if (bakeryRows[0].status !== 'suspended') {
+      if (bakeryRows[0]!.status !== 'suspended') {
         return res.status(400).json({ error: 'Bakery is not suspended' })
       }
 
@@ -366,7 +366,7 @@ adminBakeriesRouter.post(
         status: 'active',
       })
 
-      logger.info(`Admin ${adminId} reactivated bakery`)
+      logger.info({ adminId }, `Admin reactivated bakery`)
 
       return res.status(200).json({
         id: updatedBakery?.id,

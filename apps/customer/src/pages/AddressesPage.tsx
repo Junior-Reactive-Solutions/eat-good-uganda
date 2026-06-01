@@ -118,8 +118,10 @@ export default function AddressesPage() {
               {(createAddress.isError || updateAddress.isError) && (
                 <div className="mt-3 rounded-lg border border-platform-error bg-red-50 p-3">
                   <p className="text-xs text-platform-error">
-                    {(createAddress.error || updateAddress.error) instanceof Error
-                      ? (createAddress.error || updateAddress.error).message
+                    {(createAddress.error || updateAddress.error)
+                      ? (createAddress.error || updateAddress.error) instanceof Error
+                        ? (createAddress.error || updateAddress.error)!.message
+                        : 'Failed to save address'
                       : 'Failed to save address'}
                   </p>
                 </div>

@@ -175,11 +175,11 @@ describe('Customer Orders API', () => {
       expect(response.status).toBe(200)
       expect(response.body.orders).toHaveLength(1)
       expect(response.body.orders[0]).toEqual({
-        id: mockOrders[0].id,
-        order_number: mockOrders[0].order_number,
-        status: mockOrders[0].status,
-        total_minor: mockOrders[0].total_minor,
-        created_at: mockOrders[0].created_at.toISOString(),
+        id: mockOrders[0]!.id,
+        order_number: mockOrders[0]!.order_number,
+        status: mockOrders[0]!.status,
+        total_minor: mockOrders[0]!.total_minor,
+        created_at: mockOrders[0]!.created_at.toISOString(),
       })
     })
 

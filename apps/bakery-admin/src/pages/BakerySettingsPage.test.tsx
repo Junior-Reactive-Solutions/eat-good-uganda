@@ -14,6 +14,7 @@ vi.mock('../features/settings/api', () => ({
 
 const mockProfile: BakeryProfile = {
   id: 'bakery-1',
+  slug: 'sweet-dreams',
   legal_name: 'Sweet Dreams Bakery Ltd',
   display_name: 'Sweet Dreams',
   email: 'contact@sweetdreams.com',
@@ -21,18 +22,21 @@ const mockProfile: BakeryProfile = {
   address_line1: '123 Baker Street',
   address_line2: 'Suite 100',
   city: 'Kampala',
+  country_code: 'UG',
   description: 'A wonderful bakery in Kampala',
   logo_url: 'https://example.com/logo.png',
   accent_color: '#FF5733',
+  primary_color: '#FF6B35',
   website: 'https://sweetdreams.com',
+  currency_code: 'UGX',
+  timezone: 'Africa/Kampala',
   accepts_pickup: true,
   accepts_delivery: true,
   delivery_fee_minor: 5000,
   delivery_radius_km: 5.5,
   min_order_minor: 10000,
-  bakery_id: 'bakery-1',
-  created_at: new Date('2026-01-01'),
-  updated_at: new Date('2026-01-01'),
+  created_at: '2026-01-01T00:00:00Z',
+  updated_at: '2026-01-01T00:00:00Z',
 }
 
 describe('BakerySettingsPage', () => {

@@ -153,7 +153,7 @@ export function ProductFormPage() {
           {/* Form Section */}
           <div className="lg:col-span-2">
             <ProductForm
-              initialData={product}
+              initialData={product ? product : {}}
               categories={categories}
               isLoading={isMutating}
               onSubmit={handleSubmit}

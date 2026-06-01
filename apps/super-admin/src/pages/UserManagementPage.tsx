@@ -198,7 +198,7 @@ export default function UserManagementPage() {
                     <td className="px-6 py-3 text-sm">
                       {customer.fraud_flag ? (
                         <div className="flex items-center gap-1.5">
-                          <AlertTriangle className="h-4 w-4 text-red-600" />
+                          <IconAdminRejected size="sm" color="error" />
                           <span className="inline-block rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 truncate max-w-xs"
                             title={customer.fraud_reason || 'Flagged'}>
                             Flagged
@@ -234,8 +234,7 @@ export default function UserManagementPage() {
             onClick={() => { setPage((p) => Math.max(1, p - 1)); }}
             disabled={page === 1}
           >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
+            ← Previous
           </Button>
 
           <span className="text-sm text-platform-fg-muted">
@@ -248,8 +247,7 @@ export default function UserManagementPage() {
             onClick={() => { setPage((p) => Math.min(pagination.totalPages, p + 1)); }}
             disabled={page === pagination.totalPages}
           >
-            Next
-            <ChevronRight className="h-4 w-4" />
+            Next →
           </Button>
         </div>
       )}

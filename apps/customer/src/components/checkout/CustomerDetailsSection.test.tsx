@@ -58,9 +58,9 @@ describe('CustomerDetailsSection', () => {
     await user.type(emailInput, 'john@example.com')
     await user.type(phoneInput, '+256701234567')
 
-    expect(fullNameInput.value).toBe('John Doe')
-    expect(emailInput.value).toBe('john@example.com')
-    expect(phoneInput.value).toBe('+256701234567')
+    expect((fullNameInput as HTMLInputElement).value).toBe('John Doe')
+    expect((emailInput as HTMLInputElement).value).toBe('john@example.com')
+    expect((phoneInput as HTMLInputElement).value).toBe('+256701234567')
   })
 
   it('allows toggling create account checkbox', async () => {
@@ -69,13 +69,13 @@ describe('CustomerDetailsSection', () => {
 
     const checkbox = screen.getByLabelText(/create an account/i)
 
-    expect(checkbox.checked).toBe(false)
+    expect((checkbox as HTMLInputElement).checked).toBe(false)
 
     await user.click(checkbox)
-    expect(checkbox.checked).toBe(true)
+    expect((checkbox as HTMLInputElement).checked).toBe(true)
 
     await user.click(checkbox)
-    expect(checkbox.checked).toBe(false)
+    expect((checkbox as HTMLInputElement).checked).toBe(false)
   })
 
   it('displays section header', () => {

@@ -16,6 +16,11 @@ adminDashboardRouter.get(
   requireSuperAdminContext,
   async (req, res): Promise<void> => {
     try {
+      if (!req.db) {
+        res.status(500).json({ error: 'Database connection unavailable' })
+        return
+      }
+
       const metrics: DashboardMetrics = await adminGetDashboardMetrics(req.db)
 
       res.status(200).json({

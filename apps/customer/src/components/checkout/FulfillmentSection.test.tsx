@@ -90,8 +90,8 @@ describe('FulfillmentSection', () => {
     await user.type(addressInput, '123 Main Street')
     await user.type(cityInput, 'Kampala')
 
-    expect(addressInput.value).toBe('123 Main Street')
-    expect(cityInput.value).toBe('Kampala')
+    expect((addressInput as HTMLInputElement).value).toBe('123 Main Street')
+    expect((cityInput as HTMLInputElement).value).toBe('Kampala')
   })
 
   it('shows delivery fee information', async () => {
@@ -116,7 +116,7 @@ describe('FulfillmentSection', () => {
 
     const dateInput = screen.getByLabelText(/pickup date & time/i)
     expect(dateInput).toBeInTheDocument()
-    expect(dateInput.type).toBe('datetime-local')
+    expect((dateInput as HTMLInputElement).type).toBe('datetime-local')
   })
 
   it('allows optional scheduled date/time for delivery', async () => {
@@ -128,6 +128,6 @@ describe('FulfillmentSection', () => {
 
     const dateInput = screen.getByLabelText(/delivery date & time/i)
     expect(dateInput).toBeInTheDocument()
-    expect(dateInput.type).toBe('datetime-local')
+    expect((dateInput as HTMLInputElement).type).toBe('datetime-local')
   })
 })

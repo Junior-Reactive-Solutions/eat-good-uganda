@@ -268,8 +268,8 @@ describe('Admin Staff API - Contract Tests', () => {
       ]
 
       // Different bakeries should have different staff
-      expect(bakery1StaffList[0].bakery_id).not.toBe(bakery2StaffList[0].bakery_id)
-      expect(bakery1StaffList[0].email).not.toBe(bakery2StaffList[0].email)
+      expect(bakery1StaffList[0]!.bakery_id).not.toBe(bakery2StaffList[0]!.bakery_id)
+      expect(bakery1StaffList[0]!.email).not.toBe(bakery2StaffList[0]!.email)
     })
 
     it('should not allow staff from other bakeries to be modified', () => {

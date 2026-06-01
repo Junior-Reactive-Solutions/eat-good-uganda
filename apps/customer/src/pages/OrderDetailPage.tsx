@@ -20,15 +20,18 @@ import { useOrderDetail } from '../features/orders/api'
  */
 type OrderWithItems = Order & {
   items?: OrderItem[]
+  // Additional computed properties for display
+  payment_method?: string
 }
 
 /**
- * Format a date string to long date with time
+ * Format a date string or Date object to long date with time
  * e.g., "May 7, 2026, 2:30 PM"
  */
-function formatDateTime(dateString: string | Date): string {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString
-  return date.toLocaleString('en-UG', {
+function formatDateTime(date: string | Date | undefined): string {
+  if (!date) return ''
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  return dateObj.toLocaleString('en-UG', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -151,7 +154,7 @@ function StatusTimeline({ order }: { order: Order }) {
               {index < steps.length - 1 && (
                 <div
                   className={`mx-2 my-2 h-1 w-8 ${
-                    isCompleted && completedSteps.includes(steps[index + 1]?.key)
+                    isCompleted && steps[index + 1] && completedSteps.includes(steps[index + 1]!.key)
                       ? 'bg-green-600'
                       : 'bg-gray-300'
                   }`}
@@ -223,7 +226,7 @@ export default function OrderDetailPage() {
               Order {order.order_number}
             </h1>
             <p className="mt-2 text-platform-fg-muted">
-              <time dateTime={order.created_at}>{formattedDate}</time>
+              <time dateTime={typeof order.created_at === 'string' ? order.created_at : order.created_at.toISOString()}>{formattedDate}</time>
             </p>
           </div>
           <span
@@ -285,11 +288,11 @@ export default function OrderDetailPage() {
           {/* Fulfillment Details */}
           <Card>
             <h2 className="mb-6 font-semibold text-platform-fg">
-              {order.fulfillment_mode === 'pickup' ? 'Pickup' : 'Delivery'}{' '}
+              {order.fulfilment_mode === 'pickup' ? 'Pickup' : 'Delivery'}{' '}
               Details
             </h2>
 
-            {order.fulfillment_mode === 'pickup' ? (
+            {order.fulfilment_mode === 'pickup' ? (
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <IconInteractionClock size="sm" color="primary" className="mt-1 flex-shrink-0" alt="" />
@@ -425,24 +428,28 @@ export default function OrderDetailPage() {
           </Card>
 
           {/* Customer Information */}
-          {order.customer_name && (
+          {(order.guest_name || order.guest_email || order.guest_phone) && (
             <Card>
               <h3 className="mb-4 font-semibold text-platform-fg">
                 Customer Information
               </h3>
               <div className="space-y-2 text-sm">
-                <div>
-                  <p className="text-platform-fg-muted">Name</p>
-                  <p className="text-platform-fg">{order.customer_name}</p>
-                </div>
-                <div>
-                  <p className="text-platform-fg-muted">Email</p>
-                  <p className="text-platform-fg">{order.customer_email}</p>
-                </div>
-                {order.customer_phone && (
+                {order.guest_name && (
+                  <div>
+                    <p className="text-platform-fg-muted">Name</p>
+                    <p className="text-platform-fg">{order.guest_name}</p>
+                  </div>
+                )}
+                {order.guest_email && (
+                  <div>
+                    <p className="text-platform-fg-muted">Email</p>
+                    <p className="text-platform-fg">{order.guest_email}</p>
+                  </div>
+                )}
+                {order.guest_phone && (
                   <div>
                     <p className="text-platform-fg-muted">Phone</p>
-                    <p className="text-platform-fg">{order.customer_phone}</p>
+                    <p className="text-platform-fg">{order.guest_phone}</p>
                   </div>
                 )}
               </div>

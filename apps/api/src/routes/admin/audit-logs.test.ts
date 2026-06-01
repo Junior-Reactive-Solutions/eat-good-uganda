@@ -263,8 +263,8 @@ describe('Admin Audit Logs API - Contract Tests', () => {
 
       // Verify descending order
       for (let i = 0; i < mockLogs.length - 1; i++) {
-        const current = new Date(mockLogs[i].created_at).getTime()
-        const next = new Date(mockLogs[i + 1].created_at).getTime()
+        const current = new Date(mockLogs[i]!.created_at).getTime()
+        const next = new Date(mockLogs[i + 1]!.created_at).getTime()
         expect(current).toBeGreaterThanOrEqual(next)
       }
     })

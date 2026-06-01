@@ -117,7 +117,7 @@ export default function PaymentSetupPage() {
   const handleCreateCredential = (credentialData: {
     account_number: string
     account_holder: string
-    api_key?: string | null
+    api_key?: string | null | undefined
   }) => {
     // Create encrypted config object
     // For now, using a simple base64 encoding as placeholder
@@ -125,7 +125,7 @@ export default function PaymentSetupPage() {
     const configJson = JSON.stringify({
       account_number: credentialData.account_number,
       account_holder: credentialData.account_holder,
-      api_key: credentialData.api_key || '',
+      api_key: credentialData.api_key ?? '',
     })
     const encryptedConfig = Buffer.from(configJson).toString('base64')
     const configNonce = Buffer.from(Math.random().toString()).toString('base64')
@@ -134,10 +134,11 @@ export default function PaymentSetupPage() {
       {
         provider: selectedProvider,
         is_enabled: true,
-        target_environment: 'production',
-        encrypted_config: encryptedConfig,
-        config_nonce: configNonce,
-      },
+        target_environment: 'production' as const,
+        account_number: credentialData.account_number,
+        account_holder: credentialData.account_holder,
+        api_key: credentialData.api_key ?? undefined,
+      } as any,
       {
         onSuccess: () => {
           setIsAdding(false)

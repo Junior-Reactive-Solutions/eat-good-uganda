@@ -73,16 +73,24 @@ supportRouter.get(
         return res.status(400).json({ error: 'bakery_id is required' })
       }
 
-      const result = await getTickets(pool, {
+      const filterObj: any = {
         bakeryId: bakery_id,
-        status,
-        priority,
         limit,
         offset,
-      })
+      }
+      if (status) filterObj.status = status
+      if (priority) filterObj.priority = priority
+
+      const result = await getTickets(pool, filterObj)
 
       const ticketCount = result.tickets.length
-      logger.info(`Admin listed ${String(ticketCount)} support tickets for bakery ${bakery_id}`)
+      logger.info(
+        {
+          ticketCount,
+          bakeryId: bakery_id,
+        },
+        'Admin listed support tickets',
+      )
 
       const {tickets, total} = result
       return res.status(200).json({
@@ -94,7 +102,12 @@ supportRouter.get(
         },
       })
     } catch (error) {
-      logger.error(`Error listing support tickets: ${error instanceof Error ? error.message : 'unknown error'}`)
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : 'unknown error',
+        },
+        'Error listing support tickets',
+      )
       return res.status(500).json({ error: 'Internal server error' })
     }
   },
@@ -116,18 +129,31 @@ supportRouter.post(
         })
       }
 
-      const ticket = await createTicket(pool, {
+      const ticketInput: any = {
         bakery_id: validation.data.bakery_id,
         subject: validation.data.subject,
         description: validation.data.description,
-        priority: validation.data.priority,
-      })
+      }
+      if (validation.data.priority) ticketInput.priority = validation.data.priority
 
-      logger.info(`Admin created support ticket ${String(ticket.id)} for bakery ${String(validation.data.bakery_id)}`)
+      const ticket = await createTicket(pool, ticketInput)
+
+      logger.info(
+        {
+          ticketId: ticket.id,
+          bakeryId: validation.data.bakery_id,
+        },
+        'Admin created support ticket',
+      )
 
       return res.status(201).json({ data: ticket })
     } catch (error) {
-      logger.error(`Error creating support ticket: ${error instanceof Error ? error.message : 'unknown error'}`)
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : 'unknown error',
+        },
+        'Error creating support ticket',
+      )
       return res.status(500).json({ error: 'Internal server error' })
     }
   },

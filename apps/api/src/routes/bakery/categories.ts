@@ -42,6 +42,10 @@ bakeryCategoriesRouter.get(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
+
       const categories = await listProductCategories(req.db, bakeryId)
 
       res.json({
@@ -50,10 +54,13 @@ bakeryCategoriesRouter.get(
       })
     } catch (error) {
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to list categories', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to list categories',
+      )
       res.status(500).json({ error: 'Failed to list categories' })
     }
   },
@@ -76,29 +83,42 @@ bakeryCategoriesRouter.post(
 
       const validatedData = createCategorySchema.parse(req.body)
 
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
+
       const category = await createProductCategory(
         req.db,
         bakeryId,
         validatedData as CreateCategoryInput,
       )
 
-      logger.info('Category created', {
-        bakeryId,
-        categoryId: category.id,
-        name: category.name,
-      })
+      logger.info(
+        {
+          bakeryId,
+          categoryId: category.id,
+          name: category.name,
+        },
+        'Category created',
+      )
 
       res.status(201).json(category)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: (error as any).errors.map((e: any) => e.message),
+        })
       }
 
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to create category', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to create category',
+      )
       res.status(500).json({ error: 'Failed to create category' })
     }
   },
@@ -119,8 +139,12 @@ bakeryCategoriesRouter.patch(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { categoryId } = req.params
+      const { categoryId } = req.params as any
       const validatedData = updateCategorySchema.parse(req.body)
+
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
 
       const category = await updateProductCategory(
         req.db,
@@ -132,23 +156,32 @@ bakeryCategoriesRouter.patch(
         return res.status(404).json({ error: 'Category not found' })
       }
 
-      logger.info('Category updated', {
-        bakeryId,
-        categoryId,
-      })
+      logger.info(
+        {
+          bakeryId,
+          categoryId,
+        },
+        'Category updated',
+      )
 
       res.json(category)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: (error as any).errors.map((e: any) => e.message),
+        })
       }
 
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to update category', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-        categoryId: req.params.categoryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+          categoryId: req.params.categoryId,
+        },
+        'Failed to update category',
+      )
       res.status(500).json({ error: 'Failed to update category' })
     }
   },

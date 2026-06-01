@@ -7,6 +7,7 @@ import { BakerySettingsForm } from './BakerySettingsForm'
 
 const mockProfile: BakeryProfile = {
   id: 'bakery-1',
+  slug: 'sweet-dreams',
   legal_name: 'Sweet Dreams Bakery Ltd',
   display_name: 'Sweet Dreams',
   email: 'contact@sweetdreams.com',
@@ -14,18 +15,21 @@ const mockProfile: BakeryProfile = {
   address_line1: '123 Baker Street',
   address_line2: 'Suite 100',
   city: 'Kampala',
+  country_code: 'UG',
   description: 'A wonderful bakery in Kampala',
   logo_url: 'https://example.com/logo.png',
   accent_color: '#FF5733',
+  primary_color: '#FF6B35',
   website: 'https://sweetdreams.com',
+  currency_code: 'UGX',
+  timezone: 'Africa/Kampala',
   accepts_pickup: true,
   accepts_delivery: true,
   delivery_fee_minor: 5000,
   delivery_radius_km: 5.5,
   min_order_minor: 10000,
-  bakery_id: 'bakery-1',
-  created_at: new Date('2026-01-01'),
-  updated_at: new Date('2026-01-01'),
+  created_at: '2026-01-01T00:00:00Z',
+  updated_at: '2026-01-01T00:00:00Z',
 }
 
 describe('BakerySettingsForm', () => {
@@ -60,7 +64,7 @@ describe('BakerySettingsForm', () => {
       render(<BakerySettingsForm profile={null} onSubmit={mockSubmit} />)
 
       const inputs = screen.getAllByRole('textbox') as HTMLInputElement[]
-      const firstTextbox = inputs[0]
+      const firstTextbox = inputs[0]!
       expect(firstTextbox.value).toBe('')
     })
 
@@ -76,7 +80,7 @@ describe('BakerySettingsForm', () => {
       const mockSubmit = vi.fn()
       render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />)
 
-      const accentColorInput = screen.getByDisplayValue(mockProfile.accent_color)
+      const accentColorInput = screen.getByDisplayValue(mockProfile.accent_color!)
       expect(accentColorInput).toBeInTheDocument()
 
       const colorLabel = screen.getByText('Accent Color')
@@ -126,9 +130,9 @@ describe('BakerySettingsForm', () => {
 
       await waitFor(() => {
         expect(mockSubmit).toHaveBeenCalled()
-        const submittedData = mockSubmit.mock.calls[0][0]
-        expect(submittedData.legal_name).toBe(mockProfile.legal_name)
-        expect(submittedData.email).toBe(mockProfile.email)
+        const submittedData = mockSubmit.mock.calls[0]?.[0]
+        expect(submittedData?.legal_name).toBe(mockProfile.legal_name)
+        expect(submittedData?.email).toBe(mockProfile.email)
       })
     })
 
@@ -265,7 +269,7 @@ describe('BakerySettingsForm', () => {
       const mockSubmit = vi.fn()
       render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />)
 
-      const colorInputs = screen.getAllByDisplayValue(mockProfile.accent_color)
+      const colorInputs = screen.getAllByDisplayValue(mockProfile.accent_color!)
       const colorPickerInput = colorInputs.find(
         (input) => input instanceof HTMLInputElement && input.type === 'color',
       ) as HTMLInputElement

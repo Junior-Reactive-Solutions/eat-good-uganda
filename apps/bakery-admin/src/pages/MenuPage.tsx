@@ -89,7 +89,7 @@ export default function MenuPage() {
           action={
             <Link to="/menu/create">
               <Button className="gap-2">
-                <Plus className="h-4 w-4" />
+                <IconNavigationCart size="sm" color="default" alt="" />
                 Create Product
               </Button>
             </Link>

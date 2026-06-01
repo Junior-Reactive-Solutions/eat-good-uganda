@@ -500,7 +500,9 @@ describe('AddressesPage', () => {
     // Find trash icon button (last button in the address card)
     const buttons = screen.getAllByRole('button')
     const deleteButton = buttons[buttons.length - 1]
-    await user.click(deleteButton)
+    if (deleteButton) {
+      await user.click(deleteButton)
+    }
 
     expect(screen.getByText('Delete Address')).toBeInTheDocument()
     expect(
@@ -598,7 +600,9 @@ describe('AddressesPage', () => {
     // Find the edit button (first action button in the address card)
     const buttons = screen.getAllByRole('button')
     const editButton = buttons[buttons.length - 2] // second to last is edit
-    await user.click(editButton)
+    if (editButton) {
+      await user.click(editButton)
+    }
 
     expect(screen.getByText('Edit Address')).toBeInTheDocument()
   })

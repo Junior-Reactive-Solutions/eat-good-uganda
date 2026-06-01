@@ -79,6 +79,10 @@ bakeryPaymentCredentialsRouter.get(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
+
       const credentials = await getPaymentCredentials(req.db, bakeryId)
 
       res.json({
@@ -87,10 +91,13 @@ bakeryPaymentCredentialsRouter.get(
       })
     } catch (error) {
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to list payment credentials', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to list payment credentials',
+      )
       res.status(500).json({ error: 'Failed to list payment credentials' })
     }
   },
@@ -111,9 +118,13 @@ bakeryPaymentCredentialsRouter.get(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { provider } = req.params
+      const { provider } = req.params as any
       if (!['mtn_momo', 'airtel_money', 'bank_transfer'].includes(provider)) {
         return res.status(400).json({ error: 'Invalid provider' })
+      }
+
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
       }
 
       const credentials = await getPaymentCredentials(
@@ -129,10 +140,13 @@ bakeryPaymentCredentialsRouter.get(
       res.json(credentials[0])
     } catch (error) {
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to get payment credentials', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to get payment credentials',
+      )
       res.status(500).json({ error: 'Failed to get payment credentials' })
     }
   },
@@ -155,6 +169,10 @@ bakeryPaymentCredentialsRouter.post(
 
       const validatedData = createCredentialSchema.parse(req.body)
 
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
+
       const credential = await createPaymentCredential(req.db, bakeryId, {
         provider: validatedData.provider,
         is_enabled: validatedData.is_enabled,
@@ -167,22 +185,31 @@ bakeryPaymentCredentialsRouter.post(
         return res.status(500).json({ error: 'Failed to create credentials' })
       }
 
-      logger.info('Payment credentials created', {
-        bakeryId,
-        provider: validatedData.provider,
-      })
+      logger.info(
+        {
+          bakeryId,
+          provider: validatedData.provider,
+        },
+        'Payment credentials created',
+      )
 
       res.status(201).json(credential)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: (error as any).errors.map((e: any) => e.message),
+        })
       }
 
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to create payment credentials', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to create payment credentials',
+      )
       res.status(500).json({ error: 'Failed to create payment credentials' })
     }
   },
@@ -203,8 +230,12 @@ bakeryPaymentCredentialsRouter.patch(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { credentialId } = req.params
+      const { credentialId } = req.params as any
       const validatedData = updateCredentialSchema.parse(req.body)
+
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
 
       const updateInput: any = {}
       if (validatedData.is_enabled !== undefined) updateInput.is_enabled = validatedData.is_enabled
@@ -224,22 +255,31 @@ bakeryPaymentCredentialsRouter.patch(
         return res.status(404).json({ error: 'Credentials not found' })
       }
 
-      logger.info('Payment credentials updated', {
-        bakeryId,
-        credentialId,
-      })
+      logger.info(
+        {
+          bakeryId,
+          credentialId,
+        },
+        'Payment credentials updated',
+      )
 
       res.json(credential)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: (error as any).errors.map((e: any) => e.message),
+        })
       }
 
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to update payment credentials', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to update payment credentials',
+      )
       res.status(500).json({ error: 'Failed to update payment credentials' })
     }
   },
@@ -260,7 +300,11 @@ bakeryPaymentCredentialsRouter.delete(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { credentialId } = req.params
+      const { credentialId } = req.params as any
+
+      if (!req.db) {
+        return res.status(500).json({ error: 'Database connection unavailable' })
+      }
 
       const deleted = await deletePaymentCredential(req.db, bakeryId, credentialId)
 
@@ -268,18 +312,24 @@ bakeryPaymentCredentialsRouter.delete(
         return res.status(404).json({ error: 'Credentials not found' })
       }
 
-      logger.info('Payment credentials deleted', {
-        bakeryId,
-        credentialId,
-      })
+      logger.info(
+        {
+          bakeryId,
+          credentialId,
+        },
+        'Payment credentials deleted',
+      )
 
       res.status(204).send()
     } catch (error) {
       const bakeryId = (req as any).bakery?.id as string | undefined
-      logger.error('Failed to delete payment credentials', {
-        error: error instanceof Error ? error.message : String(error),
-        bakeryId,
-      })
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          bakeryId,
+        },
+        'Failed to delete payment credentials',
+      )
       res.status(500).json({ error: 'Failed to delete payment credentials' })
     }
   },

@@ -133,7 +133,7 @@ customerAccountSettingsRouter.patch(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid request body',
-          details: error.errors,
+          details: (error as any).errors.map((e: any) => e.message),
         })
       }
 
@@ -177,7 +177,7 @@ customerAccountSettingsRouter.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid request body',
-          details: error.errors,
+          details: (error as any).errors.map((e: any) => e.message),
         })
       }
 

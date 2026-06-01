@@ -145,8 +145,8 @@ describe('Metrics API - Contract Tests', () => {
       }
 
       for (let i = 1; i < mockMetrics.topProducts.length; i++) {
-        expect(mockMetrics.topProducts[i].totalRevenueMinor).toBeLessThanOrEqual(
-          mockMetrics.topProducts[i - 1].totalRevenueMinor,
+        expect(mockMetrics.topProducts[i]?.totalRevenueMinor).toBeLessThanOrEqual(
+          mockMetrics.topProducts[i - 1]?.totalRevenueMinor ?? 0,
         )
       }
     })
@@ -165,7 +165,7 @@ describe('Metrics API - Contract Tests', () => {
       }
 
       for (let i = 1; i < mockMetrics.revenueByDay.length; i++) {
-        expect(mockMetrics.revenueByDay[i].date >= mockMetrics.revenueByDay[i - 1].date).toBe(
+        expect((mockMetrics.revenueByDay[i]?.date ?? '') >= (mockMetrics.revenueByDay[i - 1]?.date ?? '')).toBe(
           true,
         )
       }

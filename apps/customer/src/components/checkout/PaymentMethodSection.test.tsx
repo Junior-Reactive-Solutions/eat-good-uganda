@@ -50,7 +50,7 @@ describe('PaymentMethodSection', () => {
     render(<PaymentMethodSectionWithForm />)
 
     const codRadio = screen.getByLabelText(/cash on delivery/i)
-    expect(codRadio.checked).toBe(true)
+    expect((codRadio as HTMLInputElement).checked).toBe(true)
   })
 
   it('allows selecting different payment methods', async () => {
@@ -60,7 +60,7 @@ describe('PaymentMethodSection', () => {
     const bankRadio = screen.getByLabelText(/bank transfer/i)
     await user.click(bankRadio)
 
-    expect(bankRadio.checked).toBe(true)
+    expect((bankRadio as HTMLInputElement).checked).toBe(true)
   })
 
   it('shows phone number field for MTN Mobile Money', async () => {
@@ -142,7 +142,7 @@ describe('PaymentMethodSection', () => {
     const phoneInput = screen.getByLabelText(/mobile money phone number/i)
     await user.type(phoneInput, '+256701234567')
 
-    expect(phoneInput.value).toBe('+256701234567')
+    expect((phoneInput as HTMLInputElement).value).toBe('+256701234567')
   })
 
   it('displays section header', () => {
