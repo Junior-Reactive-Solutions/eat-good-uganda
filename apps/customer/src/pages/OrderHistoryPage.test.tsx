@@ -1,11 +1,13 @@
+import type { Order } from '@eatgood/shared'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import OrderHistoryPage from './OrderHistoryPage'
+
 import * as ordersApi from '../features/orders/api'
-import type { Order } from '@eatgood/shared'
+
+import OrderHistoryPage from './OrderHistoryPage'
 
 const mockOrders: Order[] = [
   {

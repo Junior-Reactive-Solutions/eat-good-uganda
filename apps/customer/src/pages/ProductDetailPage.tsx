@@ -3,11 +3,11 @@ import toast from 'react-hot-toast'
 import { Link, useParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
-import { LoadingSpinner } from '../components/LoadingSpinner'
 import {
   IconNavigationMenu,
   IconNavigationCart,
 } from '../components/icons'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import { usePublicBakery, usePublicProduct, usePublicProducts } from '../features/bakery/api'
 import { CartSwitchDialog } from '../features/cart/CartSwitchDialog'
 import { useAddToCart, useCart, useIsFromAnotherBakery } from '../features/cart/hooks'

@@ -1,8 +1,8 @@
-import { useCustomerProfile, useUpdateProfile } from '../features/profile/api'
-import { ProfileForm } from '../components/ProfileForm'
+import { Card } from '../components/Card'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
-import { Card } from '../components/Card'
+import { ProfileForm } from '../components/ProfileForm'
+import { useCustomerProfile, useUpdateProfile } from '../features/profile/api'
 
 export default function CustomerProfilePage() {
   const { data: profile, isLoading, error } = useCustomerProfile()

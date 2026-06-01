@@ -60,8 +60,6 @@ export const useOrderDetail = <T extends Order = Order>(
  * Fetch paginated list of authenticated user's orders with filters
  */
 export const useOrders = (limit = 20, offset = 0, filters?: Partial<OrderListFilters>) => {
-  const filterObj = { page: Math.floor(offset / limit) + 1, pageSize: limit, ...filters }
-
   return useQuery({
     queryKey: ['orders', limit, offset, filters],
     queryFn: async (): Promise<PaginatedResponse<Order>> => {
@@ -88,7 +86,7 @@ export const useCustomerOrders = (filters: OrderListFilters = {}) => {
   return useQuery({
     queryKey: orderQueryKeys.list(filters),
     queryFn: async () => {
-      const queryParams: Record<string, any> = {
+      const queryParams: Record<string, string | number> = {
         limit: pageSize,
         offset,
       }

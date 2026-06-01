@@ -1,10 +1,11 @@
 import { useState } from 'react'
+
 import { Button } from '../components/Button'
-import { LoadingSpinner } from '../components/LoadingSpinner'
 import {
   IconInteractionBellNotification,
   IconInteractionDelete,
 } from '../components/icons'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import {
   useNotifications,
   useMarkNotificationAsRead,
@@ -172,7 +173,7 @@ export default function NotificationPage() {
                   <div className="flex gap-2 flex-shrink-0">
                     {!notification.read && (
                       <button
-                        onClick={() => handleMarkAsRead(notification.id)}
+                        onClick={() => { handleMarkAsRead(notification.id); }}
                         className="px-3 py-1 rounded-md text-sm font-medium text-blue-600 hover:bg-blue-100 transition-colors"
                         disabled={markAsRead.isPending}
                       >
@@ -180,7 +181,7 @@ export default function NotificationPage() {
                       </button>
                     )}
                     <button
-                      onClick={() => handleDelete(notification.id)}
+                      onClick={() => { handleDelete(notification.id); }}
                       className="p-2 text-platform-fg-muted hover:text-red-600 transition-colors"
                       title="Delete notification"
                       disabled={deleteNotification.isPending}
@@ -205,7 +206,7 @@ export default function NotificationPage() {
           <div className="flex gap-2">
             <Button
               variant="secondary"
-              onClick={() => handlePageChange(currentPage - 1)}
+              onClick={() => { handlePageChange(currentPage - 1); }}
               disabled={currentPage <= 1}
             >
               Previous
@@ -215,7 +216,7 @@ export default function NotificationPage() {
               <Button
                 key={page}
                 variant={currentPage === page ? 'primary' : 'secondary'}
-                onClick={() => handlePageChange(page)}
+                onClick={() => { handlePageChange(page); }}
                 className="min-w-10"
               >
                 {page}
@@ -224,7 +225,7 @@ export default function NotificationPage() {
 
             <Button
               variant="secondary"
-              onClick={() => handlePageChange(currentPage + 1)}
+              onClick={() => { handlePageChange(currentPage + 1); }}
               disabled={currentPage >= totalPages}
             >
               Next

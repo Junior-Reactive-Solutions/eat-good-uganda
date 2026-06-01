@@ -1,7 +1,8 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import type { CustomerAddress } from '@eatgood/shared'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+
 import { Button } from './Button'
 import { Checkbox } from './Checkbox'
 

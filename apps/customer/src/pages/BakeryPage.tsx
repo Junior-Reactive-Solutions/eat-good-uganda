@@ -1,11 +1,11 @@
 import { Link, useParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
-import { LoadingSpinner } from '../components/LoadingSpinner'
 import {
   IconNavigationMenu,
   IconProductBreadLoaf,
 } from '../components/icons'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import { usePublicBakery, usePublicCategories, usePublicProducts } from '../features/bakery/api'
 import cloudinaryImage from '../lib/cloudinary'
 

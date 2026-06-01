@@ -1,8 +1,7 @@
 import { useState } from 'react'
+
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
-import { Input as InputComponent } from '../components/Input'
-import { LoadingSpinner } from '../components/LoadingSpinner'
 import {
   IconInteractionBellNotification,
   IconInteractionPhone,
@@ -10,6 +9,8 @@ import {
   IconAdminApproved,
   IconAdminRejected,
 } from '../components/icons'
+import { Input as InputComponent } from '../components/Input'
+import { LoadingSpinner } from '../components/LoadingSpinner'
 import {
   useAccountSettings,
   useUpdateNotificationPreferences,
@@ -121,7 +122,7 @@ export default function AccountSettingsPage() {
               variant="secondary"
               size="sm"
               className="mt-3"
-              onClick={() => sendEmailVerification.mutate()}
+              onClick={() => { sendEmailVerification.mutate(); }}
               disabled={sendEmailVerification.isPending}
             >
               {sendEmailVerification.isPending ? 'Sending...' : 'Send Verification Email'}
@@ -155,7 +156,7 @@ export default function AccountSettingsPage() {
               <input
                 type="checkbox"
                 checked={settings.notification_preferences.email_orders}
-                onChange={(e) => handleNotificationChange('email_orders', e.target.checked)}
+                onChange={(e) => { handleNotificationChange('email_orders', e.target.checked); }}
                 disabled={updateNotificationPrefs.isPending}
                 className="w-5 h-5 rounded border-platform-border"
               />
@@ -172,7 +173,7 @@ export default function AccountSettingsPage() {
               <input
                 type="checkbox"
                 checked={settings.notification_preferences.email_promotions}
-                onChange={(e) => handleNotificationChange('email_promotions', e.target.checked)}
+                onChange={(e) => { handleNotificationChange('email_promotions', e.target.checked); }}
                 disabled={updateNotificationPrefs.isPending}
                 className="w-5 h-5 rounded border-platform-border"
               />
@@ -189,7 +190,7 @@ export default function AccountSettingsPage() {
               <input
                 type="checkbox"
                 checked={settings.notification_preferences.sms_orders}
-                onChange={(e) => handleNotificationChange('sms_orders', e.target.checked)}
+                onChange={(e) => { handleNotificationChange('sms_orders', e.target.checked); }}
                 disabled={updateNotificationPrefs.isPending || !settings.phone}
                 className="w-5 h-5 rounded border-platform-border"
               />
@@ -229,7 +230,7 @@ export default function AccountSettingsPage() {
             label="Current Password"
             type="password"
             value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
+            onChange={(e) => { setCurrentPassword(e.target.value); }}
             placeholder="Enter your current password"
             disabled={changePassword.isPending}
             required
@@ -239,7 +240,7 @@ export default function AccountSettingsPage() {
             label="New Password"
             type="password"
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={(e) => { setNewPassword(e.target.value); }}
             placeholder="Enter your new password (min 8 characters)"
             disabled={changePassword.isPending}
             required
@@ -249,7 +250,7 @@ export default function AccountSettingsPage() {
             label="Confirm Password"
             type="password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => { setConfirmPassword(e.target.value); }}
             placeholder="Confirm your new password"
             disabled={changePassword.isPending}
             required
@@ -280,7 +281,7 @@ export default function AccountSettingsPage() {
           <div className="border-t border-platform-border pt-4">
             <select
               value={settings.language}
-              onChange={(e) => handleLanguageChange(e.target.value as 'en' | 'sw' | 'lg')}
+              onChange={(e) => { handleLanguageChange(e.target.value as 'en' | 'sw' | 'lg'); }}
               disabled={updateLanguage.isPending}
               className="w-full rounded-md border border-platform-border bg-platform-bg px-3 py-2 text-platform-fg disabled:opacity-50"
             >
@@ -319,7 +320,7 @@ export default function AccountSettingsPage() {
               <input
                 type="checkbox"
                 checked={settings.privacy_mode}
-                onChange={(e) => handlePrivacyModeChange(e.target.checked)}
+                onChange={(e) => { handlePrivacyModeChange(e.target.checked); }}
                 disabled={updatePrivacyMode.isPending}
                 className="w-5 h-5 rounded border-platform-border"
               />

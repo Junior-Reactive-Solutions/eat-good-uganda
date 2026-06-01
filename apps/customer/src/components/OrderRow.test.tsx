@@ -1,8 +1,9 @@
+import type { Order } from '@eatgood/shared'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { describe, it, expect } from 'vitest'
+
 import { OrderRow } from './OrderRow'
-import type { Order } from '@eatgood/shared'
 
 const mockOrder: Order = {
   id: 'order-1',
@@ -139,7 +140,7 @@ describe('OrderRow', () => {
     ]
 
     statuses.forEach(([status, label]) => {
-      const testOrder = { ...mockOrder, status } as typeof mockOrder
+      const testOrder = { ...mockOrder, status }
       const { unmount } = render(
         <BrowserRouter>
           <OrderRow order={testOrder} />

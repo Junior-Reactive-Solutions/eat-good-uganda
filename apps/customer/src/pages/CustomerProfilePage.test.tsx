@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { CustomerProfile } from '@eatgood/shared'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import CustomerProfilePage from './CustomerProfilePage'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import * as api from '../features/profile/api'
-import type { CustomerProfile } from '@eatgood/shared'
+
+import CustomerProfilePage from './CustomerProfilePage'
+
 
 vi.mock('../features/profile/api', () => ({
   useCustomerProfile: vi.fn(),
@@ -274,7 +277,7 @@ describe('CustomerProfilePage', () => {
 
     render(<CustomerProfilePage />, { wrapper: createWrapper() })
 
-    const firstNameField = screen.getByDisplayValue('John') as HTMLInputElement
+    const firstNameField = screen.getByDisplayValue('John')
     expect(firstNameField.disabled).toBe(true)
   })
 

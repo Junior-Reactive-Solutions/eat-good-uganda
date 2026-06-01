@@ -1,7 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
+import * as api from '../../lib/api'
+
 import {
   useCustomerProfile,
   useCustomerAddresses,
@@ -10,7 +13,7 @@ import {
   useUpdateAddress,
   useDeleteAddress,
 } from './api'
-import * as api from '../../lib/api'
+
 
 vi.mock('../../lib/api', () => ({
   api: {

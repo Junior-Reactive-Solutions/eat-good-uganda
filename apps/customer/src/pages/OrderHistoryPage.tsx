@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 import { Button } from '../components/Button'
+import { IconNavigationCart } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { OrderFilters } from '../components/OrderFilters'
 import { OrderRow } from '../components/OrderRow'
 import { useCustomerOrders } from '../features/orders/api'
-import { useNavigate } from 'react-router-dom'
-import { IconNavigationCart } from '../components/icons'
 import type { OrderListFilters } from '../features/orders/api'
 
 export default function OrderHistoryPage() {
@@ -96,7 +97,7 @@ export default function OrderHistoryPage() {
               <div className="flex gap-2">
                 <Button
                   variant="secondary"
-                  onClick={() => handlePageChange(currentPage - 1)}
+                  onClick={() => { handlePageChange(currentPage - 1); }}
                   disabled={currentPage <= 1}
                 >
                   Previous
@@ -108,7 +109,7 @@ export default function OrderHistoryPage() {
                     <Button
                       key={page}
                       variant={currentPage === page ? 'primary' : 'secondary'}
-                      onClick={() => handlePageChange(page)}
+                      onClick={() => { handlePageChange(page); }}
                       className="min-w-10"
                     >
                       {page}
@@ -118,7 +119,7 @@ export default function OrderHistoryPage() {
 
                 <Button
                   variant="secondary"
-                  onClick={() => handlePageChange(currentPage + 1)}
+                  onClick={() => { handlePageChange(currentPage + 1); }}
                   disabled={currentPage >= totalPages}
                 >
                   Next

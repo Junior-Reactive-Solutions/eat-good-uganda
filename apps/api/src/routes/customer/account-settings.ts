@@ -3,6 +3,7 @@ import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 import { z } from 'zod'
 
+import { logger } from '../../lib/logger'
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { requireCustomerContext } from '../../middleware/requireCustomerContext'
 
@@ -96,7 +97,10 @@ customerAccountSettingsRouter.get(
         updated_at: customer.updated_at,
       })
     } catch (error) {
-      console.error('Error fetching account settings:', error as Error)
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Error fetching account settings',
+      )
       return res.status(500).json({ error: 'Failed to fetch account settings' })
     }
   },
@@ -133,17 +137,21 @@ customerAccountSettingsRouter.patch(
         language: body.language ?? 'en',
         privacy_mode: body.privacy_mode ?? false,
       })
-    } catch (error) {
-      if (error instanceof z.ZodError) {
+    } catch (err) {
+      if (err instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid request body',
-          details: (error as any).errors.map((e: any) => e.message),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          details: err.errors,
         })
       }
 
       const errorMessage =
-        error instanceof Error ? error.message : 'Failed to update account settings'
-      console.error('Error updating account settings:', errorMessage)
+        err instanceof Error ? err.message : 'Failed to update account settings'
+      logger.error(
+        { error: errorMessage },
+        'Error updating account settings',
+      )
       return res.status(500).json({ error: 'Failed to update account settings' })
     }
   },
@@ -188,7 +196,10 @@ customerAccountSettingsRouter.post(
         })
       }
 
-      console.error('Error changing password:', error)
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Error changing password',
+      )
       return res.status(500).json({ error: 'Failed to change password' })
     }
   },
@@ -217,7 +228,10 @@ customerAccountSettingsRouter.post(
         message: 'Verification email sent',
       })
     } catch (error) {
-      console.error('Error sending verification email:', error)
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Error sending verification email',
+      )
       return res.status(500).json({ error: 'Failed to send verification email' })
     }
   },
@@ -246,7 +260,10 @@ customerAccountSettingsRouter.post(
         message: 'OTP sent to phone',
       })
     } catch (error) {
-      console.error('Error sending phone OTP:', error)
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Error sending phone OTP',
+      )
       return res.status(500).json({ error: 'Failed to send OTP' })
     }
   },

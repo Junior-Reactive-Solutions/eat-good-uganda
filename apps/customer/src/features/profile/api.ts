@@ -1,5 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { CustomerProfile, CustomerAddress } from '@eatgood/shared'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
 import { api } from '../../lib/api'
 
 export const profileQueryKeys = {

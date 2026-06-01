@@ -1,6 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { renderHook, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+import * as apiModule from '../../lib/api'
+
 import {
   useNotifications,
   useMarkNotificationAsRead,
@@ -9,7 +12,6 @@ import {
   useNotificationUpdates,
   notificationQueryKeys,
 } from './api'
-import * as apiModule from '../../lib/api'
 import type { Notification } from './api'
 
 const mockNotification: Notification = {

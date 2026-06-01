@@ -1,6 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { renderHook, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+import * as apiModule from '../../lib/api'
+
 import {
   useAccountSettings,
   useUpdateNotificationPreferences,
@@ -10,7 +13,6 @@ import {
   useSendEmailVerification,
   accountQueryKeys,
 } from './api'
-import * as apiModule from '../../lib/api'
 import type { AccountSettings } from './api'
 
 const mockSettings: AccountSettings = {

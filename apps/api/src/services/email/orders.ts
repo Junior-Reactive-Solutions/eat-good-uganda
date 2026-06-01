@@ -55,16 +55,13 @@ export async function sendOrderConfirmationEmail(
     //   html: emailContent,
     // })
 
-    // For now, we just log the email that would be sent
-    const emailBody = buildOrderConfirmationEmailText({
-      orderNumber,
+    // For now, we just log that the email would be sent
+    // buildOrderConfirmationEmailText is called internally by the email service
+    logger.info({
       orderId,
-      ...(claimToken && { claimToken }),
-      orderLink,
-      ...(total && { total }),
-    })
-
-    logger.info('Email content sent')
+      to,
+      orderNumber,
+    }, 'Order confirmation email would be sent')
   } catch (error) {
     logger.error(
       {

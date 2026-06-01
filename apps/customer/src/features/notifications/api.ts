@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
 import { api } from '../../lib/api'
 
 /**
@@ -21,7 +22,8 @@ export interface Notification {
  */
 export const notificationQueryKeys = {
   all: ['notifications'] as const,
-  list: (filters?: any) => ['notifications', 'list', filters] as const,
+  list: (filters?: { limit?: number; offset?: number }) =>
+    ['notifications', 'list', filters] as const,
 }
 
 /**
@@ -105,12 +107,12 @@ export const useDeleteNotification = () => {
  * Hook for real-time notification updates (polling-based)
  * In a production app, this would use WebSocket
  */
-export const useNotificationUpdates = (enabled = true) => {
+export const useNotificationUpdates = () => {
   const { data, isLoading, error } = useNotifications(50, 0)
 
   return {
     notifications: data?.items || [],
-    unreadCount: data?.items.filter(n => !n.read).length || 0,
+    unreadCount: data?.items.filter((n) => !n.read).length || 0,
     isLoading,
     error,
   }

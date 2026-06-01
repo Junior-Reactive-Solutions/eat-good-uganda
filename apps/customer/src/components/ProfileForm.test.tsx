@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { describe, it, expect, vi } from 'vitest'
+import type { CustomerProfile } from '@eatgood/shared'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi } from 'vitest'
+
 import { ProfileForm } from './ProfileForm'
-import type { CustomerProfile } from '@eatgood/shared'
+
 
 describe('ProfileForm', () => {
   const mockProfile: CustomerProfile = {
@@ -156,8 +158,8 @@ describe('ProfileForm', () => {
     const onSubmit = vi.fn()
     render(<ProfileForm profile={mockProfile} onSubmit={onSubmit} isLoading={true} />)
 
-    const firstNameField = screen.getByDisplayValue('John') as HTMLInputElement
-    const lastNameField = screen.getByDisplayValue('Doe') as HTMLInputElement
+    const firstNameField = screen.getByDisplayValue('John')
+    const lastNameField = screen.getByDisplayValue('Doe')
     const submitButton = screen.getByText('Saving...')
 
     expect(firstNameField.disabled).toBe(true)
@@ -197,7 +199,7 @@ describe('ProfileForm', () => {
 
     const firstNameField = screen.getByPlaceholderText('John')
     const lastNameField = screen.getByPlaceholderText('Doe')
-    const dobField = screen.getByDisplayValue('') as HTMLInputElement
+    const dobField = screen.getByDisplayValue('')
     const avatarField = screen.getByPlaceholderText('https://example.com/avatar.jpg')
     const bioField = screen.getByPlaceholderText('Tell us about yourself...')
 

@@ -1,9 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { describe, it, expect, vi } from 'vitest'
+ 
+import type { CustomerAddress } from '@eatgood/shared'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi } from 'vitest'
+
 import { AddressForm } from './AddressForm'
-import type { CustomerAddress } from '@eatgood/shared'
+
 
 describe('AddressForm', () => {
   const mockAddress: CustomerAddress = {
@@ -42,7 +44,7 @@ describe('AddressForm', () => {
     const onSubmit = vi.fn()
     render(<AddressForm address={null} onSubmit={onSubmit} />)
 
-    const deliveryCheckbox = screen.getByRole('checkbox', { name: /deliveries/i }) as HTMLInputElement
+    const deliveryCheckbox = screen.getByRole('checkbox', { name: /deliveries/i })
     expect(deliveryCheckbox.checked).toBe(true)
   })
 
@@ -50,9 +52,9 @@ describe('AddressForm', () => {
     const onSubmit = vi.fn()
     render(<AddressForm address={mockAddress} onSubmit={onSubmit} />)
 
-    const deliveryCheckbox = screen.getByRole('checkbox', { name: /deliveries/i }) as HTMLInputElement
-    const billingCheckbox = screen.getByRole('checkbox', { name: /billing/i }) as HTMLInputElement
-    const defaultCheckbox = screen.getByRole('checkbox', { name: /default/i }) as HTMLInputElement
+    const deliveryCheckbox = screen.getByRole('checkbox', { name: /deliveries/i })
+    const billingCheckbox = screen.getByRole('checkbox', { name: /billing/i })
+    const defaultCheckbox = screen.getByRole('checkbox', { name: /default/i })
 
     expect(deliveryCheckbox.checked).toBe(true)
     expect(billingCheckbox.checked).toBe(false)
@@ -157,7 +159,7 @@ describe('AddressForm', () => {
     const onSubmit = vi.fn()
     render(<AddressForm address={mockAddress} onSubmit={onSubmit} isLoading={true} />)
 
-    const streetField = screen.getByDisplayValue('123 Main St') as HTMLInputElement
+    const streetField = screen.getByDisplayValue('123 Main St')
     const submitButton = screen.getByRole('button', { name: /Saving/i })
 
     expect(streetField.disabled).toBe(true)
@@ -242,7 +244,7 @@ describe('AddressForm', () => {
     const onSubmit = vi.fn()
     render(<AddressForm address={addressWithoutPostal} onSubmit={onSubmit} />)
 
-    const postalField = screen.getByPlaceholderText('00256') as HTMLInputElement
+    const postalField = screen.getByPlaceholderText('00256')
     expect(postalField.value).toBe('')
   })
 
