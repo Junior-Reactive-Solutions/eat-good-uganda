@@ -37,7 +37,52 @@ const corsOrigins = env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
 
 export const app = express()
 
-app.use(helmet())
+// Security headers configuration
+app.use(
+  helmet({
+    // Content Security Policy - restrict content sources to prevent XSS attacks
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        fontSrc: ["'self'", 'data:'],
+        connectSrc: ["'self'"],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+    // Strict-Transport-Security - enforce HTTPS connections
+    hsts: {
+      maxAge: 31536000, // 1 year in seconds
+      includeSubDomains: true,
+      preload: true,
+    },
+    // X-Frame-Options - prevent clickjacking by preventing framing
+    frameguard: {
+      action: 'deny',
+    },
+    // X-Content-Type-Options - prevent MIME sniffing
+    noSniff: true,
+    // X-XSS-Protection - legacy XSS protection
+    xssFilter: true,
+    // Referrer-Policy - control referrer information
+    referrerPolicy: {
+      policy: 'strict-no-referrer',
+    },
+    // Permissions-Policy - control browser features
+    permissionsPolicy: {
+      features: {
+        geolocation: [],
+        microphone: [],
+        camera: [],
+        payment: [],
+      },
+    },
+  }),
+)
 app.use(cors({ origin: corsOrigins, credentials: true }))
 app.use(express.json())
 app.use(cookieParser())
