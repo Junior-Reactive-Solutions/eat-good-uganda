@@ -1,5 +1,7 @@
 import { type JSX } from 'react'
 
+import { ChartSkeleton } from './ChartSkeleton'
+
 export interface LineChartData {
   label: string
   value: number
@@ -16,6 +18,7 @@ export interface LineChartProps {
   showValues?: boolean
   lineColor?: string
   maxValue?: number
+  isLoading?: boolean
 }
 
 export function LineChart({
@@ -27,9 +30,14 @@ export function LineChart({
   xAxisLabel,
   showPoints = true,
   showValues = false,
-  lineColor = '#3b82f6',
+  lineColor = 'var(--chart-primary)',
   maxValue,
+  isLoading = false,
 }: LineChartProps): JSX.Element {
+  if (isLoading) {
+    return <ChartSkeleton width={width} height={height} />
+  }
+
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center" style={{ width, height }}>
@@ -55,10 +63,20 @@ export function LineChart({
     .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toString()} ${p.y.toString()}`)
     .join(' ')
 
+  const chartDescription = title
+    ? `${title} showing ${String(data.length)} data points with values from 0 to ${String(calculatedMaxValue)}`
+    : `Line chart showing ${String(data.length)} data points with values from 0 to ${String(calculatedMaxValue)}`
+
   return (
     <div className="flex flex-col items-start gap-4">
       {title && <h3 className="text-lg font-semibold text-platform-fg">{title}</h3>}
-      <svg width={width} height={height} className="border border-platform-border rounded">
+      <svg
+        width={width}
+        height={height}
+        className="border border-platform-border rounded"
+        role="img"
+        aria-label={chartDescription}
+      >
         {/* Y-axis */}
         <line
           x1={padding.left}
@@ -126,13 +144,17 @@ export function LineChart({
           stroke={lineColor}
           strokeWidth={2}
           className="hover:stroke-opacity-80 transition-opacity"
-        />
+          role="presentation"
+        >
+          <title>{title || 'Line chart path'}</title>
+        </path>
 
         {/* Area under line (light fill) */}
         <path
           d={`${pathData} L ${String(points[points.length - 1]?.x || padding.left + chartWidth)} ${String(height - padding.bottom)} L ${String(padding.left)} ${String(height - padding.bottom)} Z`}
           fill={lineColor}
           opacity={0.05}
+          role="presentation"
         />
 
         {/* Points */}
@@ -145,7 +167,12 @@ export function LineChart({
                 r={4}
                 fill={lineColor}
                 className="hover:r-5 transition-all"
-              />
+                role="presentation"
+              >
+                <title>
+                  {point.label}: {point.value}
+                </title>
+              </circle>
               {showValues && (
                 <text
                   x={String(point.x)}

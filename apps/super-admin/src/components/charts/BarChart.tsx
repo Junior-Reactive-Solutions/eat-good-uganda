@@ -1,5 +1,7 @@
 import { type JSX } from 'react'
 
+import { ChartSkeleton } from './ChartSkeleton'
+
 export interface BarChartData {
   label: string
   value: number
@@ -15,6 +17,7 @@ export interface BarChartProps {
   xAxisLabel?: string
   showValues?: boolean
   maxValue?: number
+  isLoading?: boolean
 }
 
 export function BarChart({
@@ -26,7 +29,12 @@ export function BarChart({
   xAxisLabel,
   showValues = true,
   maxValue,
+  isLoading = false,
 }: BarChartProps): JSX.Element {
+  if (isLoading) {
+    return <ChartSkeleton width={width} height={height} />
+  }
+
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center" style={{ width, height }}>
@@ -44,10 +52,20 @@ export function BarChart({
   const barPadding = barWidth * 0.1
   const actualBarWidth = barWidth - barPadding * 2
 
+  const chartDescription = title
+    ? `${title} showing ${String(data.length)} bars with values from 0 to ${String(calculatedMaxValue)}`
+    : `Bar chart showing ${String(data.length)} bars with values from 0 to ${String(calculatedMaxValue)}`
+
   return (
     <div className="flex flex-col items-start gap-4">
       {title && <h3 className="text-lg font-semibold text-platform-fg">{title}</h3>}
-      <svg width={width} height={height} className="border border-platform-border rounded">
+      <svg
+        width={width}
+        height={height}
+        className="border border-platform-border rounded"
+        role="img"
+        aria-label={chartDescription}
+      >
         {/* Y-axis */}
         <line
           x1={padding.left}
@@ -111,9 +129,13 @@ export function BarChart({
                 y={String(y)}
                 width={String(actualBarWidth)}
                 height={String(barHeight)}
-                fill={item.color || '#3b82f6'}
+                fill={item.color || 'var(--chart-primary)'}
                 className="hover:opacity-80 transition-opacity"
+                role="presentation"
               />
+              <title>
+                {item.label}: {item.value}
+              </title>
               {showValues && (
                 <text
                   x={String(x + actualBarWidth / 2)}

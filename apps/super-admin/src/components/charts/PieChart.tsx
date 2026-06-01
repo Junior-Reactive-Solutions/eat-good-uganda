@@ -1,5 +1,7 @@
 import { type JSX } from 'react'
 
+import { ChartSkeleton } from './ChartSkeleton'
+
 export interface PieChartData {
   label: string
   value: number
@@ -14,17 +16,18 @@ export interface PieChartProps {
   showLegend?: boolean
   showValues?: boolean
   showPercentages?: boolean
+  isLoading?: boolean
 }
 
 const DEFAULT_COLORS = [
-  '#3b82f6',
-  '#ef4444',
-  '#10b981',
-  '#f59e0b',
-  '#8b5cf6',
-  '#ec4899',
-  '#06b6d4',
-  '#f97316',
+  'var(--chart-primary)',
+  'var(--chart-secondary)',
+  'var(--chart-tertiary)',
+  'var(--chart-quaternary)',
+  'var(--chart-quinary)',
+  'var(--chart-senary)',
+  'var(--chart-septenary)',
+  'var(--chart-octonary)',
 ]
 
 export function PieChart({
@@ -35,7 +38,12 @@ export function PieChart({
   showLegend = true,
   showValues = false,
   showPercentages = true,
+  isLoading = false,
 }: PieChartProps): JSX.Element {
+  if (isLoading) {
+    return <ChartSkeleton width={width} height={height} showLegend={showLegend} />
+  }
+
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center" style={{ width, height }}>
@@ -96,12 +104,21 @@ export function PieChart({
   })
 
   const chartHeight = showLegend ? height - 80 : height
+  const chartDescription = title
+    ? `${title} with ${String(data.length)} segments totaling ${String(total)}`
+    : `Pie chart with ${String(data.length)} segments totaling ${String(total)}`
 
   return (
     <div className="flex flex-col items-start gap-4">
       {title && <h3 className="text-lg font-semibold text-platform-fg">{title}</h3>}
-      <div className="flex flex-col items-center gap-4" style={{ width }}>
-        <svg width={width} height={chartHeight} className="border border-platform-border rounded">
+      <div className="flex flex-col lg:flex-row items-center gap-4" style={{ width }}>
+        <svg
+          width={width}
+          height={chartHeight}
+          className="border border-platform-border rounded"
+          role="img"
+          aria-label={chartDescription}
+        >
           {/* Pie slices */}
           {slices.map((slice, index) => (
             <g key={`slice-${String(index)}`}>
@@ -111,7 +128,12 @@ export function PieChart({
                 stroke="white"
                 strokeWidth={2}
                 className="hover:opacity-80 transition-opacity"
-              />
+                role="presentation"
+              >
+                <title>
+                  {slice.label}: {slice.percentage}%
+                </title>
+              </path>
               {/* Value and percentage labels */}
               {(showValues || showPercentages) && (
                 <text
@@ -132,10 +154,18 @@ export function PieChart({
 
         {/* Legend */}
         {showLegend && (
-          <div className="flex flex-wrap gap-3 justify-center w-full" style={{ width }}>
+          <div className="flex flex-col lg:flex-row flex-wrap gap-3 justify-center w-full">
             {slices.map((slice, index) => (
-              <div key={`legend-${String(index)}`} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded" style={{ backgroundColor: slice.color }} />
+              <div
+                key={`legend-${String(index)}`}
+                className="flex items-center gap-2"
+                role="presentation"
+              >
+                <div
+                  className="w-3 h-3 rounded"
+                  style={{ backgroundColor: slice.color }}
+                  role="presentation"
+                />
                 <span className="text-sm text-platform-fg">{slice.label}</span>
               </div>
             ))}
