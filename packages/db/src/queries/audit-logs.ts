@@ -128,3 +128,133 @@ export async function getAuditLogs(
     total: totalCount,
   }
 }
+
+/**
+ * Get a single audit log entry by ID
+ */
+export async function getAuditLog(
+  db: Database,
+  logId: string,
+): Promise<AuditLog | null> {
+  const result = await query<AuditLog>(
+    db,
+    sql`
+      SELECT ${AUDIT_LOG_COLS}
+      FROM audit_logs
+      WHERE id = ${logId}
+      LIMIT 1
+    `,
+  )
+  return result.rows[0] ?? null
+}
+
+/**
+ * Get a summary of admin activity for a specific admin
+ * Returns their recent actions and frequency
+ */
+export async function listAdminActivitySummary(
+  db: Database,
+  adminId: string,
+  bakeryId?: string,
+  daysBack: number = 7,
+): Promise<{
+  adminId: string
+  totalActions: number
+  actionsByType: Array<{ action: string; count: number }>
+  actionsByResourceType: Array<{ resourceType: string; count: number }>
+  recentLogs: AuditLog[]
+}> {
+  const startDate = new Date()
+  startDate.setDate(startDate.getDate() - daysBack)
+
+  const bakeryFilter = bakeryId ? sql`AND bakery_id = ${bakeryId}` : sql``
+
+  const result = await query<{
+    action: string
+    count: number
+    resource_type?: string | null
+  }>(
+    db,
+    sql`
+      SELECT action, resource_type, COUNT(*) as count
+      FROM audit_logs
+      WHERE admin_id = ${adminId}
+        AND created_at >= ${startDate.toISOString()}
+        ${bakeryFilter}
+      GROUP BY action, resource_type
+      ORDER BY count DESC
+    `,
+  )
+
+  const actionsByType = result.rows
+    .filter((row) => row.resource_type === null || row.resource_type === undefined)
+    .map((row) => ({
+      action: row.action,
+      count: parseInt(String(row.count), 10),
+    }))
+
+  const actionsByResourceType = result.rows
+    .filter((row) => row.resource_type !== null && row.resource_type !== undefined)
+    .reduce<Array<{ resourceType: string; count: number }>>(
+      (acc, row) => {
+        const existing = acc.find((item) => item.resourceType === row.resource_type)
+        if (existing) {
+          existing.count += parseInt(String(row.count), 10)
+        } else {
+          acc.push({
+            resourceType: String(row.resource_type),
+            count: parseInt(String(row.count), 10),
+          })
+        }
+        return acc
+      },
+      [],
+    )
+
+  const totalCount = result.rows.reduce((sum, row) => sum + parseInt(String(row.count), 10), 0)
+
+  const logsResult = await query<AuditLog>(
+    db,
+    sql`
+      SELECT ${AUDIT_LOG_COLS}
+      FROM audit_logs
+      WHERE admin_id = ${adminId}
+        AND created_at >= ${startDate.toISOString()}
+        ${bakeryFilter}
+      ORDER BY created_at DESC
+      LIMIT 10
+    `,
+  )
+
+  return {
+    adminId,
+    totalActions: totalCount,
+    actionsByType,
+    actionsByResourceType,
+    recentLogs: logsResult.rows,
+  }
+}
+
+/**
+ * Get the change history for a specific resource
+ * Shows all modifications to a resource and who made them
+ */
+export async function getResourceChangeHistory(
+  db: Database,
+  bakeryId: string,
+  resourceType: string,
+  resourceId: string,
+): Promise<AuditLog[]> {
+  const result = await query<AuditLog>(
+    db,
+    sql`
+      SELECT ${AUDIT_LOG_COLS}
+      FROM audit_logs
+      WHERE bakery_id = ${bakeryId}
+        AND resource_type = ${resourceType}
+        AND resource_id = ${resourceId}
+      ORDER BY created_at DESC
+    `,
+  )
+  return result.rows
+}
