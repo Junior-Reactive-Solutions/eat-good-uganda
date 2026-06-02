@@ -1,0 +1,50 @@
+name: Labeler
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-label based on changed files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            const labels = new Set();
+
+            // Add labels based on file changes
+            files.forEach(file => {
+              if (file.filename.startsWith('apps/api/')) labels.add('backend');
+              if (file.filename.startsWith('apps/customer/')) labels.add('frontend');
+              if (file.filename.startsWith('apps/bakery-admin/')) labels.add('frontend');
+              if (file.filename.startsWith('apps/super-admin/')) labels.add('frontend');
+              if (file.filename.startsWith('packages/db/')) labels.add('database');
+              if (file.filename.includes('.test.') || file.filename.includes('__tests__')) labels.add('testing');
+              if (file.filename.startsWith('docs/')) labels.add('documentation');
+              if (file.filename.startsWith('.github/')) labels.add('ci-cd');
+            });
+
+            if (labels.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: Array.from(labels),
+              });
+            }

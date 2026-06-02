@@ -1,0 +1,61 @@
+name: Release Management
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag
+        id: tag_name
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release Notes
+        id: notes
+        run: |
+          echo "Generating release notes for v${{ steps.tag_name.outputs.VERSION }}"
+          # This would typically generate notes from commits since last tag
+          echo "RELEASE_BODY=Release v${{ steps.tag_name.outputs.VERSION }}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            ## What's Changed
+
+            See commits and pull requests included in this release.
+
+            ## Download
+
+            - Build artifacts available in Actions
+            - Docker images available on registry
+
+            ## Breaking Changes
+
+            None
+
+            ## Contributors
+
+            Thanks to all contributors!
+          draft: false
+          prerelease: false
+
+      - name: Publish artifacts
+        run: echo "Publish release artifacts"

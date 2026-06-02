@@ -1,0 +1,23 @@
+# Global codeowners for the repository
+* @Junior-Reactive-Solutions/dev-team
+
+# Backend API
+apps/api/ @Junior-Reactive-Solutions/dev-team
+packages/db/ @Junior-Reactive-Solutions/dev-team
+
+# Frontend apps
+apps/customer/ @Junior-Reactive-Solutions/dev-team
+apps/bakery-admin/ @Junior-Reactive-Solutions/dev-team
+apps/super-admin/ @Junior-Reactive-Solutions/dev-team
+
+# Shared packages
+packages/shared/ @Junior-Reactive-Solutions/dev-team
+
+# Infrastructure and configuration
+.github/ @Junior-Reactive-Solutions/dev-team
+docs/ @Junior-Reactive-Solutions/dev-team
+
+# Root config files
+*.json
+*.yaml
+*.yml
