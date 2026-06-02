@@ -1,0 +1,414 @@
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+
+import { withDb } from '../fixtures'
+import {
+  listBakeryStaff,
+  getBakeryStaffMember,
+  createBakeryStaff,
+  updateBakeryStaff,
+  removeBakeryStaff,
+  getBakeryStaffByEmail,
+} from './staff'
+
+describe('Staff Management Queries', () => {
+  let bakeryId: string
+  let staffId: string
+
+  beforeAll(async () => {
+    // Setup: Create a test bakery
+    await withDb(async (db) => {
+      const bakeryResult = await db.query(
+        'INSERT INTO bakeries (slug, legal_name, display_name, email, phone, address_line1, city, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+        ['test-bakery', 'Test Bakery LLC', 'Test Bakery', 'test@bakery.com', '+256123456789', '123 Main St', 'Kampala', 'active']
+      )
+      bakeryId = bakeryResult.rows[0].id
+
+      // Create an owner user
+      await db.query(
+        'INSERT INTO bakery_users (bakery_id, email, password_hash, full_name, phone, role) VALUES ($1, $2, $3, $4, $5, $6)',
+        [bakeryId, 'owner@test.com', 'hash0', 'Owner', '+256000000000', 'owner']
+      )
+    })
+  })
+
+  afterAll(async () => {
+    // Cleanup
+    await withDb(async (db) => {
+      if (bakeryId) {
+        await db.query('DELETE FROM bakery_users WHERE bakery_id = $1', [bakeryId])
+        await db.query('DELETE FROM bakeries WHERE id = $1', [bakeryId])
+      }
+    })
+  })
+
+  describe('listBakeryStaff', () => {
+    it('should list all staff for a bakery', async () => {
+      await withDb(async (db) => {
+        // Create test staff
+        await db.query(
+          'INSERT INTO bakery_users (bakery_id, email, password_hash, full_name, phone, role) VALUES ($1, $2, $3, $4, $5, $6)',
+          [bakeryId, 'staff1@test.com', 'hash1', 'Staff One', '+256111111111', 'staff']
+        )
+        await db.query(
+          'INSERT INTO bakery_users (bakery_id, email, password_hash, full_name, phone, role) VALUES ($1, $2, $3, $4, $5, $6)',
+          [bakeryId, 'staff2@test.com', 'hash2', 'Staff Two', '+256222222222', 'manager']
+        )
+
+        const staff = await listBakeryStaff(db, bakeryId)
+
+        expect(staff.length).toBeGreaterThanOrEqual(2)
+        expect(staff.some((s) => s.email === 'staff1@test.com')).toBe(true)
+        expect(staff.some((s) => s.email === 'staff2@test.com')).toBe(true)
+        expect(staff.every((s) => s.bakery_id === bakeryId)).toBe(true)
+      })
+    })
+
+    it('should support pagination', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId, { limit: 1, offset: 0 })
+
+        expect(staff.length).toBeLessThanOrEqual(1)
+      })
+    })
+
+    it('should support filtering by role', async () => {
+      await withDb(async (db) => {
+        const managerStaff = await listBakeryStaff(db, bakeryId, { role: 'manager' })
+
+        expect(managerStaff.every((s) => s.role === 'manager')).toBe(true)
+      })
+    })
+
+    it('should exclude deleted staff', async () => {
+      await withDb(async (db) => {
+        const allStaff = await listBakeryStaff(db, bakeryId)
+
+        // All returned staff should not be deleted
+        expect(allStaff.every((s) => !s.deleted_at)).toBe(true)
+      })
+    })
+  })
+
+  describe('getBakeryStaffMember', () => {
+    it('should get a single staff member by ID', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId)
+        if (staff.length > 0) {
+          const testStaff = staff[0]
+          const member = await getBakeryStaffMember(db, bakeryId, testStaff.id)
+
+          expect(member).not.toBeNull()
+          expect(member?.id).toBe(testStaff.id)
+          expect(member?.bakery_id).toBe(bakeryId)
+        }
+      })
+    })
+
+    it('should return null if staff not found', async () => {
+      await withDb(async (db) => {
+        const member = await getBakeryStaffMember(db, bakeryId, 'non-existent-id')
+
+        expect(member).toBeNull()
+      })
+    })
+
+    it('should enforce bakery_id isolation', async () => {
+      await withDb(async (db) => {
+        // Create another bakery
+        const bakeryResult = await db.query(
+          'INSERT INTO bakeries (slug, legal_name, display_name, email, phone, address_line1, city, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+          ['other-bakery', 'Other Bakery LLC', 'Other Bakery', 'other@bakery.com', '+256987654321', '456 Oak St', 'Kampala', 'active']
+        )
+        const otherBakeryId = bakeryResult.rows[0].id
+
+        const staff = await listBakeryStaff(db, bakeryId)
+        if (staff.length > 0) {
+          const testStaff = staff[0]
+
+          // Try to access staff from other bakery
+          const member = await getBakeryStaffMember(db, otherBakeryId, testStaff.id)
+
+          expect(member).toBeNull()
+        }
+
+        // Cleanup
+        await db.query('DELETE FROM bakery_users WHERE bakery_id = $1', [otherBakeryId])
+        await db.query('DELETE FROM bakeries WHERE id = $1', [otherBakeryId])
+      })
+    })
+  })
+
+  describe('createBakeryStaff', () => {
+    it('should create a new staff member', async () => {
+      await withDb(async (db) => {
+        const newStaff = await createBakeryStaff(db, bakeryId, {
+          email: 'newstaff@test.com',
+          full_name: 'New Staff',
+          phone: '+256333333333',
+          role: 'staff',
+        })
+
+        expect(newStaff).toHaveProperty('id')
+        expect(newStaff.email).toBe('newstaff@test.com')
+        expect(newStaff.bakery_id).toBe(bakeryId)
+        expect(newStaff.role).toBe('staff')
+        expect(newStaff.is_active).toBe(true)
+      })
+    })
+
+    it('should enforce unique email per bakery', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId)
+        if (staff.length > 0) {
+          const existingEmail = staff[0].email
+
+          try {
+            await createBakeryStaff(db, bakeryId, {
+              email: existingEmail,
+              full_name: 'Duplicate Staff',
+              phone: '+256444444444',
+              role: 'staff',
+            })
+            throw new Error('Should have thrown unique constraint error')
+          } catch (err: any) {
+            expect(err.message).toContain('unique')
+          }
+        }
+      })
+    })
+  })
+
+  describe('updateBakeryStaff', () => {
+    it('should update staff name', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId)
+        if (staff.length > 0) {
+          const testStaff = staff[0]
+          const originalName = testStaff.full_name
+
+          const updated = await updateBakeryStaff(db, bakeryId, testStaff.id, {
+            full_name: 'Updated Name',
+          })
+
+          expect(updated.full_name).toBe('Updated Name')
+          expect(updated.full_name).not.toBe(originalName)
+        }
+      })
+    })
+
+    it('should update staff phone', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId)
+        if (staff.length > 0) {
+          const testStaff = staff[0]
+
+          const updated = await updateBakeryStaff(db, bakeryId, testStaff.id, {
+            phone: '+256999999999',
+          })
+
+          expect(updated.phone).toBe('+256999999999')
+        }
+      })
+    })
+
+    it('should update staff role', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId, { role: 'staff' })
+        if (staff.length > 0) {
+          const testStaff = staff[0]
+
+          const updated = await updateBakeryStaff(db, bakeryId, testStaff.id, {
+            role: 'manager',
+          })
+
+          expect(updated.role).toBe('manager')
+        }
+      })
+    })
+
+    it('should prevent downgrading last owner', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId, { role: 'owner' })
+        if (staff.length === 1) {
+          const owner = staff[0]
+
+          try {
+            await updateBakeryStaff(db, bakeryId, owner.id, {
+              role: 'manager',
+            })
+            throw new Error('Should have thrown last owner error')
+          } catch (err: any) {
+            expect(err.message).toContain('Cannot remove last owner')
+          }
+        }
+      })
+    })
+
+    it('should return staff if no updates provided', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId)
+        if (staff.length > 0) {
+          const testStaff = staff[0]
+
+          const unchanged = await updateBakeryStaff(db, bakeryId, testStaff.id, {})
+
+          expect(unchanged.id).toBe(testStaff.id)
+        }
+      })
+    })
+  })
+
+  describe('removeBakeryStaff', () => {
+    it('should soft delete staff member', async () => {
+      await withDb(async (db) => {
+        // Create a staff to delete
+        const toDelete = await createBakeryStaff(db, bakeryId, {
+          email: 'delete-me@test.com',
+          full_name: 'Delete Me',
+          phone: '+256666666666',
+          role: 'staff',
+        })
+
+        const removed = await removeBakeryStaff(db, bakeryId, toDelete.id)
+
+        expect(removed.deleted_at).not.toBeNull()
+      })
+    })
+
+    it('should not allow removing last owner', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId, { role: 'owner' })
+        if (staff.length === 1) {
+          const owner = staff[0]
+
+          try {
+            await removeBakeryStaff(db, bakeryId, owner.id)
+            throw new Error('Should have thrown last owner error')
+          } catch (err: any) {
+            expect(err.message).toContain('Cannot remove last owner')
+          }
+        }
+      })
+    })
+
+    it('should exclude deleted staff from list', async () => {
+      await withDb(async (db) => {
+        const staffBefore = await listBakeryStaff(db, bakeryId)
+        const countBefore = staffBefore.length
+
+        // Create and delete
+        const toDelete = await createBakeryStaff(db, bakeryId, {
+          email: 'delete-again@test.com',
+          full_name: 'Delete Again',
+          phone: '+256777777777',
+          role: 'staff',
+        })
+
+        await removeBakeryStaff(db, bakeryId, toDelete.id)
+
+        const staffAfter = await listBakeryStaff(db, bakeryId)
+
+        expect(staffAfter.length).toBeLessThanOrEqual(countBefore)
+        expect(staffAfter.every((s) => s.id !== toDelete.id)).toBe(true)
+      })
+    })
+
+    it('should enforce bakery_id isolation', async () => {
+      await withDb(async (db) => {
+        // Create another bakery
+        const bakeryResult = await db.query(
+          'INSERT INTO bakeries (slug, legal_name, display_name, email, phone, address_line1, city, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+          ['delete-isolation-bakery', 'Delete Isolation', 'Delete Isolation', 'del@test.com', '+256333333333', '999 Test', 'Kampala', 'active']
+        )
+        const otherBakeryId = bakeryResult.rows[0].id
+
+        // Create owner in other bakery
+        const ownerResult = await db.query(
+          'INSERT INTO bakery_users (bakery_id, email, password_hash, full_name, phone, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+          [otherBakeryId, 'owner2@test.com', 'hash', 'Owner 2', '+256888888888', 'owner']
+        )
+        const otherBakeryOwnerId = ownerResult.rows[0].id
+
+        // Try to delete from wrong bakery
+        try {
+          await removeBakeryStaff(db, bakeryId, otherBakeryOwnerId)
+          throw new Error('Should have thrown staff not found')
+        } catch (err: any) {
+          expect(err.message).toContain('Staff member not found')
+        }
+
+        // Cleanup
+        await db.query('DELETE FROM bakery_users WHERE bakery_id = $1', [otherBakeryId])
+        await db.query('DELETE FROM bakeries WHERE id = $1', [otherBakeryId])
+      })
+    })
+  })
+
+  describe('getBakeryStaffByEmail', () => {
+    it('should get staff by email', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId)
+        if (staff.length > 0) {
+          const email = staff[0].email
+
+          const found = await getBakeryStaffByEmail(db, bakeryId, email)
+
+          expect(found).not.toBeNull()
+          expect(found?.email).toBe(email)
+          expect(found?.bakery_id).toBe(bakeryId)
+        }
+      })
+    })
+
+    it('should return null if email not found', async () => {
+      await withDb(async (db) => {
+        const found = await getBakeryStaffByEmail(db, bakeryId, 'nonexistent@test.com')
+
+        expect(found).toBeNull()
+      })
+    })
+
+    it('should enforce bakery_id isolation', async () => {
+      await withDb(async (db) => {
+        const staff = await listBakeryStaff(db, bakeryId)
+        if (staff.length > 0) {
+          const email = staff[0].email
+
+          // Create another bakery
+          const bakeryResult = await db.query(
+            'INSERT INTO bakeries (slug, legal_name, display_name, email, phone, address_line1, city, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+            ['bakery2', 'Bakery 2 LLC', 'Bakery 2', 'bakery2@test.com', '+256987654321', '789 Pine St', 'Kampala', 'active']
+          )
+          const otherBakeryId = bakeryResult.rows[0].id
+
+          // Try to find staff from another bakery
+          const found = await getBakeryStaffByEmail(db, otherBakeryId, email)
+
+          expect(found).toBeNull()
+
+          // Cleanup
+          await db.query('DELETE FROM bakeries WHERE id = $1', [otherBakeryId])
+        }
+      })
+    })
+
+    it('should exclude deleted staff', async () => {
+      await withDb(async (db) => {
+        // Create and delete staff
+        const toDelete = await createBakeryStaff(db, bakeryId, {
+          email: 'deleted@test.com',
+          full_name: 'To Delete',
+          phone: '+256000000001',
+          role: 'staff',
+        })
+
+        await removeBakeryStaff(db, bakeryId, toDelete.id)
+
+        // Try to find deleted staff
+        const found = await getBakeryStaffByEmail(db, bakeryId, 'deleted@test.com')
+
+        expect(found).toBeNull()
+      })
+    })
+  })
+})
