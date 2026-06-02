@@ -225,7 +225,7 @@ __pycache__/
 NOTES.md
 TODO.local.md
 scratch.md
-progress.md
+# progress.md is now a tracked file (project-wide progress tracker)
 .scratch/
 
 

@@ -386,4 +386,54 @@ All of the following were settled in the planning session that preceded scaffold
 
 ---
 
+## 2026-06-02 — Phase 4 Database Layer: LazyPool, soft-delete ban pattern, audit immutability
+
+### LazyPool: Deferred database connection for test-safe imports
+
+**Decision:** Replaced the eager `Pool` instantiation in `packages/db/src/client.ts` with a `LazyPool` class that defers `new Pool()` until the first `.query()` call.
+
+**Context:** All DB query functions are imported at module load time in test files. The original code called `new Pool({ connectionString: process.env.DATABASE_URL })` at import time, throwing an error when `DATABASE_URL` was unset in unit/contract test environments. This made it impossible to import any query function in tests without a live database connection.
+
+**Alternatives considered:** Dependency injection (passing pool as a parameter to every function — rejected: too invasive, breaks existing API contract); conditional pool creation using `if (process.env.NODE_ENV !== 'test')` (rejected: environment-conditional logic is fragile and hides the real problem).
+
+**Consequences:** All query modules can be imported in tests without `DATABASE_URL`; pool is only created on first actual query; integration tests that set `DATABASE_URL` work identically to before; type safety preserved with explicit `QueryResult<T>` generic.
+
+---
+
+### Customer ban: soft delete as ban mechanism
+
+**Decision:** Implement `banCustomer()` and `unbanCustomer()` using the existing `deleted_at` timestamp column. Ban = set `deleted_at = now()`. Unban = set `deleted_at = NULL`.
+
+**Context:** The `customers` table already uses `deleted_at` for soft deletes throughout the codebase. Phase 4 introduced the concept of "banning" a customer. Adding a separate `banned_at` + `ban_reason` + `banned_by` column set would require a schema migration. Using `deleted_at` avoids a schema migration in this phase while still preventing the customer from placing orders (all active-customer queries filter `WHERE deleted_at IS NULL`).
+
+**Alternatives considered:** Separate `banned` boolean column (rejected: no timestamps, no audit trail); new `ban_reason` column (deferred to Phase 5 if needed); separate `customer_bans` table (over-engineered for MVP).
+
+**Consequences:** Banned and deleted customers are currently indistinguishable at the DB level; `ban_reason` and `banned_by` audit data will be stored in `audit_logs` (written from the API route in Task 6); if the distinction becomes important, a `ban_reason` column can be added via migration without breaking the ban/unban logic.
+
+---
+
+### Audit logs: immutable append-only design
+
+**Decision:** The `audit_logs` table and all associated query functions are insert-only. No `updateAuditLog`, no `deleteAuditLog`, and no soft-delete column.
+
+**Context:** Audit logs serve as the tamper-evident compliance record of admin activity. If logs could be edited or deleted, they lose their evidentiary value.
+
+**Alternatives considered:** Soft-delete pattern (rejected: compliance requirement is immutability, not recoverability); PostgreSQL RLS to block deletes (would add operational complexity; may be added in a future hardening pass).
+
+**Consequences:** Logs accumulate indefinitely; a data retention policy (archiving old logs to cold storage) should be added post-MVP; no cleanup mechanism exists in application code.
+
+---
+
+### Dynamic SQL in audit log filters: db.query() over sql`` template tag
+
+**Decision:** `getAuditLogs()` builds a dynamic WHERE clause as a plain string with `$1, $2, ...` parameter numbering and calls `db.query(sqlString, values)` directly, rather than using the `sql\`\`` template helper.
+
+**Context:** The filter list is dynamic — any combination of `adminId`, `action`, `bakeryId`, `resourceType`, `startDate`, `endDate` may or may not be present. Composing this with the `sql\`\`` template tag would require either a complex fragment composition system or multiple separate query paths.
+
+**Alternatives considered:** One query per filter combination (rejected: combinatorial explosion); Kysely or knex query builder (rejected: adds a dependency and is out of scope for MVP); `sql\`\`` with conditional fragments (would work but creates more complex type management than the benefit warrants for a single function).
+
+**Consequences:** `getAuditLogs` bypasses the `sql\`\`` type-safety layer; parameters are still positionally numbered (SQL injection not possible); this pattern is acceptable for a single, explicitly documented location; future refactor to a query builder is straightforward.
+
+---
+
 _Future entries append below this line. Each entry is permanent; changes to a decision are a new entry referencing the old one._
