@@ -10,8 +10,8 @@ import AdminDashboardPage from './AdminDashboardPage'
 
 // Mock the analytics hooks
 vi.mock('../features/analytics/api', () => ({
-  useAnalyticsMetrics: vi.fn(),
-  useAnalyticsTimeSeries: vi.fn(),
+  usePlatformMetrics: vi.fn(),
+  useMetricsTimeSeries: vi.fn(),
   useTopBakeries: vi.fn(),
 }))
 
@@ -53,7 +53,7 @@ describe('AdminDashboardPage', () => {
 
   it('should render loading spinner when metrics are loading', () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsMetrics).mockReturnValue({
+    vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: undefined,
       isLoading: true,
       error: null,
@@ -62,7 +62,7 @@ describe('AdminDashboardPage', () => {
     } as any)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsTimeSeries).mockReturnValue({
+    vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -94,7 +94,7 @@ describe('AdminDashboardPage', () => {
 
   it('should render error message when metrics fail to load', () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsMetrics).mockReturnValue({
+    vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: undefined,
       isLoading: false,
       error: new Error('Failed to fetch'),
@@ -103,7 +103,7 @@ describe('AdminDashboardPage', () => {
     } as any)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsTimeSeries).mockReturnValue({
+    vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -144,7 +144,7 @@ describe('AdminDashboardPage', () => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsMetrics).mockReturnValue({
+    vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: mockMetrics,
       isLoading: false,
       error: null,
@@ -153,7 +153,7 @@ describe('AdminDashboardPage', () => {
     } as any)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsTimeSeries).mockReturnValue({
+    vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [
         { date: '2026-05-18', value: 1000000 },
         { date: '2026-05-19', value: 1200000 },
@@ -205,7 +205,7 @@ describe('AdminDashboardPage', () => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsMetrics).mockReturnValue({
+    vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: mockMetrics,
       isLoading: false,
       error: null,
@@ -214,7 +214,7 @@ describe('AdminDashboardPage', () => {
     } as any)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsTimeSeries).mockReturnValue({
+    vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -259,7 +259,7 @@ describe('AdminDashboardPage', () => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsMetrics).mockReturnValue({
+    vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: mockMetrics,
       isLoading: false,
       error: null,
@@ -268,7 +268,7 @@ describe('AdminDashboardPage', () => {
     } as any)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsTimeSeries).mockReturnValue({
+    vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -321,7 +321,7 @@ describe('AdminDashboardPage', () => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsMetrics).mockReturnValue({
+    vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: mockMetrics,
       isLoading: false,
       error: null,
@@ -330,7 +330,7 @@ describe('AdminDashboardPage', () => {
     } as any)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsTimeSeries).mockReturnValue({
+    vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
@@ -383,7 +383,7 @@ describe('AdminDashboardPage', () => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsMetrics).mockReturnValue({
+    vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: mockMetrics,
       isLoading: false,
       error: null,
@@ -392,7 +392,7 @@ describe('AdminDashboardPage', () => {
     } as any)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    vi.mocked(analyticsApi.useAnalyticsTimeSeries).mockReturnValue({
+    vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,

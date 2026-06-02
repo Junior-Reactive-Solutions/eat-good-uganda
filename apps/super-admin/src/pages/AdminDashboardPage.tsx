@@ -8,8 +8,8 @@ import { PieChart } from '../components/charts/PieChart'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { useAdminDashboard } from '../features/admin/api'
 import {
-  useAnalyticsMetrics,
-  useAnalyticsTimeSeries,
+  usePlatformMetrics,
+  useMetricsTimeSeries,
   useTopBakeries,
 } from '../features/analytics/api'
 
@@ -37,19 +37,19 @@ export default function AdminDashboardPage(): JSX.Element {
     data: analyticsMetrics,
     isLoading: metricsLoading,
     error: metricsError,
-  } = useAnalyticsMetrics()
+  } = usePlatformMetrics()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: dashboardData } = useAdminDashboard()
 
   // Fetch time series data for charts
-  const { data: revenueData, isLoading: revenueLoading } = useAnalyticsTimeSeries({
+  const { data: revenueData, isLoading: revenueLoading } = useMetricsTimeSeries({
     startDate,
     endDate,
     metric: 'revenue',
     groupBy: dateRange === 'week' ? 'day' : dateRange === 'month' ? 'day' : 'week',
   })
 
-  const { data: ordersData, isLoading: ordersLoading } = useAnalyticsTimeSeries({
+  const { data: ordersData, isLoading: ordersLoading } = useMetricsTimeSeries({
     startDate,
     endDate,
     metric: 'orders',
@@ -94,7 +94,7 @@ export default function AdminDashboardPage(): JSX.Element {
   }
 
   // Transform time series data for charts
-  const revenueChartData = (revenueData || []).map((point) => ({
+  const revenueChartData = (revenueData || []).map((point: { date: string; value: number }) => ({
     label: new Date(point.date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -102,7 +102,7 @@ export default function AdminDashboardPage(): JSX.Element {
     value: point.value / 100, // Convert from minor units
   }))
 
-  const ordersChartData = (ordersData || []).map((point) => ({
+  const ordersChartData = (ordersData || []).map((point: { date: string; value: number }) => ({
     label: new Date(point.date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
