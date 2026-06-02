@@ -1,0 +1,124 @@
+name: Auto-Assign & Auto-Comment
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  issues:
+    types: [opened]
+
+jobs:
+  auto-assign-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Assign PR to author team
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const author = context.payload.pull_request.user.login;
+            const reviewers = ['Junior-Reactive-Solutions/dev-team'];
+
+            try {
+              await github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                reviewers: [],
+                team_reviewers: ['dev-team']
+              });
+            } catch (error) {
+              console.log('Could not assign team: ' + error.message);
+              // Continue even if assignment fails
+            }
+
+      - name: Welcome comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = `## 👋 Welcome to Eat Good Uganda!
+
+Thanks for submitting this PR, @${pr.user.login}!
+
+### Quick Checklist
+- ✅ Does your PR description explain the "what", "why", and "how"?
+- ✅ Have you linked related issues using \`Fixes #123\` or \`Relates to #456\`?
+- ✅ Did you run \`pnpm -w test && pnpm -w typecheck && pnpm -w lint\`?
+- ✅ For multi-tenant changes: Cross-tenant isolation tests added?
+
+### 🚀 Review Process
+1. Automated checks run on push
+2. Team review requested (see "Reviewers" on the right)
+3. Changes requested → update and push again
+4. Approved → merge when ready
+
+If you have questions, reply in this PR or join our discussions!
+
+---
+*This comment is auto-generated. Feel free to ignore if you're familiar with our workflow.*`;
+
+            if (pr.body && pr.body.includes('No checklist items')) {
+              // Skip welcome message if auto-generated PR
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+  auto-assign-issue:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Label new issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+
+            // Add needs-triage label to new issues
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: ['status/needs-triage']
+            });
+
+      - name: Welcome comment on issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = `## 👋 Thanks for opening this issue, @${issue.user.login}!
+
+We appreciate the contribution. A team member will review this shortly.
+
+### While We Review
+- Please provide as much context as possible
+- For bugs: steps to reproduce, expected behavior, actual behavior
+- For features: use case, user impact, any related issues
+- Screenshots/logs help!
+
+### 📌 What happens next?
+1. Team review & triage (we'll add appropriate labels)
+2. Discussion if needed (we might ask for clarification)
+3. Prioritization & assignment
+4. Implementation in a future PR
+
+Thanks for helping improve Eat Good Uganda! 🇺🇬`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: body
+            });

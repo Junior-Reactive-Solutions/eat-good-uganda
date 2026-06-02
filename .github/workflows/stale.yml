@@ -1,0 +1,63 @@
+name: Close Stale Issues & PRs
+
+on:
+  schedule:
+    # Run weekly on Monday at 01:00 UTC
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Close stale issues
+        uses: actions/stale@v8
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Issues
+          stale-issue-message: |
+            This issue has been inactive for 60 days.
+
+            If this is still relevant, please:
+            1. Add a comment to confirm it's still needed
+            2. Provide any additional context or updates
+
+            Otherwise, it will be closed in 7 days.
+          close-issue-message: |
+            This issue has been closed due to inactivity.
+
+            If you believe this should still be addressed, feel free to reopen it with updated context.
+          days-before-issue-stale: 60
+          days-before-issue-close: 7
+          stale-issue-label: 'stale'
+
+          # Pull Requests
+          stale-pr-message: |
+            This PR has been inactive for 30 days.
+
+            If you're still working on this, please:
+            1. Push a new commit to update the PR
+            2. Add a comment with progress updates
+
+            Otherwise, it will be closed in 7 days.
+          close-pr-message: |
+            This PR has been closed due to inactivity.
+
+            If you'd like to continue, feel free to reopen it.
+          days-before-pr-stale: 30
+          days-before-pr-close: 7
+          stale-pr-label: 'stale'
+
+          # Exemptions
+          exempt-issue-labels: 'pinned,blocked,epic'
+          exempt-pr-labels: 'pinned,blocked,work-in-progress'
+
+          # Operations
+          operations-per-run: 30
+          remove-stale-when-updated: true
+          delete-branch: true

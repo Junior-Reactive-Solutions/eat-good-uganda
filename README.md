@@ -2,8 +2,166 @@
 
 > A multi-tenant bakery commerce platform for Uganda where customers discover bakeries, order baked goods, and track deliveries while bakeries manage menus, orders, payments, and operations in isolated tenant spaces.
 
-**Status:** Active build in progress (Prompts 01-06 complete, Prompt 03 starting, local apps running)  
-**Project root on local machine:** `D:\Junior Reactive Projects\eatgooduganda`
+## 🎯 Status & Badges
+
+[![Build Status](https://github.com/Junior-Reactive-Solutions/eat-good-uganda/actions/workflows/test-and-coverage.yml/badge.svg)](https://github.com/Junior-Reactive-Solutions/eat-good-uganda/actions/workflows/test-and-coverage.yml)
+[![Security Scanning](https://github.com/Junior-Reactive-Solutions/eat-good-uganda/actions/workflows/security.yml/badge.svg)](https://github.com/Junior-Reactive-Solutions/eat-good-uganda/actions/workflows/security.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict%20mode-blue)](https://www.typescriptlang.org/)
+[![Code style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+**Development Status:** 
+- ✅ Phase 1-3: Complete (Authentication, Bakery Admin, Analytics)
+- 🔄 Phase 4-5: In Progress (Advanced Features, Support System)
+- 📅 Full MVP: Q3 2026
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ (20.x recommended)
+- PostgreSQL 15+ (local) or [Neon](https://neon.tech) (cloud)
+- pnpm 9+
+
+### Installation
+```bash
+# Clone repository
+git clone https://github.com/Junior-Reactive-Solutions/eat-good-uganda.git
+cd eat-good-uganda
+
+# Install dependencies
+pnpm install
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your database URL and secrets
+
+# Run migrations
+pnpm -w db:migrate
+
+# Start all apps
+pnpm -w dev  # Runs all 3 apps + API simultaneously
+```
+
+### Apps (Local Development)
+- **Customer App:** http://localhost:5173
+- **Bakery Admin:** http://localhost:5174
+- **Super Admin:** http://localhost:5175
+- **API Server:** http://localhost:3000
+
+### Running Tests
+```bash
+pnpm -w test          # Run all tests
+pnpm -w test:watch    # Watch mode
+pnpm -w typecheck     # TypeScript
+pnpm -w lint          # ESLint
+pnpm -w coverage      # Coverage report
+```
+
+---
+
+## 🔗 GitHub Features
+
+This repository is fully active with comprehensive GitHub tooling:
+
+### 📋 Issue Tracking
+- **Issue Templates:** [Bug Reports](.github/ISSUE_TEMPLATE/bug_report.md), [Feature Requests](.github/ISSUE_TEMPLATE/feature_request.md)
+- **Labels:** 30+ labels for categorization — [see LABELS.md](.github/LABELS.md)
+- **Milestones:** Track progress by phase
+- **Discussions:** [Community Q&A](../../discussions)
+
+### 🔄 Continuous Integration
+- **Test & Coverage:** Multi-node testing (Node 18.x, 20.x) with coverage tracking
+- **Security Scanning:** Trivy + npm audit + secret detection
+- **Auto-labeling:** PRs auto-labeled by file changes
+- **Stale Issues:** Weekly cleanup of inactive issues/PRs
+
+### 📝 Pull Requests
+- **PR Template:** [Comprehensive checklist](.github/PULL_REQUEST_TEMPLATE.md)
+- **Code Review:** Required reviews before merge
+- **Auto-assignment:** Team reviews on open PRs
+- **Status Checks:** 4+ required checks before merge
+
+### 🔐 Security & Quality
+- **Branch Protection:** `main` branch protected with status checks
+- **Code Owners:** Team assignments for code areas
+- **Secret Detection:** Trufflehog prevents credential commits
+- **Dependabot:** Weekly dependency updates
+
+### 🏷️ Organization & Planning
+- **Project Board:** [Track work in progress](../../projects)
+- **Workflows:** Test, security scan, auto-assign, stale cleanup
+- **Release Management:** Automated releases from semantic tags
+
+### 📚 Documentation
+- **API Docs:** [docs/05-API_SPEC.md](docs/05-API_SPEC.md)
+- **Architecture:** [docs/01-ARCHITECTURE.md](docs/01-ARCHITECTURE.md)
+- **Database:** [docs/02-DATABASE_SCHEMA.md](docs/02-DATABASE_SCHEMA.md)
+- **Decisions:** [docs/17-DECISIONS_LOG.md](docs/17-DECISIONS_LOG.md)
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### How to Contribute
+1. **Check Issues:** [Find something to work on](../../issues)
+2. **Create Branch:** `git checkout -b feature/your-feature`
+3. **Follow Style:** TypeScript strict mode, ESLint, Prettier
+4. **Add Tests:** TDD required (write test first)
+5. **Create PR:** Link issues, add description, pass checks
+6. **Code Review:** Address feedback from team
+7. **Merge:** Green checkmarks required
+
+### Development Workflow
+```bash
+# Create feature branch
+git checkout -b feature/my-feature
+
+# Make changes and commit
+git add .
+git commit -m "feat: add my feature"
+
+# Push and create PR
+git push origin feature/my-feature
+# GitHub will show "Create Pull Request" link
+
+# Update branch if tests fail
+git commit -m "fix: address review feedback"
+git push
+
+# Merge when approved (green checkmarks required)
+```
+
+### Code Standards
+- **TypeScript:** Strict mode required, no `any`
+- **Testing:** Min 80% coverage, TDD approach
+- **Linting:** ESLint pass required
+- **Formatting:** Prettier auto-format
+- **Security:** No secrets, validate inputs
+- **Multi-tenancy:** Always filter by `bakery_id`
+
+---
+
+## 📊 Project Statistics
+
+| Metric | Value |
+|--------|-------|
+| **Lines of Code** | 45,000+ |
+| **Test Files** | 100+ |
+| **Test Cases** | 350+ |
+| **Components** | 80+ |
+| **API Routes** | 30+ |
+| **Database Tables** | 19 |
+| **TypeScript Files** | 200+ |
+
+---
+
+**Project Root:** `D:\Junior Reactive Projects\eatgooduganda`  
+**Status:** Active build in progress  
+**Next Phase:** Phase 4 - Advanced Admin Features
 
 ---
 
