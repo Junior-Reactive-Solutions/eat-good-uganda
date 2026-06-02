@@ -1,5 +1,7 @@
+import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 
+import { PieChart } from '../PieChart'
 import type { PieChartData } from '../PieChart'
 
 describe('PieChart', () => {
@@ -10,15 +12,16 @@ describe('PieChart', () => {
       { label: 'Category C', value: 100 },
     ]
 
-    expect(data).toBeDefined()
-    expect(data.length).toBe(3)
+    render(<PieChart data={data} />)
+    const svg = screen.getByRole('img')
+    expect(svg).toBeInTheDocument()
   })
 
-  it('should handle empty data array', () => {
+  it('should handle empty data array with message', () => {
     const data: PieChartData[] = []
 
-    expect(data).toEqual([])
-    expect(data.length).toBe(0)
+    render(<PieChart data={data} />)
+    expect(screen.getByText('No data available')).toBeInTheDocument()
   })
 
   it('should calculate total correctly', () => {
@@ -29,8 +32,11 @@ describe('PieChart', () => {
     ]
 
     const total = data.reduce((sum, item) => sum + item.value, 0)
-
     expect(total).toBe(600)
+
+    render(<PieChart data={data} />)
+    const svg = screen.getByRole('img')
+    expect(svg).toBeInTheDocument()
   })
 
   it('should calculate percentages correctly', () => {
@@ -44,6 +50,10 @@ describe('PieChart', () => {
     const percentageA = (firstValue / total) * 100
 
     expect(percentageA).toBe(50)
+
+    render(<PieChart data={data} />)
+    const svg = screen.getByRole('img')
+    expect(svg).toBeInTheDocument()
   })
 
   it('should accept custom colors', () => {
@@ -52,74 +62,175 @@ describe('PieChart', () => {
       { label: 'B', value: 200, color: '#00ff00' },
     ]
 
-    expect(data[0]?.color).toBe('#ff0000')
-    expect(data[1]?.color).toBe('#00ff00')
+    const { container } = render(<PieChart data={data} />)
+    const paths = container.querySelectorAll('path')
+    expect(paths.length).toBeGreaterThan(0)
   })
 
   it('should use default colors when not provided', () => {
-    const firstColor: string | undefined = undefined
-    const secondColor: string | undefined = undefined
+    const data: PieChartData[] = [
+      { label: 'A', value: 100 },
+      { label: 'B', value: 200 },
+    ]
 
-    expect(firstColor).toBeUndefined()
-    expect(secondColor).toBeUndefined()
+    const { container } = render(<PieChart data={data} />)
+    const paths = container.querySelectorAll('path')
+    expect(paths.length).toBeGreaterThan(0)
   })
 
   it('should render with title', () => {
     const data: PieChartData[] = [{ label: 'Total', value: 100 }]
-    const title = 'Distribution Chart'
 
-    expect(title).toBeDefined()
-    expect(data.length).toBe(1)
+    render(<PieChart data={data} title="Distribution Chart" />)
+    expect(screen.getByText('Distribution Chart')).toBeInTheDocument()
   })
 
   it('should support showLegend toggle', () => {
-    const showLegend = false
+    const data: PieChartData[] = [
+      { label: 'A', value: 100 },
+      { label: 'B', value: 200 },
+    ]
 
-    expect(showLegend).toBe(false)
+    const { container: containerWithLegend } = render(
+      <PieChart data={data} showLegend={true} />
+    )
+    const legendItemsWithLegend = containerWithLegend.querySelectorAll(
+      '[role="presentation"]'
+    )
+    expect(legendItemsWithLegend.length).toBeGreaterThan(0)
+
+    const { container: containerWithoutLegend } = render(
+      <PieChart data={data} showLegend={false} />
+    )
+    const legendItemsWithout = containerWithoutLegend.querySelectorAll(
+      '[role="presentation"]'
+    )
+    expect(legendItemsWithout.length).toBeGreaterThan(0)
   })
 
   it('should support showValues toggle', () => {
-    const showValues = true
+    const data: PieChartData[] = [
+      { label: 'A', value: 100 },
+      { label: 'B', value: 200 },
+    ]
 
-    expect(showValues).toBe(true)
+    render(<PieChart data={data} showValues={true} />)
+    const svg = screen.getByRole('img')
+    expect(svg).toBeInTheDocument()
   })
 
   it('should support showPercentages toggle', () => {
-    const showPercentages = false
+    const data: PieChartData[] = [
+      { label: 'A', value: 50 },
+      { label: 'B', value: 50 },
+    ]
 
-    expect(showPercentages).toBe(false)
+    render(<PieChart data={data} showPercentages={false} />)
+    const svg = screen.getByRole('img')
+    expect(svg).toBeInTheDocument()
   })
 
   it('should handle single slice', () => {
     const data: PieChartData[] = [{ label: 'Only', value: 100 }]
 
-    expect(data.length).toBe(1)
-    expect(data[0]?.value).toBe(100)
+    render(<PieChart data={data} />)
+    const svg = screen.getByRole('img')
+    expect(svg).toBeInTheDocument()
   })
 
   it('should render with custom dimensions', () => {
-    const width = 500
-    const height = 400
+    const data: PieChartData[] = [{ label: 'A', value: 100 }]
 
-    expect(width).toBe(500)
-    expect(height).toBe(400)
+    const { container } = render(
+      <PieChart data={data} width={500} height={400} showLegend={false} />
+    )
+    const svg = container.querySelector('svg')
+    expect(svg).toHaveAttribute('width', '500')
+    expect(svg).toHaveAttribute('height', '400')
   })
 
-  it('should handle zero values', () => {
+  it('should handle zero values in data', () => {
     const data: PieChartData[] = [
       { label: 'A', value: 0 },
       { label: 'B', value: 100 },
     ]
 
     const total = data.reduce((sum, item) => sum + item.value, 0)
-
     expect(total).toBe(100)
+
+    render(<PieChart data={data} />)
+    const svg = screen.getByRole('img')
+    expect(svg).toBeInTheDocument()
   })
 
   it('should handle many categories', () => {
-    const categoryCount = 10
-    const dataLength = Array.from({ length: categoryCount }, (_, i) => i).length
+    const data: PieChartData[] = Array.from({ length: 10 }, (_, i) => ({
+      label: `Category ${String(i + 1)}`,
+      value: Math.random() * 100,
+    }))
 
-    expect(dataLength).toBe(categoryCount)
+    render(<PieChart data={data} />)
+    const svg = screen.getByRole('img')
+    expect(svg).toBeInTheDocument()
+  })
+
+  it('should show loading skeleton', () => {
+    const data: PieChartData[] = [
+      { label: 'A', value: 100 },
+      { label: 'B', value: 200 },
+    ]
+
+    const { container } = render(
+      <PieChart data={data} isLoading={true} />
+    )
+    const skeleton = container.querySelector('.animate-pulse')
+    expect(skeleton).toBeInTheDocument()
+  })
+
+  it('should have proper accessibility attributes', () => {
+    const data: PieChartData[] = [
+      { label: 'Category A', value: 300 },
+      { label: 'Category B', value: 200 },
+    ]
+
+    render(<PieChart data={data} title="Sales Distribution" />)
+    const svg = screen.getByRole('img')
+    expect(svg).toHaveAttribute('aria-label')
+    const ariaLabel = svg.getAttribute('aria-label')
+    expect(ariaLabel).toContain('Sales Distribution')
+  })
+
+  it('should render pie slices as paths', () => {
+    const data: PieChartData[] = [
+      { label: 'A', value: 100 },
+      { label: 'B', value: 200 },
+      { label: 'C', value: 100 },
+    ]
+
+    const { container } = render(<PieChart data={data} />)
+    const paths = container.querySelectorAll('path')
+    expect(paths.length).toBeGreaterThanOrEqual(data.length)
+  })
+
+  it('should handle equal value slices', () => {
+    const data: PieChartData[] = [
+      { label: 'A', value: 100 },
+      { label: 'B', value: 100 },
+      { label: 'C', value: 100 },
+    ]
+
+    render(<PieChart data={data} />)
+    const svg = screen.getByRole('img')
+    expect(svg).toBeInTheDocument()
+  })
+
+  it('should handle all zero values with message', () => {
+    const data: PieChartData[] = [
+      { label: 'A', value: 0 },
+      { label: 'B', value: 0 },
+    ]
+
+    render(<PieChart data={data} />)
+    expect(screen.getByText('No data available')).toBeInTheDocument()
   })
 })

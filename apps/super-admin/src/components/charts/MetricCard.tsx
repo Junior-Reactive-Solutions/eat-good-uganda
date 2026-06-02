@@ -12,9 +12,30 @@ export interface MetricCardProps {
     period?: string
   }
   loading?: boolean
+  error?: string
   onClick?: () => void
   className?: string
   layout?: 'vertical' | 'horizontal'
+  isCurrency?: boolean
+}
+
+/**
+ * Format a number value for display
+ * Handles comma-separated formatting and optional currency formatting
+ */
+function formatValue(value: number, isCurrency = false): string {
+  if (isCurrency) {
+    // Convert cents to dollars and format: 125000000 → "$1,250,000"
+    const dollars = value / 100
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(dollars)
+  }
+  // Format numbers: 5840 → "5,840"
+  return new Intl.NumberFormat('en-US').format(value)
 }
 
 export function MetricCard({
@@ -25,15 +46,24 @@ export function MetricCard({
   icon,
   trend,
   loading = false,
+  error,
   onClick,
   className = '',
   layout = 'vertical',
+  isCurrency = false,
 }: MetricCardProps): JSX.Element {
   const isPositive = trend?.direction === 'up'
-  const trendColor = isPositive ? 'text-green-600' : 'text-red-600'
-  const trendBgColor = isPositive ? 'bg-green-50' : 'bg-red-50'
+  const trendColor = isPositive ? 'text-platform-success' : 'text-platform-error'
+  const trendBgColor = isPositive ? 'bg-platform-success/10' : 'bg-platform-error/10'
 
   const verticalLayout = layout === 'vertical'
+
+  // Format value if it's a number
+  const displayValue =
+    typeof value === 'number' ? formatValue(value, isCurrency) : value
+
+  // Generate aria-label for accessibility
+  const ariaLabel = `${title}: ${displayValue}`
 
   return (
     <div
@@ -43,6 +73,7 @@ export function MetricCard({
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
+      aria-label={ariaLabel}
       onKeyDown={
         onClick
           ? (e) => {
@@ -66,16 +97,18 @@ export function MetricCard({
           {/* Value display */}
           {loading ? (
             <div className="h-8 w-24 bg-platform-border rounded animate-pulse" />
+          ) : error ? (
+            <p className="text-platform-error text-sm">{error}</p>
           ) : (
             <p className="text-3xl font-bold text-platform-fg mb-2 break-words">
               {prefix && <span className="text-lg">{prefix}</span>}
-              {value}
+              {displayValue}
               {suffix && <span className="text-lg">{suffix}</span>}
             </p>
           )}
 
           {/* Trend indicator */}
-          {trend && !loading && (
+          {trend && !loading && !error && (
             <div
               className={`inline-flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${trendBgColor} ${trendColor}`}
             >
