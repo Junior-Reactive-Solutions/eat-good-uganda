@@ -203,7 +203,7 @@ function TicketDetailModal({ ticket, isOpen, isLoading, onClose }: TicketDetailM
 
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {ticket.messages.length > 0 ? (
-                    ticket.messages.map((message: { id: string; sender_type: string; content: string; created_at: string }) => (
+                    ticket.messages.map((message) => (
                       <div
                         key={message.id}
                         className="bg-platform-bg p-3 rounded-lg border border-platform-border text-sm"
