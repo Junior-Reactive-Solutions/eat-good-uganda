@@ -3,13 +3,6 @@ import React from 'react'
 import { Icon } from '@/components/Icon'
 import type { IconProps } from '@/types/icon'
 
-/**
- * IconAdminStaff
- * admin icon component
- * @example
- * <IconAdminStaff size="md" />
- * <IconAdminStaff size="lg" color="accent" />
- */
 export const IconAdminStaff: React.FC<IconProps> = ({
   size = 'md',
   color = 'default',
@@ -27,22 +20,24 @@ export const IconAdminStaff: React.FC<IconProps> = ({
       alt={alt}
       data-testid={dataTestId}
     >
-      <circle cx="12" cy="7" r="3" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      {/* Head */}
+      <circle cx="12" cy="7.5" r="3" stroke="currentColor" strokeWidth="2" fill="none" strokeLinejoin="round" />
+      {/* Body arc */}
       <path
-        d="M 8 11 Q 8 10 10 10 L 14 10 Q 16 10 16 12 L 16 18 Q 16 18 12 19 Q 8 18 8 18 Z"
-        fill="none"
+        d="M5.5 20.5 C5.5 15 8 13 12 13 C16 13 18.5 15 18.5 20.5"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="2"
+        fill="none"
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle
-        cx="17"
-        cy="5.5"
-        r="2.5"
-        fill="none"
+      {/* Role badge - diamond on shoulder */}
+      <path
+        d="M17.5 10 L19.5 12 L17.5 14 L15.5 12 Z"
         stroke="currentColor"
-        strokeWidth="1"
-        opacity="0.8"
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinejoin="round"
       />
     </Icon>
   )

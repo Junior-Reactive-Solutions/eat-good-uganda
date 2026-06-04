@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
 import { Button } from '../components/Button'
-import { useMe } from '../features/auth/hooks'
-import { logoutAdmin } from '../features/auth/hooks'
+import { useMe, useAuthSetup, logoutAdmin } from '../features/auth/hooks'
 
 import {
   IconNavigationHome,
@@ -21,6 +20,7 @@ export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { data: me } = useMe()
   const navigate = useNavigate()
+  useAuthSetup()
 
   const handleLogout = async (): Promise<void> => {
     try {

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Dark rounded background -->
+  <rect width="32" height="32" rx="7" fill="#1A0A00"/>
+  <!-- Shield body filled with brand amber -->
+  <path d="M16 4 L24 8 L24 17.5 C24 22.5 20.5 26.5 16 27.5 C11.5 26.5 8 22.5 8 17.5 L8 8 Z" fill="#F9A931"/>
+  <!-- Crown cutout — 3 points with base bar, rendered in dark -->
+  <path d="M11 21 L11 17.5 L13.2 19.5 L16 14 L18.8 19.5 L21 17.5 L21 21 Z" fill="#1A0A00"/>
+  <!-- Subtle amber outline on shield edge for depth -->
+  <path d="M16 4 L24 8 L24 17.5 C24 22.5 20.5 26.5 16 27.5 C11.5 26.5 8 22.5 8 17.5 L8 8 Z" fill="none" stroke="#D56900" stroke-width="0.75"/>
+</svg>

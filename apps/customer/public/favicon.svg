@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Cream/warm background -->
+  <rect width="32" height="32" rx="7" fill="#1A0A00"/>
+  <!-- Shopping bag body -->
+  <path d="M8 14 L9 26 L23 26 L24 14 Z" fill="#F9A931"/>
+  <!-- Bag handle -->
+  <path d="M13 14 Q13 9 16 9 Q19 9 19 14"
+        fill="none" stroke="#F9A931" stroke-width="2" stroke-linecap="round"/>
+  <!-- Wheat stalk / brand mark inside bag -->
+  <path d="M16 18 L16 24"
+        stroke="#1A0A00" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M16 20 Q14 19 14 17.5 M16 20 Q18 19 18 17.5"
+        stroke="#1A0A00" stroke-width="1" stroke-linecap="round"/>
+  <path d="M16 22 Q14 21 14 19.5 M16 22 Q18 21 18 19.5"
+        stroke="#1A0A00" stroke-width="1" stroke-linecap="round"/>
+</svg>

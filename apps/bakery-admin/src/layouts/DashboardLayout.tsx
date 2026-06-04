@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { useBakery } from '../contexts/bakery'
-import { useMe } from '../features/auth/hooks'
+import { useMe, useAuthSetup } from '../features/auth/hooks'
 
 import {
   IconNavigationHome,
@@ -18,6 +18,7 @@ export function DashboardLayout() {
   const { data: me } = useMe()
   const { bakeryId } = useBakery()
   const navigate = useNavigate()
+  useAuthSetup()
 
   const handleLogout = () => {
     // TODO: Implement logout (clear auth cookie, invalidate query)

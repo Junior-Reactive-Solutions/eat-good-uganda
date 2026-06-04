@@ -3,13 +3,6 @@ import React from 'react'
 import { Icon } from '@/components/Icon'
 import type { IconProps } from '@/types/icon'
 
-/**
- * IconNavigationHome
- * navigation icon component
- * @example
- * <IconNavigationHome size="md" />
- * <IconNavigationHome size="lg" color="accent" />
- */
 export const IconNavigationHome: React.FC<IconProps> = ({
   size = 'md',
   color = 'default',
@@ -27,36 +20,20 @@ export const IconNavigationHome: React.FC<IconProps> = ({
       alt={alt}
       data-testid={dataTestId}
     >
+      {/* Roof + walls in one clean path */}
       <path
-        d="M12 3L4 9V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V9L12 3Z"
+        d="M12 3 L21 10 L21 21 C21 21.55 20.55 22 20 22
+           L15 22 L15 16 Q15 15 14 15 L10 15 Q9 15 9 16
+           L9 22 L4 22 C3.45 22 3 21.55 3 21 L3 10 Z"
         stroke="currentColor"
         strokeWidth="2"
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-
-      <rect
-        x="10"
-        y="14"
-        width="4"
-        height="8"
-        rx="1"
-        stroke="currentColor"
-        strokeWidth="2"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-
-      <circle cx="13.5" cy="18" r="0.6" fill="currentColor" stroke="none" />
-
-      <rect
-        x="6.5"
-        y="10.5"
-        width="2.5"
-        height="2.5"
-        rx="0.5"
+      {/* Chimney — small but visible at all sizes */}
+      <path
+        d="M16 3 L16 5 L18 5"
         stroke="currentColor"
         strokeWidth="1.5"
         fill="none"
