@@ -48,7 +48,7 @@ interface OrderStatusBadgeProps {
 }
 
 export function OrderStatusBadge({ status }: OrderStatusBadgeProps) {
-  const style = statusStyles[status]
+  const style = statusStyles[status] ?? { bg: 'bg-gray-100', text: 'text-gray-800', label: status }
 
   return (
     <span

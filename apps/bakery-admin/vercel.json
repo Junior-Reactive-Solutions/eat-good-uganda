@@ -1,6 +1,6 @@
 {
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
-  "buildCommand": "cd ../.. && pnpm --filter @eatgood/bakery-admin build",
+  "buildCommand": "cd ../.. && pnpm --filter @eatgood/shared build && pnpm --filter @eatgood/db build && pnpm --filter @eatgood/bakery-admin build",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]

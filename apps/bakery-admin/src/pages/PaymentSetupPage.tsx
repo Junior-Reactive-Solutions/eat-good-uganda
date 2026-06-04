@@ -24,7 +24,7 @@ import {
   useTestPaymentStatus,
 } from '../features/settings/useTestPayment'
 
-const providerLabels = {
+const providerLabels: Record<string, string> = {
   mtn_momo: 'MTN Mobile Money (MoMo)',
   airtel_money: 'Airtel Money',
   bank_transfer: 'Bank Transfer',

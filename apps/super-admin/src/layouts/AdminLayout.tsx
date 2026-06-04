@@ -8,6 +8,11 @@ import { logoutAdmin } from '../features/auth/hooks'
 import {
   IconNavigationHome,
   IconAdminAnalytics,
+  IconAdminAuditLog,
+  IconAdminStaff,
+  IconAdminCustomers,
+  IconInteractionDownload,
+  IconInteractionPhone,
   IconInteractionDelete,
   IconNavigationMenu,
 } from '@/components/icons'
@@ -30,6 +35,11 @@ export function AdminLayout() {
   const navItems = [
     { label: 'Dashboard', icon: IconNavigationHome, path: '/dashboard' },
     { label: 'Bakeries', icon: IconAdminAnalytics, path: '/bakeries' },
+    { label: 'Staff', icon: IconAdminStaff, path: '/staff' },
+    { label: 'Audit Logs', icon: IconAdminAuditLog, path: '/audit-logs' },
+    { label: 'Users', icon: IconAdminCustomers, path: '/users' },
+    { label: 'Support', icon: IconInteractionPhone, path: '/support' },
+    { label: 'Exports', icon: IconInteractionDownload, path: '/exports' },
   ]
 
   return (
