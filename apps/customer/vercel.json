@@ -1,11 +1,7 @@
 {
-  "buildCommand": "echo 'Using pre-built dist'",
-  "framework": "vite",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../.. && pnpm --filter @eatgood/customer build",
   "outputDirectory": "dist",
-  "public": true,
-  "installCommand": "echo 'Skipping install'",
-  "github": {
-    "enabled": true,
-    "autoAlias": true
-  }
+  "framework": "vite",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

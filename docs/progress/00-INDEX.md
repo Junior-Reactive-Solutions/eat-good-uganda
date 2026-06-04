@@ -15,6 +15,7 @@
 | [03-PHASE-3-ADMIN-ANALYTICS.md](03-PHASE-3-ADMIN-ANALYTICS.md) | 2026-06-01 | Prompt 11 Phase 3: Analytics, security, GitHub infra | ✅ Complete |
 | [04-PHASE-4-ADVANCED-ADMIN-DB.md](04-PHASE-4-ADVANCED-ADMIN-DB.md) | 2026-06-02 | Phase 4 Tasks 1-3: DB layer complete | 🔄 In Progress |
 | [05-PHASE-4-NEXT-STEPS.md](05-PHASE-4-NEXT-STEPS.md) | 2026-06-02 | Phase 4 Tasks 4-9 planning and specifications | 📋 Planned |
+| [06-HOSTING-SETUP.md](06-HOSTING-SETUP.md) | 2026-06-04 | Complete hosting setup: Neon · Render · Vercel · Resend · Cloudinary · GitHub Actions | 📋 Setup Required |
 
 ---
 
