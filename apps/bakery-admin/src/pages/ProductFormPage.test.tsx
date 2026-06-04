@@ -285,10 +285,10 @@ describe('ProductFormPage', () => {
 
       renderProductFormPage('/menu/prod-1/edit')
 
-      expect((screen.getByDisplayValue('Chocolate Cake')).value).toBe(
+      expect(((screen.getByDisplayValue('Chocolate Cake')) as HTMLInputElement).value).toBe(
         'Chocolate Cake',
       )
-      expect((screen.getByDisplayValue('50000')).value).toBe('50000')
+      expect(((screen.getByDisplayValue('50000')) as HTMLInputElement).value).toBe('50000')
     })
 
     it('shows VariantManager in edit mode with product variants', () => {
