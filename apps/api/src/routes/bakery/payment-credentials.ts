@@ -206,7 +206,7 @@ bakeryPaymentCredentialsRouter.patch(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { credentialId } = req.params
+      const credentialId = req.params.credentialId as string
       const validatedData = updateCredentialSchema.parse(req.body)
 
       if (!req.db) {
@@ -286,7 +286,7 @@ bakeryPaymentCredentialsRouter.delete(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { credentialId } = req.params
+      const credentialId = req.params.credentialId as string
 
       if (!req.db) {
         return res.status(500).json({ error: 'Database connection unavailable' })
