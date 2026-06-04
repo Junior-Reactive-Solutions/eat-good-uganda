@@ -44,7 +44,7 @@ describe('AddressForm', () => {
     const onSubmit = vi.fn()
     render(<AddressForm address={null} onSubmit={onSubmit} />)
 
-    const deliveryCheckbox = screen.getByRole('checkbox', { name: /deliveries/i })
+    const deliveryCheckbox = screen.getByRole('checkbox', { name: /deliveries/i }) as HTMLInputElement
     expect(deliveryCheckbox.checked).toBe(true)
   })
 
@@ -52,9 +52,9 @@ describe('AddressForm', () => {
     const onSubmit = vi.fn()
     render(<AddressForm address={mockAddress} onSubmit={onSubmit} />)
 
-    const deliveryCheckbox = screen.getByRole('checkbox', { name: /deliveries/i })
-    const billingCheckbox = screen.getByRole('checkbox', { name: /billing/i })
-    const defaultCheckbox = screen.getByRole('checkbox', { name: /default/i })
+    const deliveryCheckbox = screen.getByRole('checkbox', { name: /deliveries/i }) as HTMLInputElement
+    const billingCheckbox = screen.getByRole('checkbox', { name: /billing/i }) as HTMLInputElement
+    const defaultCheckbox = screen.getByRole('checkbox', { name: /default/i }) as HTMLInputElement
 
     expect(deliveryCheckbox.checked).toBe(true)
     expect(billingCheckbox.checked).toBe(false)
@@ -159,7 +159,7 @@ describe('AddressForm', () => {
     const onSubmit = vi.fn()
     render(<AddressForm address={mockAddress} onSubmit={onSubmit} isLoading={true} />)
 
-    const streetField = screen.getByDisplayValue('123 Main St')
+    const streetField = screen.getByDisplayValue('123 Main St') as HTMLInputElement
     const submitButton = screen.getByRole('button', { name: /Saving/i })
 
     expect(streetField.disabled).toBe(true)
@@ -244,7 +244,7 @@ describe('AddressForm', () => {
     const onSubmit = vi.fn()
     render(<AddressForm address={addressWithoutPostal} onSubmit={onSubmit} />)
 
-    const postalField = screen.getByPlaceholderText('00256')
+    const postalField = screen.getByPlaceholderText('00256') as HTMLInputElement
     expect(postalField.value).toBe('')
   })
 

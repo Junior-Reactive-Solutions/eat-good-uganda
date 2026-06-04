@@ -277,7 +277,7 @@ describe('CustomerProfilePage', () => {
 
     render(<CustomerProfilePage />, { wrapper: createWrapper() })
 
-    const firstNameField = screen.getByDisplayValue('John')
+    const firstNameField = screen.getByDisplayValue('John') as HTMLInputElement
     expect(firstNameField.disabled).toBe(true)
   })
 

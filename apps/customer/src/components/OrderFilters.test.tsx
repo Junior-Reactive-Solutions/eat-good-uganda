@@ -88,8 +88,8 @@ describe('OrderFilters', () => {
     const onFilterChange = vi.fn()
     render(<OrderFilters onFiltersChange={onFilterChange} />)
 
-    const statusSelect = screen.getByDisplayValue('All statuses')
-    const options = Array.from(statusSelect.options).map(opt => opt.value)
+    const statusSelect = screen.getByDisplayValue('All statuses') as HTMLSelectElement
+    const options = Array.from(statusSelect.options).map((opt) => opt.value)
 
     expect(options).toContain('pending_payment')
     expect(options).toContain('confirmed')
