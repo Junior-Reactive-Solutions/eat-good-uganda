@@ -82,9 +82,9 @@ bakeryPaymentCredentialsRouter.get(
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      const { provider } = req.params
+      const provider = Array.isArray(req.params.provider) ? req.params.provider[0] : req.params.provider
       const validProviders = ['mtn_momo', 'airtel_money', 'bank_transfer']
-      if (!validProviders.includes(provider)) {
+      if (!provider || !validProviders.includes(provider)) {
         return res.status(400).json({ error: 'Invalid provider' })
       }
 
@@ -175,7 +175,7 @@ bakeryPaymentCredentialsRouter.post(
         return res.status(400).json({
           error: 'Validation failed',
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          details: err.errors,
+          details: err.issues,
         })
       }
 
@@ -255,7 +255,7 @@ bakeryPaymentCredentialsRouter.patch(
         return res.status(400).json({
           error: 'Validation failed',
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          details: err.errors,
+          details: err.issues,
         })
       }
 

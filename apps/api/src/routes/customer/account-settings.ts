@@ -142,7 +142,7 @@ customerAccountSettingsRouter.patch(
         return res.status(400).json({
           error: 'Invalid request body',
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          details: err.errors,
+          details: err.issues,
         })
       }
 
