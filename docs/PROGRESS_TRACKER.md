@@ -1,0 +1,969 @@
+# Eat Good Uganda — Master Progress Tracker
+
+**Project:** Multi-tenant bakery commerce platform  
+**Last Updated:** 2026-06-05  
+**Maintained by:** Spryra (Aaron Mugumya — aaronmugumya04@gmail.com)
+
+> **For next chat:** Read this entire file before doing anything. This is the binding source of truth for what has been done, what is in progress, and what comes next. All decisions, bugs, fixes, and credentials are documented here. Do NOT guess — consult this file.
+
+---
+
+## Table of Contents
+
+1. [Project Architecture](#1-project-architecture)
+2. [Deployment Topology](#2-deployment-topology)
+3. [Repository Structure](#3-repository-structure)
+4. [Completed Work Log](#4-completed-work-log)
+5. [Current Database State](#5-current-database-state)
+6. [Authentication System](#6-authentication-system)
+7. [Seed Data Plan & Status](#7-seed-data-plan--status)
+8. [Known Issues & Bugs Fixed](#8-known-issues--bugs-fixed)
+9. [File Inventory](#9-file-inventory)
+10. [Super Admin Credentials](#10-super-admin-credentials)
+11. [Bakery Seed Logins (Phase 3 — Not Yet Seeded)](#11-bakery-seed-logins-phase-3--not-yet-seeded)
+12. [Git Commit Log](#12-git-commit-log)
+13. [Environment Variables](#13-environment-variables)
+14. [What Is Next](#14-what-is-next)
+15. [Icon System Summary](#15-icon-system-summary)
+16. [Design System Tokens](#16-design-system-tokens)
+
+---
+
+## 1. Project Architecture
+
+### What It Is
+A **multi-tenant bakery commerce platform** for Uganda. Three distinct user roles, three frontend apps, one shared Express.js API, one PostgreSQL database (Neon), with full tenant isolation enforced at the database query level.
+
+### The Four Applications
+
+| App | Framework | Purpose | URL |
+|-----|-----------|---------|-----|
+| `apps/customer` | Vite + React | Customer-facing storefront: browse bakeries, view products, place orders | https://eat-good-uganda.vercel.app |
+| `apps/bakery-admin` | Vite + React | Bakery owner/staff portal: manage products, orders, staff, settings | https://eat-good-uganda-bakery-admin.vercel.app |
+| `apps/super-admin` | Vite + React | Platform operator dashboard: approve bakeries, view analytics, manage users | https://eat-good-uganda-super-admin.vercel.app |
+| `apps/api` | Node.js + Express.js | REST API serving all three frontends | https://eatgooduganda-api.onrender.com |
+
+### Shared Packages
+
+| Package | Purpose |
+|---------|---------|
+| `packages/db` | PostgreSQL queries, typed DB client, migrations |
+| `packages/shared` | Zod schemas, TypeScript types shared between API and frontends |
+
+### Monorepo Tooling
+- **Package manager:** pnpm with workspaces
+- **Language:** TypeScript strict mode everywhere
+- **Build output:** CommonJS for API (Node.js runtime), ESM for frontends (Vite)
+- **Test runner:** Vitest
+- **Linter:** ESLint with TypeScript plugin
+- **Formatter:** Prettier
+- **Pre-commit hooks:** ESLint + Prettier + tsc (enforced, never skip)
+
+---
+
+## 2. Deployment Topology
+
+### Frontend (Vercel)
+Three separate Vercel projects, each for one app:
+
+| App | Vercel Project | Build Command | Root Dir |
+|-----|---------------|---------------|---------|
+| Customer | `eat-good-uganda` | `pnpm build:shared && pnpm build:db && pnpm --filter customer build` | `apps/customer` |
+| Bakery Admin | `eat-good-uganda-bakery-admin` | `pnpm build:shared && pnpm build:db && pnpm --filter bakery-admin build` | `apps/bakery-admin` |
+| Super Admin | `eat-good-uganda-super-admin` | `pnpm build:shared && pnpm build:db && pnpm --filter super-admin build` | `apps/super-admin` |
+
+**Key requirement:** Workspace packages (`@eatgood/shared`, `@eatgood/db`) must be compiled BEFORE the app build. Each Vercel build command does this in sequence.
+
+### Backend (Render)
+- **Service:** Node.js web service
+- **Build command:** `pnpm install && pnpm --filter @eatgood/shared build && pnpm --filter @eatgood/db build && pnpm --filter api build`
+- **Start command:** `node apps/api/dist/server.js`
+- **Auto-deploy:** Yes, on push to `master`
+- **Free tier caveat:** Spins down after 15 min inactivity (cold start ~30s). Use cron keep-alive in production.
+
+### Database (Neon)
+- **Provider:** Neon serverless PostgreSQL
+- **Project:** `eatgooduganda`
+- **Database:** `neondb`
+- **Connection types:**
+  - Direct URL (for admin scripts): `postgresql://neondb_owner:...@ep-dawn-feather-apars78d.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require`
+  - Pooled URL (for API on Render): `postgresql://neondb_owner:...@ep-dawn-feather-apars78d-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
+- **Extensions required:** `pgcrypto`, `citext`, `cube`, `earthdistance`
+
+### Email (Resend)
+- Provider configured but not yet actively sending transactional emails
+- Used for: email verification, password reset, bakery notifications
+
+### Images (Cloudinary)
+- Configured for product image uploads (not yet in active use — seed data uses Unsplash URLs)
+
+---
+
+## 3. Repository Structure
+
+```
+eat-good-uganda/
+├── apps/
+│   ├── api/
+│   │   ├── src/
+│   │   │   ├── app.ts                   ← Express app setup, CORS, middleware
+│   │   │   ├── server.ts                ← HTTP server entry point
+│   │   │   ├── env.ts                   ← Zod-validated env vars
+│   │   │   ├── lib/
+│   │   │   │   ├── cookies.ts           ← Auth cookie helpers (FIXED: SameSite=None)
+│   │   │   │   ├── password.ts          ← Argon2id hash/verify
+│   │   │   │   └── tokens.ts            ← JWT sign/verify, refresh token helpers
+│   │   │   ├── middleware/
+│   │   │   │   ├── authenticateToken.ts ← JWT verification middleware
+│   │   │   │   ├── csrf.ts              ← CSRF protection (FIXED: auth routes exempt)
+│   │   │   │   ├── rateLimit.ts         ← Rate limiting
+│   │   │   │   ├── requireBakeryContext.ts
+│   │   │   │   └── requireSuperAdminContext.ts
+│   │   │   ├── routes/
+│   │   │   │   ├── admin/               ← Super admin endpoints
+│   │   │   │   │   ├── auth.ts
+│   │   │   │   │   ├── bakeries.ts
+│   │   │   │   │   ├── customers.ts
+│   │   │   │   │   ├── staff.ts
+│   │   │   │   │   ├── audit-logs.ts
+│   │   │   │   │   ├── metrics.ts
+│   │   │   │   │   └── support.ts
+│   │   │   │   ├── bakery/              ← Bakery staff endpoints
+│   │   │   │   │   ├── auth.ts
+│   │   │   │   │   ├── products.ts
+│   │   │   │   │   ├── orders.ts
+│   │   │   │   │   ├── metrics.ts
+│   │   │   │   │   └── staff.ts
+│   │   │   │   ├── customer/            ← Customer-facing endpoints
+│   │   │   │   │   ├── auth.ts
+│   │   │   │   │   ├── orders.ts
+│   │   │   │   │   ├── profile.ts
+│   │   │   │   │   └── payments.ts
+│   │   │   │   ├── public/              ← No-auth required
+│   │   │   │   │   ├── bakeries.ts      ← List active bakeries, get products
+│   │   │   │   │   └── orders.ts        ← Track order status
+│   │   │   │   └── webhooks/            ← Payment provider webhooks
+│   │   │   │       └── mtn-momo.ts
+│   │   │   ├── services/
+│   │   │   │   ├── auth/
+│   │   │   │   │   ├── admin.ts         ← loginAdmin (requires TOTP)
+│   │   │   │   │   ├── bakery.ts        ← signupBakery, loginBakeryUser
+│   │   │   │   │   └── customer.ts
+│   │   │   │   └── email/
+│   │   │   │       └── verification.ts
+│   │   │   ├── scripts/                 ← Operational scripts (EXCLUDED from build)
+│   │   │   │   ├── db-bootstrap.ts      ← Reset schema + create super admin
+│   │   │   │   └── seed-bakeries.ts     ← [NOT YET CREATED] Phase 3 seed
+│   │   │   └── jobs/
+│   │   │       └── reconcilePendingPayments.ts
+│   │   └── tsconfig.json               ← Excludes src/scripts/** from build
+│   ├── bakery-admin/
+│   │   ├── src/
+│   │   │   ├── App.tsx                 ← Router setup (FIXED: no AuthSetup outside Router)
+│   │   │   ├── layouts/
+│   │   │   │   └── DashboardLayout.tsx ← useAuthSetup() called here (inside Router)
+│   │   │   ├── features/
+│   │   │   │   ├── auth/               ← Login, auth state, hooks
+│   │   │   │   ├── products/           ← Product CRUD
+│   │   │   │   ├── orders/             ← Order management
+│   │   │   │   ├── staff/              ← Staff management
+│   │   │   │   └── analytics/          ← Bakery-level analytics
+│   │   │   └── components/
+│   │   │       └── icons/              ← Custom SVG icon components
+│   │   └── public/
+│   │       └── favicon.svg             ← Bread loaf with steam (amber on dark)
+│   ├── super-admin/
+│   │   ├── src/
+│   │   │   ├── App.tsx                 ← Router setup (FIXED: no AuthSetup outside Router)
+│   │   │   ├── layouts/
+│   │   │   │   └── AdminLayout.tsx     ← useAuthSetup() called here (inside Router)
+│   │   │   ├── features/
+│   │   │   │   ├── auth/               ← Login with TOTP field
+│   │   │   │   ├── bakeries/           ← Bakery management
+│   │   │   │   ├── customers/          ← Customer management
+│   │   │   │   ├── analytics/          ← Platform-wide analytics
+│   │   │   │   ├── staff/              ← Admin staff management
+│   │   │   │   └── support/            ← Support tickets
+│   │   │   └── components/
+│   │   │       └── icons/              ← Custom SVG icon components
+│   │   └── public/
+│   │       └── favicon.svg             ← Shield with crown (amber on dark)
+│   └── customer/
+│       ├── src/
+│       │   ├── App.tsx
+│       │   ├── features/               ← Browse, cart, checkout, orders
+│       │   └── components/
+│       │       └── icons/              ← Custom SVG icon components
+│       └── public/
+│           └── favicon.svg             ← Shopping bag with wheat stalk
+├── packages/
+│   ├── db/
+│   │   ├── src/
+│   │   │   ├── index.ts                ← All exports
+│   │   │   ├── client.ts               ← pg Pool setup
+│   │   │   └── queries/
+│   │   │       ├── admin-users.ts      ← Super admin CRUD
+│   │   │       ├── bakeries.ts         ← Bakery CRUD + public listing
+│   │   │       ├── bakery-users.ts     ← Bakery staff CRUD
+│   │   │       ├── customers.ts        ← Customer CRUD
+│   │   │       ├── products.ts         ← Product CRUD (tenant-scoped)
+│   │   │       ├── orders.ts           ← Order CRUD (tenant-scoped)
+│   │   │       ├── payments.ts         ← Payment records (tenant-scoped)
+│   │   │       ├── audit-logs.ts       ← Admin action audit trail
+│   │   │       └── tokens.ts           ← Refresh/reset/verification tokens
+│   │   ├── migrations/
+│   │   │   ├── 0002_super_admins.sql
+│   │   │   ├── 0003_bakeries.sql
+│   │   │   ├── 0004_bakery_users.sql
+│   │   │   ├── 0005_customers.sql
+│   │   │   ├── 0006_product_categories.sql
+│   │   │   ├── 0007_products_and_variants.sql
+│   │   │   ├── 0008_orders_and_items.sql
+│   │   │   ├── 0009_payments.sql
+│   │   │   ├── 0010_payment_credentials.sql
+│   │   │   ├── 0013_tokens.sql
+│   │   │   ├── 0014_email_log.sql
+│   │   │   ├── 0022_create_support_tickets.sql
+│   │   │   └── ...
+│   │   └── seed/
+│   │       └── schema.sql              ← [NEW] Canonical consolidated DDL
+│   └── shared/
+│       └── src/
+│           ├── schemas/                ← Zod validation schemas
+│           └── types/                  ← Shared TypeScript types
+├── docs/
+│   ├── PROGRESS_TRACKER.md             ← THIS FILE
+│   ├── SEED_DATA_PLAN.md               ← 3-bakery specification
+│   ├── ICON_SYSTEM.md                  ← Icon design reference
+│   ├── 01-ARCHITECTURE.md
+│   ├── 02-DATABASE_SCHEMA.md
+│   ├── 03-MULTI_TENANCY.md
+│   └── progress/
+│       └── 06-HOSTING-SETUP.md         ← Step-by-step hosting setup guide
+├── instructions/
+│   ├── 00-canonical-rules.md           ← THE rules. Override all others.
+│   ├── 01-project-overview.md
+│   ├── 02-code-style.md
+│   ├── 03-multi-tenancy-rules.md       ← Non-negotiable
+│   ├── 04-security-rules.md            ← Non-negotiable
+│   └── ...
+├── CLAUDE.md                           ← Claude's operating instructions
+└── package.json                        ← Workspace root
+```
+
+---
+
+## 4. Completed Work Log
+
+### Phase 0: Initial Setup (Pre-Session)
+- Monorepo structure created (pnpm workspaces)
+- TypeScript configured (strict mode everywhere)
+- ESLint + Prettier + pre-commit hooks configured
+- React Query v5 configured in all 3 frontend apps
+- Tailwind CSS configured with design tokens (`platform-*`)
+- Express.js API scaffolded
+- Neon database provisioned
+
+### Phase 1: Core Auth System
+- Super Admin auth with **TOTP 2FA** (otplib authenticator, 30s rolling codes)
+- Bakery User auth (email + password, no 2FA)
+- Customer auth (email + password, optional social login)
+- JWT tokens: **3 separate secrets** (customer / bakery / super_admin)
+- Refresh token rotation with DB tracking
+- Argon2id password hashing
+- Rate limiting on auth endpoints
+
+### Phase 2: Bakery Management (Super Admin)
+- `GET /v1/admin/bakeries` — paginated list with filters (status, search, sort)
+- `GET /v1/admin/bakeries/:id` — detail with staff + metrics
+- `POST /v1/admin/bakeries/:id/approve` — approve pending bakery
+- `POST /v1/admin/bakeries/:id/suspend` — suspend with reason
+- `POST /v1/admin/bakeries/:id/reactivate` — reactivate suspended
+- Super Admin UI: BakeriesPage, BakeryDetailPage, BakeryCard, BakeryStatusBadge
+- Router routes + sidebar navigation links
+
+### Phase 3 (Analytics): Super Admin Dashboard
+- Analytics DB queries: bakery metrics (orders, revenue, customers)
+- Platform-wide metrics aggregation
+- Analytics API endpoints (metrics list, per-bakery analytics, trends)
+- React Query hooks for analytics
+- SVG chart components (BarChart, LineChart, PieChart)
+- MetricCard components
+- Enhanced dashboard page with analytics grid
+
+### Phase 4: Advanced Admin Features
+- Bakery staff CRUD (add/remove/update role)
+- Comprehensive audit logging (who/what/when/changes)
+- Customer user management (ban/unban, fraud detection)
+- DB queries + API endpoints for all above
+- Pages: StaffManagementPage, AuditLogsPage, CustomerManagementPage
+- React Query hooks for all CRUD operations
+
+### Phase 5: Support & Utilities
+- Support ticketing system (create/list/reply/resolve)
+- CSV data exports (bakeries, customers, orders, transactions)
+- Bulk operations (approve multiple bakeries, ban users in batch)
+- DB tables + queries
+- API endpoints for tickets, exports, bulk ops
+- SupportTicketsPage, DataExportsPage
+
+### Deployment Phase: Production Setup
+Created `docs/progress/06-HOSTING-SETUP.md` — step-by-step guide covering:
+- Neon: project creation, connection strings, extension setup
+- Render: Node.js service setup, build/start commands, env vars
+- Vercel: 3 separate projects, vercel.json for each app, build commands
+- Resend: email domain configuration
+- Cloudinary: image upload account setup
+- Cron keep-alive: preventing Render free tier cold starts
+
+Fixed Vercel build failures:
+- `vercel.json` files were skipping install/build steps
+- Fixed: proper build commands that compile workspace packages before each frontend
+
+### CSS Fix
+- PostCSS requires `@import` directives BEFORE Tailwind `@tailwind` directives
+- Fixed in `index.css` across all 3 frontend apps
+
+### Module Resolution Fix
+- Frontend apps (Vite/ESM) and API (Node.js/CJS) needed different resolution paths
+- Fixed: `package.json` exports with conditional `import` (for Vite) and `require` (for Node.js CJS) conditions in `@eatgood/shared` and `@eatgood/db`
+
+### Favicon & Icon System
+Created custom SVG favicons for all 3 apps:
+
+**Super Admin** (`apps/super-admin/public/favicon.svg`):
+- Shield shape with crown cutout
+- Amber shield `#F9A931` on dark `#1A0A00` background
+- Tab title: "EGU Admin"
+
+**Bakery Admin** (`apps/bakery-admin/public/favicon.svg`):
+- Bread loaf with score marks and steam wisps
+- Amber `#F9A931` dome, burnt `#D56900` base, on dark `#1A0A00`
+- Tab title: "EGU Bakery"
+
+**Customer** (`apps/customer/public/favicon.svg`):
+- Shopping bag with wheat stalk
+- Amber on dark
+- Tab title: "Eat Good Uganda"
+
+Created `docs/ICON_SYSTEM.md`:
+- 200+ line icon reference document
+- Brand colors, size system, design principles, per-category standards
+- 40+ icon component designs documented (admin, delivery, interaction, navigation, payment, product)
+- Usage rules, DO/DO NOT, improvement backlog
+
+Improved 2 HIGH priority icons:
+- `IconAdminStaff`: cleaner person silhouette with role badge diamond
+- `IconNavigationHome`: simplified roof+walls path for better 16px visibility
+
+### Blank Page Bug Fix (Critical)
+**Problem:** `useNavigate()` was being called inside `AuthSetup` component that was rendered OUTSIDE `RouterProvider` context. React Router throws when you call navigation hooks outside a router.
+
+**Root cause:** `AuthSetup` was mounted in `App.tsx` before `RouterProvider` was created.
+
+**Fix (both apps):**
+- Removed `AuthSetup` from `App.tsx`
+- Moved `useAuthSetup()` call into `AdminLayout` / `DashboardLayout` (these are guaranteed to be inside the Router context because they are rendered by router routes)
+- Files: `apps/super-admin/src/layouts/AdminLayout.tsx`, `apps/bakery-admin/src/layouts/DashboardLayout.tsx`
+
+This fixed blank white pages in production for both admin apps.
+
+### Schema Rebuild (THIS SESSION)
+**Problem:** Hand-created tables in Neon diverged from what the application code expected. Login was completely broken because `refresh_tokens` table didn't exist.
+
+**Fix:**
+1. Created `packages/db/seed/schema.sql` — canonical DDL matching all migrations exactly
+2. Created `apps/api/src/scripts/db-bootstrap.ts` — destructive reset script (requires `--confirm`)
+3. Ran bootstrap against live Neon database — rebuilt all 14 tables correctly
+4. **Super Admin account created** with Argon2id hash + TOTP secret
+
+### Auth Cross-Domain Fix (THIS SESSION)
+**Problem 1 — CSRF Deadlock:**
+- Login endpoint was CSRF-protected
+- `eg_csrf` cookie only exists AFTER login
+- First login always returned `403 csrf token mismatch`
+
+**Fix:** Exempt auth endpoints from CSRF middleware:
+```typescript
+// apps/api/src/middleware/csrf.ts
+/^\/v1\/(admin|bakery|customer)\/auth\//,  // auth bootstrap exempt
+```
+
+**Problem 2 — SameSite Cookie Issue:**
+- API on `onrender.com`, SPAs on `vercel.app` = different registrable domains = cross-site
+- `SameSite=Lax` cookies are NEVER sent on cross-site XHR
+- Even after login, access token couldn't reach the API
+
+**Fix:** Switch to `SameSite=None; Secure` in production:
+```typescript
+// apps/api/src/lib/cookies.ts
+const sameSite: 'none' | 'lax' = isProduction ? 'none' : 'lax'
+const cookieSecure = isProduction ? true : false
+```
+
+**Problem 3 — Build Failure:**
+- `db-bootstrap.ts` imports `pg` directly (workspace root dep, not `apps/api` dep)
+- Render's `tsc` build failed → kept serving old build
+- Old build had CSRF bug → login still failed after deploy
+
+**Fix:** Exclude `src/scripts/**` from API build:
+```json
+// apps/api/tsconfig.json
+"exclude": [..., "src/scripts/**"]
+```
+
+---
+
+## 5. Current Database State
+
+### Tables (All Created, Production Neon)
+
+| Table | Description | Key Fields |
+|-------|-------------|-----------|
+| `super_admin_users` | Platform operators | `id`, `email`, `password_hash`, `totp_secret`, `is_active` |
+| `bakeries` | Core tenant table | `id`, `slug`, `display_name`, `status`, `primary_color`, `logo_url`, `approved_by` |
+| `bakery_users` | Bakery staff accounts | `id`, `bakery_id` (FK), `email`, `role` (`owner/manager/staff`) |
+| `customers` | Customer accounts | `id`, `email`, `is_banned`, `fraud_flag` |
+| `product_categories` | Per-bakery categories | `id`, `bakery_id` (FK), `name`, `slug`, `sort_order` |
+| `products` | Product catalogue | `id`, `bakery_id` (FK), `slug`, `base_price_minor`, `image_urls[]`, `is_published` |
+| `product_variants` | Size/flavour variants | `id`, `product_id` (FK), `bakery_id` (FK), `name`, `price_minor` |
+| `orders` | Customer orders | `id`, `bakery_id` (FK), `order_number`, `status`, `fulfilment_mode` |
+| `order_items` | Line items | `id`, `order_id` (FK), `bakery_id` (FK), `product_id` (FK) |
+| `payments` | Payment records | `id`, `order_id` (FK), `method`, `status` |
+| `bakery_payment_credentials` | Encrypted payment config | `id`, `bakery_id` (FK), `provider`, `encrypted_config` |
+| `refresh_tokens` | Session tokens | `id`, `token_hash`, `subject_type`, `subject_id`, `expires_at` |
+| `password_reset_tokens` | Password reset flow | `id`, `token_hash`, `subject_id`, `expires_at` |
+| `email_verification_tokens` | Email verification | `id`, `token_hash`, `subject_id`, `expires_at` |
+| `audit_logs` | Admin action trail | `id`, `admin_id` (FK), `action`, `bakery_id`, `changes` (JSONB) |
+| `support_tickets` | Customer support | `id`, `bakery_id` (FK), `status`, `priority` |
+| `ticket_messages` | Ticket conversation | `id`, `ticket_id` (FK), `sender_type` |
+| `customer_profiles` | Extended customer info | `id`, `user_id` (FK), `first_name`, `last_name`, `avatar_url` |
+| `customer_addresses` | Customer addresses | `id`, `user_id` (FK), `street_address`, `district`, `is_default` |
+
+### Current Data
+- **Super Admin:** 1 row (admin@eatgooduganda.com)
+- **Bakeries:** 0 rows ← Phase 3 will add 3
+- **All other tables:** 0 rows
+
+### Pricing Convention
+All prices stored in **minor units (integer)**. For UGX: `price × 100`.  
+Example: UGX 5,000 → `500000`
+
+---
+
+## 6. Authentication System
+
+### Super Admin Auth Flow
+1. POST `/v1/admin/auth/login` with `{ email, password, totp_code }`
+2. Server: verify password (Argon2id), then verify TOTP (otplib authenticator, SHA1, 6 digits, 30s)
+3. On success: set 3 cookies — `eg_admin_at` (httpOnly), `eg_admin_rt` (httpOnly, refresh path only), `eg_csrf` (readable by JS)
+4. Frontend: reads `eg_csrf` cookie and sends as `x-csrf-token` header on subsequent mutations
+
+**TOTP requirement:** Super admin login ALWAYS requires a TOTP code. Accounts without `totp_secret` set cannot log in (throws `'totp not configured'`).
+
+### Bakery User Auth Flow
+1. POST `/v1/bakery/auth/login` with `{ email, password }`
+2. Same cookie pattern but `eg_bakery_at`, `eg_bakery_rt`, `eg_csrf`
+3. No TOTP (only super admins use 2FA)
+
+### Customer Auth Flow  
+1. POST `/v1/customer/auth/login` with `{ email, password }`
+2. Same cookie pattern: `eg_customer_at`, `eg_customer_rt`, `eg_csrf`
+
+### Cookie Settings (Production)
+```
+httpOnly: true  (access + refresh tokens — JS cannot read)
+secure: true    (HTTPS only)
+sameSite: 'none' (MUST be none for cross-domain: onrender.com ↔ vercel.app)
+```
+
+**This is critical:** If `sameSite` is anything other than `none` in production, cookies will NOT be sent on XHR requests between the frontend (vercel.app) and API (onrender.com).
+
+### CSRF Protection
+- All `POST/PATCH/PUT/DELETE` requests require `x-csrf-token` header matching `eg_csrf` cookie
+- **Exempt paths (no CSRF required):**
+  - `/v1/webhooks/*` (payment webhooks from external providers)
+  - `/v1/internal/*` (internal health checks)
+  - `/v1/public/*` (unauthenticated browse)
+  - `/v1/{admin,bakery,customer}/auth/*` (login/signup/refresh — no token exists yet)
+
+### JWT Token Details
+- **3 separate secrets:** `SUPER_ADMIN_JWT_SECRET`, `BAKERY_JWT_SECRET`, `CUSTOMER_JWT_SECRET`
+- Access token TTL: 15 minutes
+- Refresh token TTL: 30 days (rotated on each use)
+- Refresh tokens are **hashed** (SHA-256) before DB storage — raw tokens never stored
+
+---
+
+## 7. Seed Data Plan & Status
+
+**Status: PHASE 1+2 COMPLETE, PHASE 3 AWAITING IMPLEMENTATION**
+
+See also: `docs/SEED_DATA_PLAN.md` for full specification.
+
+### Phase 1 — Schema Rebuild ✅ DONE
+- Schema dropped and rebuilt on live Neon
+- All 14 tables created correctly
+
+### Phase 2 — Super Admin Account ✅ DONE
+- Super Admin created in database with Argon2id hash + TOTP secret
+- Credentials delivered (see Section 10)
+
+### Phase 3 — Three Demo Bakeries 🔄 NOT YET DONE
+**Needs:** `apps/api/src/scripts/seed-bakeries.ts` to be created and executed.
+
+---
+
+### Bakery 1: Kampala Crust (Everyday / Budget)
+
+| Field | Value |
+|-------|-------|
+| `slug` | `kampala-crust` |
+| `legal_name` | Kampala Crust Bakeries Ltd |
+| `display_name` | Kampala Crust |
+| `tagline` | "Fresh bread, every single morning." |
+| `description` | Kampala's neighbourhood bakery serving daily staples since 2018. Fresh bread every morning, warm snacks all day. |
+| `primary_color` | `#A8763E` (warm wheat brown) |
+| `accent_color` | `#D4A96A` |
+| `phone` | +256 700 100 001 |
+| `email` | hello@kampalacrust.ug |
+| `address_line1` | Plot 14, Nakawa Market Road |
+| `city` | Kampala |
+| `latitude` | 0.3170 |
+| `longitude` | 32.6149 |
+| `accepts_pickup` | true |
+| `accepts_delivery` | true |
+| `delivery_fee_minor` | 300000 (UGX 3,000) |
+| `delivery_radius_km` | 5.00 |
+| `min_order_minor` | 500000 (UGX 5,000) |
+| `status` | active |
+| `hero_image_url` | https://images.unsplash.com/photo-1509440159596-0249088772ff (bakery storefront) |
+| `logo_url` | SVG data URI — wheat-sheaf mark, `#A8763E` on `#1A0A00` |
+| **Owner login** | `owner@kampalacrust.ug` |
+
+**Categories & Products:**
+
+| Category | Product | Price (UGX) | Variants |
+|----------|---------|-------------|---------|
+| Breads | White Sandwich Loaf | — | Small 1,500 / Large 2,800 |
+| Breads | Whole Wheat Loaf | 2,000 | — |
+| Breads | Brown Buns (6-pack) | 3,000 | — |
+| Snacks | Mandazi (6-pack) | 500 | — |
+| Snacks | Beef Samosa | 700 | — |
+| Snacks | Half-Cake / Daddies | 400 | — |
+| Cakes | Simple Vanilla Slab | 15,000 | — |
+| Cakes | Marble Cake | 18,000 | — |
+| Drinks | Ugandan Milk Tea | 1,500 | — |
+| Drinks | Black Coffee | 1,500 | — |
+| Drinks | Bottled Soda | 2,000 | — |
+
+---
+
+### Bakery 2: The Golden Whisk (Mid-Range / Artisan)
+
+| Field | Value |
+|-------|-------|
+| `slug` | `the-golden-whisk` |
+| `legal_name` | Golden Whisk Patisserie Ltd |
+| `display_name` | The Golden Whisk |
+| `tagline` | "Where butter meets craft." |
+| `description` | Kampala's favourite artisan patisserie and coffee corner. Handcrafted viennoiserie, celebration cakes, and specialty coffee at Acacia Mall. |
+| `primary_color` | `#F9A931` (brand amber gold) |
+| `accent_color` | `#1A0A00` |
+| `phone` | +256 700 200 002 |
+| `email` | hello@goldenwhisk.ug |
+| `address_line1` | Acacia Mall, Kisementi |
+| `city` | Kampala |
+| `latitude` | 0.3360 |
+| `longitude` | 32.5850 |
+| `accepts_pickup` | true |
+| `accepts_delivery` | true |
+| `delivery_fee_minor` | 500000 (UGX 5,000) |
+| `delivery_radius_km` | 10.00 |
+| `min_order_minor` | 1500000 (UGX 15,000) |
+| `status` | active |
+| `hero_image_url` | https://images.unsplash.com/photo-1556742049-0cfed4f6a45d (patisserie display) |
+| `logo_url` | SVG data URI — whisk + droplet, `#F9A931` on `#1A0A00` |
+| **Owner login** | `owner@goldenwhisk.ug` |
+
+**Categories & Products:**
+
+| Category | Product | Price (UGX) | Variants |
+|----------|---------|-------------|---------|
+| Viennoiserie | Butter Croissant | 4,500 | — |
+| Viennoiserie | Pain au Chocolat | 5,500 | — |
+| Viennoiserie | Almond Danish | 6,000 | — |
+| Cupcakes | Red Velvet Cupcake | 4,000 | — |
+| Cupcakes | Salted Caramel Cupcake | 4,500 | — |
+| Cupcakes | Lemon Drizzle Cupcake | 4,000 | — |
+| Layer Cakes | Classic Chocolate Fudge | — | 6" 45,000 / 9" 85,000 |
+| Layer Cakes | Carrot & Walnut | 50,000 | 6" / 9" |
+| Coffee Bar | Cappuccino | 6,000 | — |
+| Coffee Bar | Caffè Latte | 6,500 | — |
+| Coffee Bar | Iced Mocha | 8,000 | — |
+| Coffee Bar | Hot Chocolate | 5,500 | — |
+
+---
+
+### Bakery 3: Maison Léa (Luxury / Premium French)
+
+| Field | Value |
+|-------|-------|
+| `slug` | `maison-lea` |
+| `legal_name` | Maison Léa Fine Pâtisserie Ltd |
+| `display_name` | Maison Léa |
+| `tagline` | "L'art de la pâtisserie, à Kampala." |
+| `description` | Kampala's finest French pâtisserie. Classical French technique, imported Valrhona chocolate, and signature gâteaux crafted daily at our Kololo atelier. |
+| `primary_color` | `#7B1E3B` (deep burgundy) |
+| `accent_color` | `#C9A24B` (champagne gold) |
+| `phone` | +256 700 300 003 |
+| `email` | bonjour@maisonlea.ug |
+| `address_line1` | 4 Elizabeth Avenue |
+| `address_line2` | Kololo |
+| `city` | Kampala |
+| `latitude` | 0.3390 |
+| `longitude` | 32.5890 |
+| `accepts_pickup` | true |
+| `accepts_delivery` | true |
+| `delivery_fee_minor` | 1500000 (UGX 15,000) |
+| `delivery_radius_km` | 15.00 |
+| `min_order_minor` | 5000000 (UGX 50,000) |
+| `status` | active |
+| `hero_image_url` | https://images.unsplash.com/photo-1483695028939-5bb13f8648b0 (luxury patisserie) |
+| `logo_url` | SVG data URI — monogram "L" crest, `#7B1E3B` + `#C9A24B` on dark |
+| **Owner login** | `owner@maisonlea.ug` |
+
+**Categories & Products:**
+
+| Category | Product | Price (UGX) | Variants |
+|----------|---------|-------------|---------|
+| Macarons | Macaron Gift Box | — | Box of 6: 35,000 / Box of 12: 65,000 |
+| Signature Gâteaux | Opéra | 95,000 | Whole cake (serves 8) |
+| Signature Gâteaux | Framboise Pistache Entremet | 120,000 | Whole cake (serves 8) |
+| Signature Gâteaux | Royal Chocolat | 140,000 | Whole cake (serves 10) |
+| Pâtisserie | Éclair au Chocolat | 12,000 | — |
+| Pâtisserie | Mille-feuille | 15,000 | — |
+| Pâtisserie | Lemon Tart | 14,000 | — |
+| Artisan Bread | Sourdough Boule | 18,000 | — |
+| Artisan Bread | Country Baguette | 8,000 | — |
+| Café | Single-Origin Espresso | 9,000 | — |
+| Café | Flat White | 11,000 | — |
+| Café | Affogato | 16,000 | — |
+| Café | Hot Valrhona Chocolate | 14,000 | — |
+
+---
+
+### Images Strategy
+- **Product images:** Curated stable Unsplash URLs — real bakery/food photography
+- **Bakery logos:** Compact SVG `data:image/svg+xml` URIs stored directly in `logo_url` field
+- **No external image hosting needed** for seed data — everything self-contained
+
+---
+
+## 8. Known Issues & Bugs Fixed
+
+### ✅ Fixed: Blank Pages in Admin Apps
+- **Root cause:** `useNavigate()` called outside `RouterProvider` context
+- **Files fixed:** `apps/super-admin/src/App.tsx`, `apps/bakery-admin/src/App.tsx`, `apps/super-admin/src/layouts/AdminLayout.tsx`, `apps/bakery-admin/src/layouts/DashboardLayout.tsx`
+- **Commit:** `9574bed`
+
+### ✅ Fixed: TypeScript Errors with Zod v4
+- **Root cause:** Zod v4 changed `.errors` to `.issues` on `ZodError` objects
+- **Files fixed:** `apps/api/src/routes/admin/payment-credentials.ts`, `apps/api/src/routes/admin/account-settings.ts`
+
+### ✅ Fixed: Module Resolution for Workspace Packages
+- **Root cause:** Vite (ESM) and Node.js (CJS) needed different entry points
+- **Fix:** Conditional exports in `packages/shared/package.json` and `packages/db/package.json`
+- **Commit:** `fae7c44`
+
+### ✅ Fixed: CSS @import Order
+- **Root cause:** PostCSS requires `@import` BEFORE `@tailwind` directives
+- **Files fixed:** `index.css` in all 3 apps
+- **Commit:** `a47083d`
+
+### ✅ Fixed: Vercel Build Failures
+- **Root cause:** `vercel.json` was skipping install/build steps
+- **Fix:** Proper build commands compiling workspace packages in sequence
+- **Commit:** `9574bed`
+
+### ✅ Fixed: Schema Mismatch (THIS SESSION)
+- **Root cause:** Hand-created Neon tables diverged from code expectations
+- **Impact:** Login completely broken (refresh_tokens table didn't exist)
+- **Fix:** Bootstrap script, rebuilt schema, re-created super admin
+- **Commit:** `8ec91bb`
+
+### ✅ Fixed: CSRF Deadlock (THIS SESSION)
+- **Root cause:** Login endpoint required CSRF token that only existed after login
+- **Fix:** Exempt auth endpoints from CSRF middleware
+- **Commit:** `8ec91bb`
+
+### ✅ Fixed: SameSite Cookie Cross-Domain (THIS SESSION)
+- **Root cause:** `SameSite=Lax` blocks cross-site XHR; API and SPAs on different domains
+- **Fix:** `SameSite=None; Secure` in production
+- **Commit:** `8ec91bb`
+
+### ✅ Fixed: API Build Failure (THIS SESSION)
+- **Root cause:** `db-bootstrap.ts` imported `pg` directly, not resolvable by `tsc`
+- **Fix:** Exclude `src/scripts/**` from API build
+- **Commit:** `6d40813`
+
+### ⚠️ Known: Cross-Domain CSRF for Admin Mutations
+- **Issue:** After login, admin UI mutations (approve/suspend/etc.) still need CSRF token
+- **Current state:** Login works; CSRF token is set in `eg_csrf` cookie after login; axios reads it automatically
+- **Risk:** If the CSRF cookie isn't being sent across domains (SameSite=None should fix this), mutations will fail
+- **Action:** Verify in browser after Phase 3 is deployed and bakeries are visible
+
+### ⚠️ Known: Render Free Tier Cold Starts
+- **Issue:** Service spins down after 15 min inactivity; cold start takes ~30s
+- **Mitigation needed:** Set up cron keep-alive job (documented in `docs/progress/06-HOSTING-SETUP.md`)
+
+---
+
+## 9. File Inventory
+
+### New Files Created This Session
+
+| File | Purpose | Status |
+|------|---------|--------|
+| `packages/db/seed/schema.sql` | Canonical consolidated DDL for all 14 tables | ✅ Created, applied to production |
+| `apps/api/src/scripts/db-bootstrap.ts` | Schema rebuild + Super Admin creation script | ✅ Created, run successfully |
+| `docs/SEED_DATA_PLAN.md` | 3-bakery specification with all details | ✅ Created |
+| `docs/PROGRESS_TRACKER.md` | **This file** — master progress tracker | ✅ Created |
+
+### Files Modified This Session
+
+| File | What Changed | Why |
+|------|-------------|-----|
+| `apps/api/src/middleware/csrf.ts` | Added auth path exemption pattern | Fix CSRF deadlock on first login |
+| `apps/api/src/lib/cookies.ts` | Added `SameSite=None` + `Secure` for production | Fix cross-domain cookie sending |
+| `apps/api/tsconfig.json` | Added `src/scripts/**` to exclude list | Fix API build failure on Render |
+
+### Files Still To Create (Phase 3)
+
+| File | Purpose |
+|------|---------|
+| `apps/api/src/scripts/seed-bakeries.ts` | Insert 3 bakeries + owners + products into production DB |
+| `apps/api/src/scripts/seed-data/bakeries.ts` | Data definitions (separate from runner logic) |
+
+---
+
+## 10. Super Admin Credentials
+
+> **SECURITY NOTE:** These credentials are in this file for operator reference only. Never commit real production credentials to git. This file documents what was generated and where credentials were delivered.
+
+| Field | Value |
+|-------|-------|
+| **Login URL** | https://eat-good-uganda-super-admin.vercel.app |
+| **Email** | `admin@eatgooduganda.com` |
+| **Password** | `EGUAdmin!2026#Kampala` |
+| **TOTP Secret** | `3SI3YURNQYGV37CLSZJZOOC7JGV5DJTM` |
+| **otpauth URI** | `otpauth://totp/Eat%20Good%20Uganda%3Aadmin%40eatgooduganda.com?secret=3SI3YURNQYGV37CLSZJZOOC7JGV5DJTM&issuer=Eat%20Good%20Uganda&algorithm=SHA1&digits=6&period=30` |
+
+### Setting Up TOTP (Required for Login)
+The Super Admin login requires a 6-digit rotating code. To set it up:
+1. Install **Google Authenticator**, **Authy**, or **Microsoft Authenticator** on your phone
+2. Choose "Enter a setup key" / "Add account manually"
+3. Account name: `Eat Good Uganda`
+4. Key: `3SI3YURNQYGV37CLSZJZOOC7JGV5DJTM`
+5. Type: **Time-based (TOTP)**
+6. The app will show a 6-digit code refreshing every 30 seconds — enter this as the "Two-Factor Code" at login
+
+---
+
+## 11. Bakery Seed Logins (Phase 3 — Not Yet Seeded)
+
+These logins will be created when Phase 3 seed script is run. Passwords are planned values (set when the script runs and hashes them with Argon2id).
+
+| Bakery | URL | Email | Password |
+|--------|-----|-------|---------|
+| Kampala Crust | https://eat-good-uganda-bakery-admin.vercel.app | `owner@kampalacrust.ug` | `KampalaCrust!2026` |
+| The Golden Whisk | https://eat-good-uganda-bakery-admin.vercel.app | `owner@goldenwhisk.ug` | `GoldenWhisk!2026` |
+| Maison Léa | https://eat-good-uganda-bakery-admin.vercel.app | `owner@maisonlea.ug` | `MaisonLea!2026` |
+
+> **Note:** All three bakery owners log in at the SAME Bakery Admin URL. The app detects which bakery they belong to from their JWT token (`bakery_id` claim), then scopes all data accordingly — this is the multi-tenancy model.
+
+---
+
+## 12. Git Commit Log
+
+### Recent Commits (Most Recent First)
+
+```
+6d40813  fix(api): exclude operational scripts from server build
+8ec91bb  fix(auth): enable cross-domain login (CSRF + SameSite cookies)
+9574bed  fix(apps): fix blank pages + add favicons + improve icons
+a47083d  fix(css): move @import before Tailwind directives in all apps
+fae7c44  fix(packages): use import condition for source resolution in bundlers
+```
+
+### What Each Commit Contains
+
+**`6d40813`** — Excludes `src/scripts/**` from API `tsconfig.json`. Prevents Render build failures when `db-bootstrap.ts` imports `pg` which isn't an `apps/api` direct dependency.
+
+**`8ec91bb`** — Three fixes bundled:
+- `csrf.ts`: Exempt `/v1/{admin,bakery,customer}/auth/*` from CSRF
+- `cookies.ts`: `SameSite=None; Secure` for production cookies
+- `db-bootstrap.ts`: New schema rebuild script
+- `schema.sql`: Canonical DDL file
+- `SEED_DATA_PLAN.md`: 3-bakery specification
+- `PROGRESS_TRACKER.md`: This file
+
+**`9574bed`** — Blank page fix + favicons:
+- `App.tsx` in both admin apps: removed `AuthSetup` from outside Router
+- `AdminLayout.tsx` / `DashboardLayout.tsx`: moved `useAuthSetup()` inside Router context
+- SVG favicons for all 3 apps
+- Improved `IconAdminStaff` and `IconNavigationHome`
+- `ICON_SYSTEM.md` documentation
+
+**`a47083d`** — CSS fix: reordered `@import` before `@tailwind` in `index.css` across all apps.
+
+**`fae7c44`** — Module resolution: added `import` conditional exports to workspace packages for Vite compatibility.
+
+---
+
+## 13. Environment Variables
+
+### API (Render) — Required
+
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://neondb_owner:[password]@ep-dawn-feather-apars78d-pooler.[region].aws.neon.tech/neondb?sslmode=require&channel_binding=require
+SUPER_ADMIN_JWT_SECRET=[32+ char random string]
+BAKERY_JWT_SECRET=[32+ char random string]
+CUSTOMER_JWT_SECRET=[32+ char random string]
+ENCRYPTION_KEY=[64 hex chars = 32 bytes, for payment credential encryption]
+RESEND_API_KEY=re_[resend api key]
+EMAIL_FROM=noreply@eatgooduganda.com
+CORS_ORIGINS=https://eat-good-uganda.vercel.app,https://eat-good-uganda-bakery-admin.vercel.app,https://eat-good-uganda-super-admin.vercel.app
+```
+
+### Frontend Apps (Vercel) — Required
+
+```env
+VITE_API_URL=https://eatgooduganda-api.onrender.com
+```
+
+### Operational Scripts (Local Only — NOT committed to env)
+
+```env
+DATABASE_URL=postgresql://neondb_owner:[password]@ep-dawn-feather-apars78d.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require
+SUPER_ADMIN_EMAIL=admin@eatgooduganda.com
+SUPER_ADMIN_PASSWORD=EGUAdmin!2026#Kampala
+SUPER_ADMIN_NAME=Platform Administrator
+```
+
+---
+
+## 14. What Is Next
+
+### Immediate: Phase 3 Bakery Seeding (Approved — Ready to Execute)
+
+1. **Create `apps/api/src/scripts/seed-data/bakeries.ts`**
+   - Data definitions for all 3 bakeries
+   - Product categories per bakery
+   - Products with `base_price_minor` (minor units), `image_urls`, `tags`
+   - Product variants (sizes, flavours)
+   - Owner credentials (email + plaintext password for hashing)
+
+2. **Create `apps/api/src/scripts/seed-bakeries.ts`**
+   - Runner: connects to DB, calls insertions in correct FK order
+   - Idempotent: uses `ON CONFLICT (slug) DO NOTHING` for bakeries and products
+   - Bakery owner accounts: hash passwords with Argon2id, set `email_verified_at = now()`
+   - Run all 3 bakeries + `approved_by` set to the Super Admin's UUID
+
+3. **Generate SVG Logos** (inline data URIs, no external hosting)
+   - Kampala Crust: wheat-sheaf mark, warm wheat brown
+   - The Golden Whisk: whisk + droplet, amber gold
+   - Maison Léa: monogram "L" crest, burgundy + champagne gold
+
+4. **Execute against live Neon**
+   ```bash
+   cd apps/api
+   DATABASE_URL="[neon-direct-url]" npx tsx src/scripts/seed-bakeries.ts
+   ```
+
+5. **Verify**
+   - All 3 bakeries show in Super Admin bakeries list
+   - Customer storefront shows 3 bakeries
+   - Each bakery owner can log in via Bakery Admin
+
+### After Phase 3: Remaining Development Work
+
+The platform development plan (in `docs/` prompts) still has these areas to implement or verify:
+
+- **Order flow:** Customer checkout, payment initiation (MTN MoMo / Airtel Money / Bank Transfer / COD)
+- **Email system:** Resend integration for verification emails, order confirmations, bakery notifications
+- **Image uploads:** Cloudinary integration for bakery owners to upload product photos
+- **Customer profiles:** Profile management, address book, order history
+- **Bakery admin completeness:** Verify all CRUD pages work end-to-end with seeded data
+- **Payment webhooks:** MTN MoMo webhook processing for payment confirmation
+
+---
+
+## 15. Icon System Summary
+
+Full documentation: `docs/ICON_SYSTEM.md`
+
+### Brand Colors
+| Token | Hex | Usage |
+|-------|-----|-------|
+| Amber | `#F9A931` | Primary brand accent, favicon fills |
+| Dark Brown | `#1A0A00` | Dark backgrounds, icon cutouts |
+| Burnt Orange | `#D56900` | Secondary shading (bread base) |
+| Cream | `#FDFBE5` | Light backgrounds |
+
+### Icon Categories (40+ components across all 3 apps)
+- `admin/` — Analytics, Approved, AuditLog, Customers, Inventory, Pending, Rejected, Revenue, Staff, Suspended
+- `delivery/` — Boda, Location, Pickup, Status, Time
+- `interaction/` — Bell, Clock, Delete, Download, Edit, Help, Phone, Share
+- `navigation/` — Cart, Favorites, Home, Menu, Orders, Profile, Search, Settings
+- `payment/` — Airtel, Bank, COD, Generic, MoMo, Shield
+- `product/` — BreadLoaf, Cake, Cookie, Cupcake, Donut, Pastry, StarRating, Trending
+
+### Icon Component Props
+```typescript
+interface IconProps {
+  size?: 'sm' | 'md' | 'lg' | 'xl'  // 16, 20, 24, 32px
+  color?: 'default' | 'accent' | 'success' | 'danger' | 'warning' | 'muted'
+  className?: string
+  alt: string  // REQUIRED for accessibility
+}
+```
+
+### Key Rules
+- Never hardcode colors in SVG paths — use `currentColor`
+- Never use `fill="black"` or `fill="white"` — breaks dark/light contexts
+- Brand amber `#F9A931` only in favicons, not UI icons
+- SVG only — no PNG/JPG for icons
+
+---
+
+## 16. Design System Tokens
+
+All frontend apps use `platform-*` Tailwind tokens for consistent theming.
+
+### Key Tokens (from Tailwind config)
+```
+bg-platform-bg          → Page background
+bg-platform-surface     → Card/panel background
+bg-platform-surface-2   → Slightly elevated surface
+text-platform-fg        → Primary text
+text-platform-fg-muted  → Secondary/disabled text
+border-platform-border  → Default border
+bg-platform-accent      → Brand amber (#F9A931) fills
+text-platform-accent    → Brand amber text
+```
+
+### Responsive Breakpoints
+- Mobile-first design
+- `sm`: 640px, `md`: 768px, `lg`: 1024px, `xl`: 1280px
+
+---
+
+## Update History
+
+| Date | What Changed | By |
+|------|--------------|----|
+| 2026-06-05 | Created this file; documented schema fix, auth fix, seed plan, credentials | Session (Haiku/Sonnet) |
+
+> **Instructions for updating this file:** After each significant change (new feature, bug fix, deployment, new credentials), add a row to the Update History table above AND update the relevant section. Keep this file accurate — it is the primary context for future chat sessions.
