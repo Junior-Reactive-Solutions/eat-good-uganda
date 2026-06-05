@@ -36,10 +36,29 @@ export async function loginAdmin(
     throw new Error('totp not configured')
   }
 
-  const totpOk = (authenticator.verify as (opts: { token: string; secret: string }) => boolean)({
+  // Debug logging for TOTP verification
+  // eslint-disable-next-line no-console
+  console.log('[AUTH] TOTP Verification Debug:', {
+    email: input.email,
+    totpCodeLength: input.totp_code.length,
+    totpCodeValue: input.totp_code,
+    secretLength: admin.totp_secret.length,
+    secretValue: admin.totp_secret,
+    timestamp: new Date().toISOString(),
+  })
+
+  const totpOk = (authenticator.verify as (opts: { token: string; secret: string; window?: number }) => boolean)({
     token: input.totp_code,
     secret: admin.totp_secret,
+    window: 1, // Allow 1 time window before and after (±30 seconds)
   })
+
+  // eslint-disable-next-line no-console
+  console.log('[AUTH] TOTP Verification Result:', {
+    email: input.email,
+    verified: totpOk,
+  })
+
   if (!totpOk) {
     throw new Error('invalid totp code')
   }

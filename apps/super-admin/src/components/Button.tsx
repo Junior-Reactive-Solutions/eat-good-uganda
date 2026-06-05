@@ -9,18 +9,18 @@ type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    'bg-platform-primary text-white hover:bg-platform-primary-hover focus-visible:ring-platform-primary',
+    'bg-platform-primary text-white font-semibold hover:bg-platform-primary-hover active:bg-platform-primary-hover focus-visible:ring-2 focus-visible:ring-platform-primary shadow-md hover:shadow-lg',
   secondary:
-    'bg-platform-accent text-platform-fg border border-platform-border hover:bg-platform-accent-dark focus-visible:ring-platform-primary',
+    'bg-platform-accent text-platform-fg font-semibold border-2 border-platform-border hover:bg-platform-accent-dark focus-visible:ring-2 focus-visible:ring-platform-primary',
   ghost:
-    'bg-transparent text-platform-fg-muted hover:bg-platform-accent focus-visible:ring-platform-primary',
-  danger: 'bg-platform-error text-white hover:bg-red-700 focus-visible:ring-red-500',
+    'bg-transparent text-platform-fg hover:bg-platform-accent hover:text-platform-fg font-medium focus-visible:ring-2 focus-visible:ring-platform-primary border border-platform-border hover:border-platform-fg-muted',
+  danger: 'bg-platform-error text-white font-semibold hover:bg-red-700 active:bg-red-700 focus-visible:ring-2 focus-visible:ring-platform-error shadow-md hover:shadow-lg',
 }
 
 const sizeClasses: Record<Size, string> = {
   sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-6 py-3 text-base',
+  md: 'px-5 py-3 text-base',
+  lg: 'px-6 py-4 text-lg',
 }
 
 export function Button({
