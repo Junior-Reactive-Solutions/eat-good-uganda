@@ -47,11 +47,20 @@ export async function loginAdmin(
     timestamp: new Date().toISOString(),
   })
 
-  const totpOk = (authenticator.verify as (opts: { token: string; secret: string; window?: number }) => boolean)({
-    token: input.totp_code,
-    secret: admin.totp_secret,
-    window: 1, // Allow 1 time window before and after (±30 seconds)
-  })
+  // Try verification with window tolerance
+  let totpOk = false
+  try {
+    // otplib authenticator.verify with window parameter for clock skew tolerance
+    totpOk = authenticator.verify({
+      token: input.totp_code,
+      secret: admin.totp_secret,
+      window: 1,
+    })
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[AUTH] TOTP verification threw error:', err instanceof Error ? err.message : err)
+    throw new Error('totp verification failed')
+  }
 
   // eslint-disable-next-line no-console
   console.log('[AUTH] TOTP Verification Result:', {
