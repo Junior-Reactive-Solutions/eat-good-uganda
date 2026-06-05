@@ -441,9 +441,16 @@ const cookieSecure = isProduction ? true : false
 | `customer_addresses` | Customer addresses | `id`, `user_id` (FK), `street_address`, `district`, `is_default` |
 
 ### Current Data
-- **Super Admin:** 1 row (admin@eatgooduganda.com)
-- **Bakeries:** 0 rows ← Phase 3 will add 3
-- **All other tables:** 0 rows
+- **Super Admin:** 1 row (admin@eatgooduganda.com) ✅
+- **Bakeries:** 3 rows ✅
+  - `kampala-crust` (Kampala Crust, budget/everyday)
+  - `the-golden-whisk` (The Golden Whisk, artisan/mid-range)
+  - `maison-lea` (Maison Léa, luxury/French)
+- **Product Categories:** 13 rows (4+4+5 per bakery) ✅
+- **Products:** 36 rows (11+12+13 per bakery) ✅
+- **Product Variants:** ~80 rows (various size/flavour variants) ✅
+- **Bakery Users:** 3 rows (one owner per bakery) ✅
+- **Orders, Payments, Customers:** 0 rows (no transactions yet)
 
 ### Pricing Convention
 All prices stored in **minor units (integer)**. For UGX: `price × 100`.  
@@ -509,8 +516,8 @@ See also: `docs/SEED_DATA_PLAN.md` for full specification.
 - Super Admin created in database with Argon2id hash + TOTP secret
 - Credentials delivered (see Section 10)
 
-### Phase 3 — Three Demo Bakeries 🔄 NOT YET DONE
-**Needs:** `apps/api/src/scripts/seed-bakeries.ts` to be created and executed.
+### Phase 3 — Three Demo Bakeries ✅ DONE
+**Executed:** 2026-06-05 — All 3 bakeries seeded, 36 products created, 3 owner accounts ready
 
 ---
 
@@ -770,17 +777,24 @@ The Super Admin login requires a 6-digit rotating code. To set it up:
 
 ---
 
-## 11. Bakery Seed Logins (Phase 3 — Not Yet Seeded)
+## 11. Bakery Seed Logins (Phase 3 ✅ COMPLETE)
 
-These logins will be created when Phase 3 seed script is run. Passwords are planned values (set when the script runs and hashes them with Argon2id).
+**Created:** 2026-06-05 via seed script  
+**Status:** All three bakery owner accounts are active and ready to log in
 
-| Bakery | URL | Email | Password |
-|--------|-----|-------|---------|
-| Kampala Crust | https://eat-good-uganda-bakery-admin.vercel.app | `owner@kampalacrust.ug` | `KampalaCrust!2026` |
-| The Golden Whisk | https://eat-good-uganda-bakery-admin.vercel.app | `owner@goldenwhisk.ug` | `GoldenWhisk!2026` |
-| Maison Léa | https://eat-good-uganda-bakery-admin.vercel.app | `owner@maisonlea.ug` | `MaisonLea!2026` |
+| Bakery | URL | Email | Password | Status |
+|--------|-----|-------|----------|--------|
+| Kampala Crust | https://eat-good-uganda-bakery-admin.vercel.app | `owner@kampalacrust.ug` | `KampalaCrust!2026` | ✅ Active |
+| The Golden Whisk | https://eat-good-uganda-bakery-admin.vercel.app | `owner@goldenwhisk.ug` | `GoldenWhisk!2026` | ✅ Active |
+| Maison Léa | https://eat-good-uganda-bakery-admin.vercel.app | `owner@maisonlea.ug` | `MaisonLea!2026` | ✅ Active |
 
 > **Note:** All three bakery owners log in at the SAME Bakery Admin URL. The app detects which bakery they belong to from their JWT token (`bakery_id` claim), then scopes all data accordingly — this is the multi-tenancy model.
+
+**What each bakery can see:**
+- Their own products (36 across all 3 bakeries)
+- Their own orders (when customers place them)
+- Their own staff members
+- Their own analytics and metrics
 
 ---
 
@@ -789,6 +803,8 @@ These logins will be created when Phase 3 seed script is run. Passwords are plan
 ### Recent Commits (Most Recent First)
 
 ```
+693387e  feat(seed): add Phase 3 bakery seed scripts and data
+58f4dc8  docs: add master progress tracker
 6d40813  fix(api): exclude operational scripts from server build
 8ec91bb  fix(auth): enable cross-domain login (CSRF + SameSite cookies)
 9574bed  fix(apps): fix blank pages + add favicons + improve icons
@@ -797,6 +813,13 @@ fae7c44  fix(packages): use import condition for source resolution in bundlers
 ```
 
 ### What Each Commit Contains
+
+**`693387e`** — Phase 3 complete: Added two new seed scripts and executed against production:
+- `seed-data/bakeries.ts`: Defines 3 complete bakeries (Kampala Crust, The Golden Whisk, Maison Léa), 13 categories, 36 products, SVG logos, Unsplash image URLs
+- `seed-bakeries.ts`: Runner script with idempotent inserts, per-bakery transactions, Argon2id hashing, owner account creation
+- Result: 36 products seeded into production with owner login credentials ready
+
+**`58f4dc8`** — Created `docs/PROGRESS_TRACKER.md`: Master reference document covering entire project architecture, all completed work, current database state, credentials, bugs fixed, and next steps.
 
 **`6d40813`** — Excludes `src/scripts/**` from API `tsconfig.json`. Prevents Render build failures when `db-bootstrap.ts` imports `pg` which isn't an `apps/api` direct dependency.
 
@@ -856,38 +879,43 @@ SUPER_ADMIN_NAME=Platform Administrator
 
 ## 14. What Is Next
 
-### Immediate: Phase 3 Bakery Seeding (Approved — Ready to Execute)
+### Phase 3 ✅ COMPLETE (2026-06-05)
 
-1. **Create `apps/api/src/scripts/seed-data/bakeries.ts`**
-   - Data definitions for all 3 bakeries
-   - Product categories per bakery
-   - Products with `base_price_minor` (minor units), `image_urls`, `tags`
-   - Product variants (sizes, flavours)
-   - Owner credentials (email + plaintext password for hashing)
+**What was done:**
+- Created `apps/api/src/scripts/seed-data/bakeries.ts` with all 3 bakeries, 36 products, SVG logos
+- Created `apps/api/src/scripts/seed-bakeries.ts` with idempotent inserts, transactions, Argon2id hashing
+- Executed seed script against live Neon
+- Created 3 bakery owner accounts with working login credentials
+- All bakeries marked as `status='active'` (pre-approved by Super Admin)
 
-2. **Create `apps/api/src/scripts/seed-bakeries.ts`**
-   - Runner: connects to DB, calls insertions in correct FK order
-   - Idempotent: uses `ON CONFLICT (slug) DO NOTHING` for bakeries and products
-   - Bakery owner accounts: hash passwords with Argon2id, set `email_verified_at = now()`
-   - Run all 3 bakeries + `approved_by` set to the Super Admin's UUID
+**Result:**
+- 3 bakeries in database ✅
+- 13 product categories ✅
+- 36 products with images and prices ✅
+- ~80 product variants (sizes, flavours) ✅
+- 3 owner user accounts ready ✅
 
-3. **Generate SVG Logos** (inline data URIs, no external hosting)
-   - Kampala Crust: wheat-sheaf mark, warm wheat brown
-   - The Golden Whisk: whisk + droplet, amber gold
-   - Maison Léa: monogram "L" crest, burgundy + champagne gold
+### Immediate Next: Verification & Visual Inspection
 
-4. **Execute against live Neon**
-   ```bash
-   cd apps/api
-   DATABASE_URL="[neon-direct-url]" npx tsx src/scripts/seed-bakeries.ts
-   ```
+1. **Log in to Super Admin** → https://eat-good-uganda-super-admin.vercel.app
+   - Email: `admin@eatgooduganda.com`
+   - Password: `EGUAdmin!2026#Kampala`
+   - TOTP: Use authenticator app with secret `3SI3YURNQYGV37CLSZJZOOC7JGV5DJTM`
+   - Verify: Go to Bakeries section, see all 3 bakeries with logos and stats
 
-5. **Verify**
-   - All 3 bakeries show in Super Admin bakeries list
-   - Customer storefront shows 3 bakeries
-   - Each bakery owner can log in via Bakery Admin
+2. **Visit Customer Storefront** → https://eat-good-uganda.vercel.app
+   - Browse bakeries list — should see all 3
+   - Click each bakery — verify products show correctly
+   - Check product images loaded from Unsplash
+   - Check prices display in UGX
 
-### After Phase 3: Remaining Development Work
+3. **Log in as Bakery Owner** → https://eat-good-uganda-bakery-admin.vercel.app
+   - Kampala Crust: `owner@kampalacrust.ug` / `KampalaCrust!2026`
+   - Golden Whisk: `owner@goldenwhisk.ug` / `GoldenWhisk!2026`
+   - Maison Léa: `owner@maisonlea.ug` / `MaisonLea!2026`
+   - Verify: Each sees only their own products, categories, and settings
+
+### After Verification: Remaining Development Work
 
 The platform development plan (in `docs/` prompts) still has these areas to implement or verify:
 
@@ -964,6 +992,7 @@ text-platform-accent    → Brand amber text
 
 | Date | What Changed | By |
 |------|--------------|----|
+| 2026-06-05 | Phase 3 Complete: seed scripts created, 3 bakeries + 36 products seeded into production, owner logins ready | Session (Haiku/Sonnet) |
 | 2026-06-05 | Created this file; documented schema fix, auth fix, seed plan, credentials | Session (Haiku/Sonnet) |
 
 > **Instructions for updating this file:** After each significant change (new feature, bug fix, deployment, new credentials), add a row to the Update History table above AND update the relevant section. Keep this file accurate — it is the primary context for future chat sessions.
