@@ -9,12 +9,12 @@ type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    'bg-platform-primary text-white font-semibold hover:bg-platform-primary-hover active:bg-platform-primary-hover focus-visible:ring-2 focus-visible:ring-platform-primary shadow-md hover:shadow-lg',
+    'bg-platform-primary text-white font-bold hover:bg-platform-primary-hover active:bg-platform-primary-hover focus-visible:ring-2 focus-visible:ring-platform-primary shadow-lg hover:shadow-xl transition-all duration-200 uppercase tracking-wide',
   secondary:
-    'bg-platform-accent text-platform-fg font-semibold border-2 border-platform-border hover:bg-platform-accent-dark focus-visible:ring-2 focus-visible:ring-platform-primary',
+    'bg-platform-accent text-platform-fg font-bold border-2 border-platform-primary hover:bg-platform-accent-dark focus-visible:ring-2 focus-visible:ring-platform-primary transition-all duration-200',
   ghost:
-    'bg-transparent text-platform-fg hover:bg-platform-accent hover:text-platform-fg font-medium focus-visible:ring-2 focus-visible:ring-platform-primary border border-platform-border hover:border-platform-fg-muted',
-  danger: 'bg-platform-error text-white font-semibold hover:bg-red-700 active:bg-red-700 focus-visible:ring-2 focus-visible:ring-platform-error shadow-md hover:shadow-lg',
+    'bg-transparent text-platform-fg hover:bg-platform-accent hover:text-platform-fg font-semibold focus-visible:ring-2 focus-visible:ring-platform-primary border-2 border-platform-primary hover:border-platform-primary transition-all duration-200',
+  danger: 'bg-platform-error text-white font-bold hover:bg-red-700 active:bg-red-700 focus-visible:ring-2 focus-visible:ring-platform-error shadow-lg hover:shadow-xl transition-all duration-200 uppercase tracking-wide',
 }
 
 const sizeClasses: Record<Size, string> = {
