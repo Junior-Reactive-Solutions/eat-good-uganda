@@ -1210,6 +1210,7 @@ b054e25  fix: improve super admin login UX and debug TOTP authentication
 
 | Date | What Changed | By |
 |------|--------------|----|
+| 2026-06-08 | Integrated professional bakery logos: Replaced 5MB+ SVG data URIs with lightweight PNG files (1.5-1.6MB each). Updated database via seed script. Logos now display on customer app, bakery admin, and super admin. | Session (Sonnet) |
 | 2026-06-05 | Fixed TOTP 401 error (critical otplib API bug) + improved button visibility + added debug logging | Session (Sonnet) |
 | 2026-06-05 | Phase 3 Complete: seed scripts created, 3 bakeries + 36 products seeded into production, owner logins ready | Session (Haiku/Sonnet) |
 | 2026-06-05 | Created this file; documented schema fix, auth fix, seed plan, credentials | Session (Haiku/Sonnet) |
