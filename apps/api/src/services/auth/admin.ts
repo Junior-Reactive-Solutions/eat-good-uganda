@@ -44,14 +44,14 @@ export async function loginAdmin(
   })
 
   // Verify TOTP code using otplib's verifySync function
-  // window parameter allows for ±1 time window (30-second tolerance for clock skew)
   let totpOk = false
   try {
-    totpOk = verifySync({
+    const result = verifySync({
       token: input.totp_code,
       secret: admin.totp_secret,
-      window: 1, // Allow 1 time window before and after (±30 seconds)
     })
+    // verifySync returns null if verification fails, or a delta number if successful
+    totpOk = result !== null
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('[AUTH] TOTP verification error:', err instanceof Error ? err.message : err)

@@ -61,44 +61,12 @@ export interface BakeryDef {
   categories: CategoryDef[]
 }
 
-function svgDataUri(svg: string): string {
-  return `data:image/svg+xml,${encodeURIComponent(svg.trim())}`
-}
+// ─── Professional Logo URLs ─────────────────────────────────────────────────────
+// Logos are stored in /public/logos/ directory and served by each frontend app
 
-// ─── SVG Logos ────────────────────────────────────────────────────────────────
-
-const KAMPALA_CRUST_LOGO = svgDataUri(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-    <circle cx="32" cy="32" r="32" fill="#1A0A00"/>
-    <path d="M32 50L32 24M32 50L23 22M32 50L41 22" stroke="#A8763E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-    <ellipse cx="32" cy="20" rx="4" ry="7" fill="#A8763E"/>
-    <ellipse cx="22.5" cy="18" rx="3.5" ry="6" fill="#A8763E" transform="rotate(-12 22.5 18)"/>
-    <ellipse cx="41.5" cy="18" rx="3.5" ry="6" fill="#A8763E" transform="rotate(12 41.5 18)"/>
-    <rect x="29" y="36" width="6" height="4" rx="2" fill="#D4A96A"/>
-  </svg>`,
-)
-
-const GOLDEN_WHISK_LOGO = svgDataUri(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-    <circle cx="32" cy="32" r="32" fill="#1A0A00"/>
-    <line x1="40" y1="50" x2="28" y2="34" stroke="#F9A931" stroke-width="3" stroke-linecap="round"/>
-    <ellipse cx="25" cy="25" rx="8" ry="11" fill="none" stroke="#F9A931" stroke-width="2"/>
-    <line x1="25" y1="14" x2="25" y2="36" stroke="#F9A931" stroke-width="1.5"/>
-    <line x1="17" y1="20" x2="33" y2="30" stroke="#F9A931" stroke-width="1.5"/>
-    <line x1="33" y1="20" x2="17" y2="30" stroke="#F9A931" stroke-width="1.5"/>
-    <path d="M45 42Q48 37 45 32Q42 37 45 42Z" fill="#F9A931"/>
-  </svg>`,
-)
-
-const MAISON_LEA_LOGO = svgDataUri(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-    <circle cx="32" cy="32" r="32" fill="#1A0A00"/>
-    <path d="M32 10L50 18L50 40Q50 52 32 58Q14 52 14 40L14 18Z" fill="none" stroke="#C9A24B" stroke-width="1.5"/>
-    <path d="M32 14L46 21L46 39Q46 49 32 54Q18 49 18 39L18 21Z" fill="#7B1E3B"/>
-    <rect x="26" y="20" width="5" height="24" rx="1" fill="#C9A24B"/>
-    <rect x="26" y="39" width="14" height="5" rx="1" fill="#C9A24B"/>
-  </svg>`,
-)
+const KAMPALA_CRUST_LOGO = '/logos/kampala-crust-logo.png'
+const GOLDEN_WHISK_LOGO = '/logos/the-golden-whisk-logo.png'
+const MAISON_LEA_LOGO = '/logos/maison-lea-logo.png'
 
 // ─── Image URL helpers ─────────────────────────────────────────────────────────
 
