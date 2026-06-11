@@ -328,6 +328,36 @@ Fixed Vercel build failures:
 - Frontend apps (Vite/ESM) and API (Node.js/CJS) needed different resolution paths
 - Fixed: `package.json` exports with conditional `import` (for Vite) and `require` (for Node.js CJS) conditions in `@eatgood/shared` and `@eatgood/db`
 
+### Phase 6A: Critical Bug Fixes (THIS SESSION)
+
+**Problem:** Order creation had 3 critical bugs preventing real orders from being created:
+1. **Bug 1 — bakery_id undefined:** Code tried to read from non-existent `req.customer.bakery_id` (CustomerToken has no bakery_id field)
+2. **Bug 2 — all prices zero:** Product lookup never called; hardcoded `unit_price_minor = 0` for all items, making orders free
+3. **Bug 3 — email kills order:** Order already inserted into DB, then email failure returned 500 error, leaving orphaned orders
+
+**Fixes applied:**
+- **Bug 1:** Extract `bakeryId` from `req.body.bakeryId`, validate bakery exists + is active via `getBakeryById()`
+- **Bug 2:** Loop items, call `getProductById()` per item, use `product.base_price_minor` to calculate real `subtotal_minor = sum(price × qty)`
+- **Bug 3:** Email changed to fire-and-forget pattern: `.catch()` logs error, never fails request
+
+**Root cause analysis (systematic debugging):**
+- Used Phase 1-4 systematic debugging process: investigated token types, found working patterns in bakery/auth routes, wrote failing tests, implemented minimal fixes
+- Pattern analysis revealed: `requireBakeryContext` correctly sets `req.bakeryId` from JWT, `requireCustomerContext` should do nothing (bakeryId comes from body instead)
+- `getProductById()` function existed and was proven to work; just never being called
+
+**Code changes:**
+- `apps/api/src/routes/customer/orders.ts`: Line 22-120 rewritten to validate bakery, load products, calculate totals, fire-and-forget email
+- Updated all 3 customer order endpoints (POST, GET /:id, POST /:id/cancel) to use `req.auth.sub` instead of `req.customer?.id`
+- Tests updated to reflect new request structure (bakeryId in body)
+
+**Verification:**
+- TypeScript compiles (zero errors)
+- Order route now accepts bakeryId from request body
+- Product prices will be looked up from database
+- Email errors won't prevent order creation
+
+**Next (Phase 6B):** Wire Resend email SDK (currently just logs; order creation works without it)
+
 ### Favicon & Icon System
 Created custom SVG favicons for all 3 apps:
 
@@ -1210,6 +1240,7 @@ b054e25  fix: improve super admin login UX and debug TOTP authentication
 
 | Date | What Changed | By |
 |------|--------------|----|
+| 2026-06-11 | **PHASE 6A CRITICAL FIXES**: Fixed 3 order creation bugs — bakery_id validation from request body, product price lookup with real subtotals, fire-and-forget email pattern | Session (Sonnet + Haiku) |
 | 2026-06-08 | Integrated professional bakery logos: Replaced 5MB+ SVG data URIs with lightweight PNG files (1.5-1.6MB each). Updated database via seed script. Logos now display on customer app, bakery admin, and super admin. | Session (Sonnet) |
 | 2026-06-05 | Fixed TOTP 401 error (critical otplib API bug) + improved button visibility + added debug logging | Session (Sonnet) |
 | 2026-06-05 | Phase 3 Complete: seed scripts created, 3 bakeries + 36 products seeded into production, owner logins ready | Session (Haiku/Sonnet) |
