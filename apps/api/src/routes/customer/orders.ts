@@ -1,4 +1,4 @@
-import { pool, createOrder, getOrderById, getOrderByNumber, listOrdersForCustomer, updateOrderStatus } from '@eatgood/db'
+import { pool, createOrder, getOrderById, getOrderByNumber, listOrdersForCustomer, updateOrderStatus, getBakeryById, getProductById } from '@eatgood/db'
 import { orderCreationSchema, type OrderCreation } from '@eatgood/shared'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
@@ -19,10 +19,9 @@ export const customerOrdersRouter = createRouter() as Router
  * Bakery is extracted from customer context (not from request body)
  */
 customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async (req: Request, res: Response) => {
-  const customerId = req.customer?.id
-  const bakeryId = req.customer?.bakery_id
+  const customerId = (req as any).auth?.sub as string | undefined
 
-  if (!customerId || !bakeryId) {
+  if (!customerId) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
@@ -35,8 +34,17 @@ customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async 
       return res.status(400).json({ error: 'Cart cannot be empty' })
     }
 
-    // Note: In Phase 3, we'll validate bakery is active, items exist, prices match, etc.
-    // For MVP, we'll keep it simple and just create the order
+    // Extract and validate bakery_id from request body
+    const bakeryId = body.bakeryId
+    if (!bakeryId) {
+      return res.status(400).json({ error: 'bakeryId is required' })
+    }
+
+    // Validate bakery exists and is active
+    const bakery = await getBakeryById(pool, bakeryId)
+    if (!bakery || bakery.status !== 'active') {
+      return res.status(400).json({ error: 'Bakery not found or inactive' })
+    }
 
     // Generate order number
     const orderNumber = generateOrderNumber()
@@ -48,9 +56,46 @@ customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async 
       scheduled_for: body.fulfillment.scheduledFor || null,
     }
 
-    // Calculate subtotal (in reality, this should come from validated product prices)
-    // For MVP, we'll use a placeholder value that will be set by the database
-    const subtotalMinor = 0 // This should be calculated from items
+    // Load products and calculate order totals
+    const orderItems: Array<{
+      product_id: string
+      variant_id: string | null
+      product_name: string
+      variant_name: string | null
+      unit_price_minor: number
+      quantity: number
+      line_total_minor: number
+    }> = []
+
+    let subtotalMinor = 0
+
+    for (const item of body.items) {
+      const product = await getProductById(pool, bakeryId, item.productId)
+      if (!product) {
+        return res.status(422).json({
+          error: `Product ${item.productId} not found for this bakery`,
+        })
+      }
+
+      const unitPrice = product.base_price_minor
+      const lineTotal = unitPrice * item.quantity
+
+      orderItems.push({
+        product_id: product.id,
+        variant_id: item.variantId || null,
+        product_name: product.name,
+        variant_name: null, // TODO: load variant name from DB if variantId provided
+        unit_price_minor: unitPrice,
+        quantity: item.quantity,
+        line_total_minor: lineTotal,
+      })
+
+      subtotalMinor += lineTotal
+    }
+
+    // Calculate delivery fee (from bakery settings; for now, fixed zero)
+    const deliveryFeeMinor = body.fulfillment.mode === 'delivery' ? bakery.delivery_fee_minor || 0 : 0
+    const totalMinor = subtotalMinor + deliveryFeeMinor
 
     // Create order using database layer
     const order = await createOrder(pool, bakeryId, {
@@ -67,41 +112,27 @@ customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async 
         ...(fulfilmentData.delivery_address.notes && { notes: fulfilmentData.delivery_address.notes }),
       } : null,
       subtotal_minor: subtotalMinor,
-      delivery_fee_minor: 0, // Delivery fee would be calculated here
-      total_minor: subtotalMinor,
+      delivery_fee_minor: deliveryFeeMinor,
+      total_minor: totalMinor,
       currency_code: 'UGX',
       customer_notes: body.notes || null,
-      items: body.items.map((item) => ({
-        product_id: item.productId,
-        variant_id: item.variantId || null,
-        product_name: '', // Would come from product lookup
-        variant_name: null,
-        unit_price_minor: 0, // Would be fetched from product
-        quantity: item.quantity,
-        line_total_minor: 0, // Would be calculated
-      })),
+      items: orderItems,
     })
 
-    // Send confirmation email to authenticated customer
+    // Send confirmation email (fire-and-forget: don't await, don't catch exceptions)
     const publicCustomerUrl = process.env.PUBLIC_CUSTOMER_URL || 'https://app.eatgood.ug'
     const orderLink = `${publicCustomerUrl}/account/orders/${order.id}`
 
-    try {
-      await sendOrderConfirmationEmail({
-        to: body.customer.email,
-        orderNumber: order.order_number,
-        orderId: order.id,
-        orderLink,
-        total: order.total_minor,
-      })
-    } catch (emailError) {
-      // Email sending failed - fail the entire order creation
-      console.error('Email sending failed for order:', order.id, emailError)
-      // Note: In a real system, you might want to delete the order here
-      return res.status(500).json({
-        error: 'Failed to send confirmation email. Please try again.',
-      })
-    }
+    sendOrderConfirmationEmail({
+      to: body.customer.email,
+      orderNumber: order.order_number,
+      orderId: order.id,
+      orderLink,
+      total: order.total_minor,
+    }).catch((err) => {
+      // Log email errors but don't fail the order
+      console.error('Failed to send confirmation email for order:', order.id, err)
+    })
 
     return res.status(201).json({
       id: order.id,
@@ -138,7 +169,7 @@ customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async 
  *   search: search by order number (optional)
  */
 customerOrdersRouter.get('/', authenticateToken, requireCustomerContext, async (req: Request, res: Response) => {
-  const customerId = req.customer?.id
+  const customerId = (req as any).auth?.sub as string | undefined
 
   if (!customerId) {
     return res.status(401).json({ error: 'Unauthorized' })
@@ -196,16 +227,30 @@ customerOrdersRouter.get('/', authenticateToken, requireCustomerContext, async (
  * Verify ownership (customer_id matches auth)
  */
 customerOrdersRouter.get('/:id', authenticateToken, requireCustomerContext, async (req: Request, res: Response) => {
-  const customerId = req.customer?.id
-  const bakeryId = req.customer?.bakery_id
+  const customerId = (req as any).auth?.sub as string | undefined
   const orderId = req.params.id as string
 
-  if (!customerId || !bakeryId) {
+  if (!customerId) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
   try {
-    const order = await getOrderById(pool, bakeryId, orderId)
+    // Load order without bakery_id filter (customer can have orders across bakeries)
+    const result = await pool.query(
+      `SELECT id, bakery_id, customer_id,
+              guest_email, guest_phone, guest_name,
+              order_number, status, fulfilment_mode, scheduled_for,
+              delivery_address,
+              subtotal_minor, delivery_fee_minor, total_minor, currency_code,
+              customer_notes, internal_notes,
+              created_at, updated_at,
+              confirmed_at, delivered_at, cancelled_at, cancelled_reason
+       FROM orders
+       WHERE id = $1 AND customer_id = $2 AND deleted_at IS NULL
+       LIMIT 1`,
+      [orderId, customerId],
+    )
+    const order = result.rows[0] as any
 
     if (!order) {
       return res.status(404).json({ error: 'Order not found' })
@@ -238,16 +283,23 @@ customerOrdersRouter.get('/:id', authenticateToken, requireCustomerContext, asyn
  * Cancel an order (only if in pending_payment status)
  */
 customerOrdersRouter.post('/:id/cancel', authenticateToken, requireCustomerContext, async (req: Request, res: Response) => {
-  const customerId = req.customer?.id
-  const bakeryId = req.customer?.bakery_id
+  const customerId = (req as any).auth?.sub as string | undefined
   const orderId = req.params.id as string
 
-  if (!customerId || !bakeryId) {
+  if (!customerId) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
   try {
-    const order = await getOrderById(pool, bakeryId, orderId)
+    // Load order to verify ownership and get bakery_id
+    const result = await pool.query(
+      `SELECT id, bakery_id, customer_id, status
+       FROM orders
+       WHERE id = $1 AND customer_id = $2 AND deleted_at IS NULL
+       LIMIT 1`,
+      [orderId, customerId],
+    )
+    const order = result.rows[0] as any
 
     if (!order) {
       return res.status(404).json({ error: 'Order not found' })
@@ -263,8 +315,8 @@ customerOrdersRouter.post('/:id/cancel', authenticateToken, requireCustomerConte
       return res.status(422).json({ error: 'Cannot cancel order in this status' })
     }
 
-    // Update status to cancelled
-    await updateOrderStatus(pool, bakeryId, orderId, 'cancelled')
+    // Update status to cancelled (use bakery_id from order)
+    await updateOrderStatus(pool, order.bakery_id, orderId, 'cancelled')
 
     return res.json({
       id: order.id,
