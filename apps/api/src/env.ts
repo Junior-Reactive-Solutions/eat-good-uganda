@@ -33,6 +33,10 @@ const envSchema = z.object({
   CREDENTIALS_ENCRYPTION_KEY: z
     .string()
     .min(1, 'CREDENTIALS_ENCRYPTION_KEY is required for payment credential encryption'),
+  // Cloudinary image hosting credentials (optional for development)
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
 })
 
 export const env = envSchema.parse(process.env)
