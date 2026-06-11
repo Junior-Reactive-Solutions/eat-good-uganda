@@ -1,4 +1,4 @@
-import { logger } from '../../lib/logger'
+import { sendTransactionalEmail, buildOrderConfirmationHtml, buildBakeryOrderAlertHtml } from './resend'
 
 export interface SendOrderConfirmationEmailParams {
   to: string
@@ -7,108 +7,75 @@ export interface SendOrderConfirmationEmailParams {
   claimToken?: string
   orderLink: string
   total?: number // in cents/minor units
+  bakeryName?: string
+}
+
+export interface SendBakeryOrderAlertParams {
+  to: string
+  orderNumber: string
+  orderId: string
+  customerName: string
+  items: Array<{ name: string; quantity: number }>
+  total?: number
+  orderLink: string
 }
 
 /**
  * Send order confirmation email to customer
- * Currently logs to console - will be integrated with real email service (SendGrid, SMTP, etc.)
- *
- * Note: Marked as async for future integration with async email services
+ * Uses Resend for transactional emails
  */
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function sendOrderConfirmationEmail(
   params: SendOrderConfirmationEmailParams,
 ): Promise<void> {
-  const { to, orderNumber, orderId, claimToken, orderLink, total } = params
+  const { to, orderNumber, orderId, claimToken, orderLink, total, bakeryName } = params
 
   // Validate parameters
   if (!to || !orderNumber || !orderId || !orderLink) {
     throw new Error('Missing required email parameters')
   }
 
-  try {
-    // Log email details (temporary implementation)
-    logger.info(
-      {
-        to,
-        orderNumber,
-        orderId,
-        hasClaimToken: !!claimToken,
-        orderLink,
-        total,
-      },
-      'Sending order confirmation email',
-    )
+  const html = buildOrderConfirmationHtml({
+    orderNumber,
+    orderId,
+    orderLink,
+    ...(total !== undefined && { total }),
+    ...(bakeryName && { bakeryName }),
+    ...(claimToken && { claimToken }),
+  })
 
-    // TODO: Replace with actual email sending logic
-    // const emailContent = buildOrderConfirmationEmail({
-    //   orderNumber,
-    //   orderId,
-    //   claimToken,
-    //   orderLink,
-    //   total,
-    // })
-    //
-    // await sendEmail({
-    //   to,
-    //   subject: `Order Confirmation - ${orderNumber}`,
-    //   html: emailContent,
-    // })
-
-    // For now, we just log that the email would be sent
-    // buildOrderConfirmationEmailText is called internally by the email service
-    logger.info({
-      orderId,
-      to,
-      orderNumber,
-    }, 'Order confirmation email would be sent')
-  } catch (error) {
-    logger.error(
-      {
-        error: error instanceof Error ? error.message : String(error),
-        orderId,
-        to,
-      },
-      'Failed to send order confirmation email',
-    )
-    // Re-throw to prevent order creation if email fails
-    throw new Error(
-      `Failed to send confirmation email: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    )
-  }
+  await sendTransactionalEmail({
+    to,
+    subject: `Order Confirmation - ${orderNumber}`,
+    html,
+  })
 }
 
 /**
- * Build plain text email body for order confirmation
+ * Send new order alert to bakery owner
+ * Uses Resend for transactional emails
  */
-function buildOrderConfirmationEmailText(params: {
-  orderNumber: string
-  orderId: string
-  claimToken?: string
-  orderLink: string
-  total?: number
-}): string {
-  const { orderNumber, claimToken, orderLink, total } = params
-  const viewOrderLink = claimToken ? `${orderLink}?claim=${claimToken}` : orderLink
+export async function sendBakeryOrderAlertEmail(
+  params: SendBakeryOrderAlertParams,
+): Promise<void> {
+  const { to, orderNumber, orderId, customerName, items, total, orderLink } = params
 
-  const totalDisplay = total ? `UGX ${(total / 100).toLocaleString()}` : 'TBD'
+  // Validate parameters
+  if (!to || !orderNumber || !orderId || !customerName || !items.length || !orderLink) {
+    throw new Error('Missing required email parameters for bakery alert')
+  }
 
-  return `
-Hi there,
+  const html = buildBakeryOrderAlertHtml({
+    orderNumber,
+    orderId,
+    customerName,
+    items,
+    ...(total !== undefined && { total }),
+    orderLink,
+  })
 
-Thank you for placing your order!
-
-Order Number: ${orderNumber}
-Total Amount: ${totalDisplay}
-
-View Your Order:
-${viewOrderLink}
-
-Your order is being prepared. You'll receive updates as your order progresses.
-
-If you have any questions, please don't hesitate to contact us.
-
-Best regards,
-Eat Good Uganda
-`.trim()
+  await sendTransactionalEmail({
+    to,
+    subject: `New Order: ${orderNumber}`,
+    html,
+  })
 }

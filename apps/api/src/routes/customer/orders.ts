@@ -5,7 +5,7 @@ import type { Request, Response, Router } from 'express'
 
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { requireCustomerContext } from '../../middleware/requireCustomerContext'
-import { sendOrderConfirmationEmail } from '../../services/email/orders'
+import { sendOrderConfirmationEmail, sendBakeryOrderAlertEmail } from '../../services/email/orders'
 import { generateOrderNumber } from '../../services/orders'
 
 export const customerOrdersRouter = createRouter() as Router
@@ -119,20 +119,41 @@ customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async 
       items: orderItems,
     })
 
-    // Send confirmation email (fire-and-forget: don't await, don't catch exceptions)
+    // Send confirmation emails (fire-and-forget: don't await, don't catch exceptions)
     const publicCustomerUrl = process.env.PUBLIC_CUSTOMER_URL || 'https://app.eatgood.ug'
-    const orderLink = `${publicCustomerUrl}/account/orders/${order.id}`
+    const publicBakeryAdminUrl = process.env.PUBLIC_BAKERY_ADMIN_URL || 'https://app.eatgood.ug/bakery'
+    const customerOrderLink = `${publicCustomerUrl}/account/orders/${order.id}`
+    const bakeryOrderLink = `${publicBakeryAdminUrl}/orders/${order.id}`
 
+    // Send customer confirmation email
     sendOrderConfirmationEmail({
       to: body.customer.email,
       orderNumber: order.order_number,
       orderId: order.id,
-      orderLink,
+      orderLink: customerOrderLink,
       total: order.total_minor,
+      bakeryName: bakery.name,
     }).catch((err) => {
-      // Log email errors but don't fail the order
-      console.error('Failed to send confirmation email for order:', order.id, err)
+      console.error('Failed to send customer confirmation email for order:', order.id, err)
     })
+
+    // Send bakery alert email (only if bakery has contact email)
+    if (bakery.contact_email) {
+      sendBakeryOrderAlertEmail({
+        to: bakery.contact_email,
+        orderNumber: order.order_number,
+        orderId: order.id,
+        customerName: body.customer.fullName,
+        items: orderItems.map((item) => ({
+          name: item.product_name,
+          quantity: item.quantity,
+        })),
+        total: order.total_minor,
+        orderLink: bakeryOrderLink,
+      }).catch((err) => {
+        console.error('Failed to send bakery alert email for order:', order.id, err)
+      })
+    }
 
     return res.status(201).json({
       id: order.id,
@@ -250,7 +271,7 @@ customerOrdersRouter.get('/:id', authenticateToken, requireCustomerContext, asyn
        LIMIT 1`,
       [orderId, customerId],
     )
-    const order = result.rows[0] as any
+    const order = result.rows[0]
 
     if (!order) {
       return res.status(404).json({ error: 'Order not found' })
@@ -299,7 +320,7 @@ customerOrdersRouter.post('/:id/cancel', authenticateToken, requireCustomerConte
        LIMIT 1`,
       [orderId, customerId],
     )
-    const order = result.rows[0] as any
+    const order = result.rows[0]
 
     if (!order) {
       return res.status(404).json({ error: 'Order not found' })
