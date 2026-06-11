@@ -20,6 +20,7 @@ import { bakeryAuthRouter } from './routes/bakery/auth'
 import { bakeryCategoriesRouter } from './routes/bakery/categories'
 import { bakeryMetricsRouter } from './routes/bakery/metrics'
 import { bakeryPaymentCredentialsRouter } from './routes/bakery/payment-credentials'
+import { bakeryPaymentSettingsRouter } from './routes/bakery/payment-settings'
 import { bakeryProductsRouter } from './routes/bakery/products'
 import { bakerySettingsRouter } from './routes/bakery/settings'
 import { customerAccountSettingsRouter } from './routes/customer/account-settings'
@@ -32,6 +33,7 @@ import { customerProfileRouter } from './routes/customer/profile'
 import { publicBakeriesRouter } from './routes/public/bakeries'
 import publicOrdersRouter from './routes/public/orders'
 import { mtnMomoWebhookRouter } from './routes/webhooks/mtn-momo'
+import airtelMoneyWebhookRouter from './routes/webhooks/airtel-money'
 
 const corsOrigins = env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
 
@@ -96,6 +98,7 @@ app.use('/v1/customer/notifications', customerNotificationsRouter)
 app.use('/v1/bakery/auth', bakeryAuthRouter)
 app.use('/v1/bakery/settings', bakerySettingsRouter)
 app.use('/v1/bakery/payment-credentials', bakeryPaymentCredentialsRouter)
+app.use('/v1/bakery/payment-settings', bakeryPaymentSettingsRouter)
 app.use('/v1/bakery/products', bakeryProductsRouter)
 app.use('/v1/bakery/categories', bakeryCategoriesRouter)
 app.use('/v1/bakery/metrics', bakeryMetricsRouter)
@@ -110,3 +113,4 @@ app.use('/v1/admin', supportRouter)
 app.use('/v1/admin/users', usersRouter)
 app.use('/v1/admin/exports', exportsRouter)
 app.use('/v1/webhooks/mtn-momo', mtnMomoWebhookRouter)
+app.use('/v1/webhooks/airtel-money', airtelMoneyWebhookRouter)
