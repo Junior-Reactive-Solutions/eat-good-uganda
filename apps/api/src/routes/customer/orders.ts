@@ -132,28 +132,25 @@ customerOrdersRouter.post('/', authenticateToken, requireCustomerContext, async 
       orderId: order.id,
       orderLink: customerOrderLink,
       total: order.total_minor,
-      bakeryName: bakery.name,
     }).catch((err) => {
       console.error('Failed to send customer confirmation email for order:', order.id, err)
     })
 
-    // Send bakery alert email (only if bakery has contact email)
-    if (bakery.contact_email) {
-      sendBakeryOrderAlertEmail({
-        to: bakery.contact_email,
-        orderNumber: order.order_number,
-        orderId: order.id,
-        customerName: body.customer.fullName,
-        items: orderItems.map((item) => ({
-          name: item.product_name,
-          quantity: item.quantity,
-        })),
-        total: order.total_minor,
-        orderLink: bakeryOrderLink,
-      }).catch((err) => {
-        console.error('Failed to send bakery alert email for order:', order.id, err)
-      })
-    }
+    // Send bakery alert email (fire-and-forget, bakery dashboard will show new order)
+    sendBakeryOrderAlertEmail({
+      to: 'orders@bakery.example.com', // TODO: Load from bakery contact info in Phase 6D
+      orderNumber: order.order_number,
+      orderId: order.id,
+      customerName: body.customer.fullName,
+      items: orderItems.map((item) => ({
+        name: item.product_name,
+        quantity: item.quantity,
+      })),
+      total: order.total_minor,
+      orderLink: bakeryOrderLink,
+    }).catch((err) => {
+      console.error('Failed to send bakery alert email for order:', order.id, err)
+    })
 
     return res.status(201).json({
       id: order.id,

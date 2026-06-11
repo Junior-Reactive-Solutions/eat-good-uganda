@@ -174,7 +174,7 @@ bakeryPaymentCredentialsRouter.post(
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation failed',
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+           
           details: err.issues,
         })
       }
@@ -254,7 +254,7 @@ bakeryPaymentCredentialsRouter.patch(
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation failed',
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+           
           details: err.issues,
         })
       }

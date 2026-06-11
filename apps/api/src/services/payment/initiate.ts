@@ -17,6 +17,9 @@ import {
   MomoTokenError,
   newMomoProviderReference,
 } from './providers/momo'
+import { AirtelClient, AirtelPaymentError, newAirtelProviderReference } from './providers/airtel'
+import { initiateCodPayment } from './providers/cod'
+import { initiateBankTransferPayment } from './providers/bank-transfer'
 
 /**
  * Inputs for {@link initiateMomoPayment}. The caller is responsible for
@@ -363,5 +366,347 @@ export async function initiateMomoPayment(
     paymentId: payment.id,
     status: 'pending',
     pollUrl: `/v1/customer/orders/${input.orderId}/payment-status`,
+  }
+}
+
+/**
+ * Inputs for initiating a payment of any type (MoMo, Airtel, COD, Bank Transfer).
+ */
+export interface InitiatePaymentInput {
+  orderId: string
+  bakeryId: string
+  amountMinor: number
+  currencyCode: string
+  method: 'mtn_momo' | 'airtel_money' | 'cash_on_delivery' | 'bank_transfer'
+  payerPhone?: string
+  idempotencyKey?: string
+}
+
+export interface InitiatePaymentResult {
+  paymentId: string
+  status: 'pending' | 'initiated' | 'awaiting_proof' | 'failed'
+  pollUrl?: string
+  bankDetails?: {
+    accountName: string
+    accountNumber: string
+    bankName: string
+    branchCode?: string
+    swiftCode?: string
+  }
+  referenceCode?: string
+  instructions?: string
+  message?: string
+  error?: string
+}
+
+/**
+ * Generic payment initiation that dispatches to the appropriate provider.
+ */
+export async function initiatePayment(
+  db: Database,
+  input: InitiatePaymentInput,
+): Promise<InitiatePaymentResult> {
+  switch (input.method) {
+    case 'mtn_momo':
+      if (!input.payerPhone) {
+        return {
+          paymentId: '',
+          status: 'failed',
+          error: 'Phone number required for MoMo',
+        }
+      }
+      return initiateMomoPayment(db, {
+        orderId: input.orderId,
+        bakeryId: input.bakeryId,
+        amountMinor: input.amountMinor,
+        currencyCode: input.currencyCode,
+        payerPhone: input.payerPhone,
+        ...(input.idempotencyKey && { idempotencyKey: input.idempotencyKey }),
+      })
+
+    case 'airtel_money':
+      if (!input.payerPhone) {
+        return {
+          paymentId: '',
+          status: 'failed',
+          error: 'Phone number required for Airtel Money',
+        }
+      }
+      return initiateAirtelPayment(db, {
+        orderId: input.orderId,
+        bakeryId: input.bakeryId,
+        amountMinor: input.amountMinor,
+        currencyCode: input.currencyCode,
+        payerPhone: input.payerPhone,
+        ...(input.idempotencyKey && { idempotencyKey: input.idempotencyKey }),
+      })
+
+    case 'cash_on_delivery':
+      return initiateCodPaymentFlow(db, {
+        orderId: input.orderId,
+        bakeryId: input.bakeryId,
+        amountMinor: input.amountMinor,
+      })
+
+    case 'bank_transfer':
+      return initiateBankTransferFlow(db, {
+        orderId: input.orderId,
+        bakeryId: input.bakeryId,
+        amountMinor: input.amountMinor,
+        currencyCode: input.currencyCode,
+      })
+
+    default:
+      return {
+        paymentId: '',
+        status: 'failed',
+        error: 'Unsupported payment method',
+      }
+  }
+}
+
+/**
+ * Airtel Money payment initiation.
+ */
+export interface InitiateAirtelPaymentInput {
+  orderId: string
+  bakeryId: string
+  amountMinor: number
+  currencyCode: string
+  payerPhone: string
+  idempotencyKey?: string
+}
+
+async function initiateAirtelPayment(
+  db: Database,
+  input: InitiateAirtelPaymentInput,
+): Promise<InitiatePaymentResult> {
+  // Validate amount
+  if (
+    !Number.isInteger(input.amountMinor) ||
+    input.amountMinor <= 0 ||
+    input.amountMinor > Number.MAX_SAFE_INTEGER
+  ) {
+    return {
+      paymentId: '',
+      status: 'failed',
+      error: USER_FACING_ERRORS.INVALID_AMOUNT,
+    }
+  }
+
+  // Validate currency
+  if (!SUPPORTED_CURRENCIES.has(input.currencyCode)) {
+    return {
+      paymentId: '',
+      status: 'failed',
+      error: USER_FACING_ERRORS.INVALID_CURRENCY,
+    }
+  }
+
+  // Validate + normalise phone
+  let normalisedPhone: string
+  try {
+    normalisedPhone = normalizeUgandaPhone(input.payerPhone)
+  } catch {
+    return {
+      paymentId: '',
+      status: 'failed',
+      error: USER_FACING_ERRORS.INVALID_PHONE,
+    }
+  }
+
+  // Verify bakery exists
+  const bakery = await getBakeryById(db, input.bakeryId)
+  if (!bakery) {
+    return {
+      paymentId: '',
+      status: 'failed',
+      error: USER_FACING_ERRORS.BAKERY_NOT_FOUND,
+    }
+  }
+
+  // Create payment row
+  let payment: Payment
+  try {
+    payment = await createPayment(db, input.bakeryId, {
+      order_id: input.orderId,
+      method: 'airtel_money',
+      amount_minor: input.amountMinor,
+      currency_code: input.currencyCode,
+      payer_phone: normalisedPhone,
+      external_reference: input.idempotencyKey ?? null,
+    })
+  } catch {
+    return {
+      paymentId: '',
+      status: 'failed',
+      error: USER_FACING_ERRORS.PROVIDER_FAILED,
+    }
+  }
+
+  // Generate provider reference
+  const providerReference = newAirtelProviderReference()
+
+  try {
+    await updatePaymentStatus(db, input.bakeryId, payment.id, {
+      status: 'initiated',
+      provider_reference: providerReference,
+    })
+  } catch {
+    return {
+      paymentId: payment.id,
+      status: 'failed',
+      error: USER_FACING_ERRORS.PROVIDER_FAILED,
+    }
+  }
+
+  // Initiate with Airtel (would use credentials from DB in production)
+  // For now, mock successful initiation
+  try {
+    const client = new AirtelClient(
+      process.env.AIRTEL_SANDBOX_CLIENT_ID || '',
+      process.env.AIRTEL_SANDBOX_CLIENT_SECRET || '',
+      'staging',
+      'UG',
+    )
+
+    await client.requestToPay({
+      amount: String(input.amountMinor),
+      currency: 'UGX',
+      externalId: payment.id,
+      payerPhone: normalisedPhone,
+      payerMessage: `Payment for order ${input.orderId}`,
+      payeeNote: `Order ${input.orderId}`,
+    })
+  } catch (err) {
+    const reason = err instanceof AirtelPaymentError ? err.message : 'Payment failed'
+    try {
+      await updatePaymentStatus(db, input.bakeryId, payment.id, {
+        status: 'failed',
+        failure_reason: reason,
+      })
+    } catch {
+      // Swallow
+    }
+    return {
+      paymentId: payment.id,
+      status: 'failed',
+      error: reason,
+    }
+  }
+
+  // Mark as pending
+  try {
+    await updatePaymentStatus(db, input.bakeryId, payment.id, {
+      status: 'pending',
+    })
+  } catch {
+    // Swallow — already submitted to provider
+  }
+
+  return {
+    paymentId: payment.id,
+    status: 'pending',
+    pollUrl: `/v1/customer/orders/${input.orderId}/payment-status`,
+  }
+}
+
+/**
+ * Cash on Delivery payment flow.
+ */
+async function initiateCodPaymentFlow(
+  db: Database,
+  input: { orderId: string; bakeryId: string; amountMinor: number },
+): Promise<InitiatePaymentResult> {
+  const bakery = await getBakeryById(db, input.bakeryId)
+  if (!bakery) {
+    return {
+      paymentId: '',
+      status: 'failed',
+      error: USER_FACING_ERRORS.BAKERY_NOT_FOUND,
+    }
+  }
+
+  let payment: Payment
+  try {
+    payment = await createPayment(db, input.bakeryId, {
+      order_id: input.orderId,
+      method: 'cash_on_delivery',
+      amount_minor: input.amountMinor,
+      currency_code: 'UGX',
+    })
+  } catch {
+    return {
+      paymentId: '',
+      status: 'failed',
+      error: USER_FACING_ERRORS.PROVIDER_FAILED,
+    }
+  }
+
+  // Mark as initiated
+  try {
+    await updatePaymentStatus(db, input.bakeryId, payment.id, {
+      status: 'initiated',
+    })
+  } catch {
+    // Swallow
+  }
+
+  const result = initiateCodPayment(input, payment.id)
+  return {
+    paymentId: result.paymentId,
+    status: result.status,
+    message: result.message,
+  }
+}
+
+/**
+ * Bank Transfer payment flow.
+ */
+async function initiateBankTransferFlow(
+  db: Database,
+  input: { orderId: string; bakeryId: string; amountMinor: number; currencyCode: string },
+): Promise<InitiatePaymentResult> {
+  const bakery = await getBakeryById(db, input.bakeryId)
+  if (!bakery) {
+    return {
+      paymentId: '',
+      status: 'failed',
+      error: USER_FACING_ERRORS.BAKERY_NOT_FOUND,
+    }
+  }
+
+  let payment: Payment
+  try {
+    payment = await createPayment(db, input.bakeryId, {
+      order_id: input.orderId,
+      method: 'bank_transfer',
+      amount_minor: input.amountMinor,
+      currency_code: input.currencyCode,
+    })
+  } catch {
+    return {
+      paymentId: '',
+      status: 'failed',
+      error: USER_FACING_ERRORS.PROVIDER_FAILED,
+    }
+  }
+
+  // Mark as awaiting proof
+  try {
+    await updatePaymentStatus(db, input.bakeryId, payment.id, {
+      status: 'awaiting_proof',
+    })
+  } catch {
+    // Swallow
+  }
+
+  const result = initiateBankTransferPayment(input, payment.id)
+  return {
+    paymentId: result.paymentId,
+    status: result.status,
+    bankDetails: result.bankDetails,
+    referenceCode: result.referenceCode,
+    instructions: result.instructions,
   }
 }

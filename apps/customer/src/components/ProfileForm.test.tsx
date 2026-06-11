@@ -158,8 +158,8 @@ describe('ProfileForm', () => {
     const onSubmit = vi.fn()
     render(<ProfileForm profile={mockProfile} onSubmit={onSubmit} isLoading={true} />)
 
-    const firstNameField = screen.getByDisplayValue('John') as HTMLInputElement
-    const lastNameField = screen.getByDisplayValue('Doe') as HTMLInputElement
+    const firstNameField = screen.getByDisplayValue('John')
+    const lastNameField = screen.getByDisplayValue('Doe')
     const submitButton = screen.getByText('Saving...')
 
     expect(firstNameField.disabled).toBe(true)

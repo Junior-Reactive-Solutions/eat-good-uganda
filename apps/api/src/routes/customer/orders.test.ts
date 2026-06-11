@@ -11,19 +11,21 @@ vi.mock('@eatgood/db', () => ({
   getOrderById: vi.fn(),
   listOrdersForCustomer: vi.fn(),
   updateOrderStatus: vi.fn(),
+  getBakeryById: vi.fn(),
+  getProductById: vi.fn(),
 }))
 
 // Mock middleware
 vi.mock('../../middleware/authenticateToken', () => ({
-  authenticateToken: (req: any, res: any, next: any) => {
-    req.auth = { type: 'customer', id: 'customer-123', bakery_id: 'bakery-456' }
+  authenticateToken: () => (req: any, res: any, next: any) => {
+    req.auth = { kind: 'customer', sub: 'customer-123' }
     next()
   },
 }))
 
 vi.mock('../../middleware/requireCustomerContext', () => ({
   requireCustomerContext: (req: any, res: any, next: any) => {
-    req.customer = { id: 'customer-123', bakery_id: 'bakery-456' }
+    // This middleware just validates the kind, doesn't set anything
     next()
   },
 }))
@@ -76,6 +78,97 @@ describe('Customer Orders API', () => {
         payment_methods: expect.any(Array),
       })
       expect(ordersDb.createOrder).toHaveBeenCalled()
+    })
+
+    it('should validate bakeryId and resolve it from request body', async () => {
+      const bakeryId = 'bakery-kampala-crust-id'
+      const mockBakery = {
+        id: bakeryId,
+        status: 'active',
+      }
+      const mockOrder = {
+        id: 'order-456',
+        bakery_id: bakeryId,
+        order_number: 'EGU-20260507-B4G8',
+        total_minor: 0,
+        status: 'pending_payment',
+      }
+
+      vi.mocked(ordersDb.getBakeryById).mockResolvedValue(mockBakery as any)
+      vi.mocked(ordersDb.createOrder).mockResolvedValue(mockOrder as any)
+
+      const response = await request(app)
+        .post('/v1/customer/orders')
+        .send({
+          bakeryId, // ← bakery comes from request body
+          items: [
+            {
+              productId: 'prod-1',
+              quantity: 1,
+            },
+          ],
+          customer: {
+            fullName: 'John Doe',
+            email: 'john@example.com',
+            phone: '+256701234567',
+            createAccount: false,
+          },
+          fulfillment: {
+            mode: 'pickup',
+          },
+          payment: {
+            method: 'cash_on_delivery',
+          },
+        })
+
+      // Verify bakeryId was validated
+      expect(ordersDb.getBakeryById).toHaveBeenCalledWith(expect.anything(), bakeryId)
+
+      // Verify order was created with correct bakeryId
+      expect(ordersDb.createOrder).toHaveBeenCalledWith(
+        expect.anything(),
+        bakeryId, // ← bakeryId passed as second arg
+        expect.objectContaining({
+          // order data
+        }),
+      )
+
+      expect(response.status).toBe(201)
+      expect(response.body.id).toBe('order-456')
+    })
+
+    it('should reject invalid bakeryId', async () => {
+      const invalidBakeryId = 'nonexistent-bakery'
+
+      vi.mocked(ordersDb.getBakeryById).mockResolvedValue(null)
+
+      const response = await request(app)
+        .post('/v1/customer/orders')
+        .send({
+          bakeryId: invalidBakeryId,
+          items: [
+            {
+              productId: 'prod-1',
+              quantity: 1,
+            },
+          ],
+          customer: {
+            fullName: 'John Doe',
+            email: 'john@example.com',
+            phone: '+256701234567',
+            createAccount: false,
+          },
+          fulfillment: {
+            mode: 'pickup',
+          },
+          payment: {
+            method: 'cash_on_delivery',
+          },
+        })
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toContain('Bakery')
+      expect(ordersDb.createOrder).not.toHaveBeenCalled()
     })
 
     it('validates required fields', async () => {
