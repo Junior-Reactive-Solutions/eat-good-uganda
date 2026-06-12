@@ -15,6 +15,7 @@ export function requireBakeryContext(requiredRole?: BakeryUserRole): RequestHand
     }
 
     req.bakeryId = req.auth.bakery_id
+    req.bakery = { id: req.auth.bakery_id }
 
     if (requiredRole) {
       const requiredLevel = ROLE_HIERARCHY[requiredRole]

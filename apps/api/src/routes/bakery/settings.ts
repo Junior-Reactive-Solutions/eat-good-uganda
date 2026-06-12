@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-deprecated */
-import { getBakeryProfile, updateBakeryProfile, type UpdateBakeryProfileInput } from '@eatgood/db'
+import { getBakeryProfile, pool, updateBakeryProfile, type UpdateBakeryProfileInput } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 import { z } from 'zod'
@@ -42,27 +42,22 @@ bakerySettingsRouter.get(
   requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = req.bakery?.id
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
-      const profile = await getBakeryProfile(req.db, bakeryId)
+      const profile = await getBakeryProfile(pool, bakeryId)
       if (!profile) {
         return res.status(404).json({ error: 'Bakery not found' })
       }
 
       res.json(profile)
     } catch (error) {
-      const bakeryId = (req as any).bakery?.id as string | undefined
       logger.error(
         {
           error: error instanceof Error ? error.message : String(error),
-          bakeryId,
+          bakeryId: req.bakery?.id,
         },
         'Failed to get bakery profile',
       )
@@ -81,19 +76,15 @@ bakerySettingsRouter.patch(
   requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = req.bakery?.id
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
 
       const validatedData = updateProfileSchema.parse(req.body)
 
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
       const profile = await updateBakeryProfile(
-        req.db,
+        pool,
         bakeryId,
         validatedData as UpdateBakeryProfileInput,
       )
@@ -113,11 +104,10 @@ bakerySettingsRouter.patch(
         })
       }
 
-      const bakeryId = (req as any).bakery?.id as string | undefined
       logger.error(
         {
           error: error instanceof Error ? error.message : String(error),
-          bakeryId,
+          bakeryId: req.bakery?.id,
         },
         'Failed to update bakery profile',
       )
