@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
-import { getBakeryMetrics } from '@eatgood/db'
+import { getBakeryMetrics, pool } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 
@@ -24,11 +24,6 @@ bakeryMetricsRouter.get(
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
       const metrics = await getBakeryMetrics((req as any).db, bakeryId)
 
       logger.info({}, 'Metrics retrieved')

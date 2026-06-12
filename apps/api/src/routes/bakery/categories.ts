@@ -5,6 +5,7 @@ import {
   updateProductCategory,
   type CreateCategoryInput,
   type UpdateCategoryInput,
+  pool,
 } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
@@ -41,12 +42,7 @@ bakeryCategoriesRouter.get(
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
-      const categories = await listProductCategories(req.db, bakeryId)
+      const categories = await listProductCategories(pool, bakeryId)
 
       res.json({
         items: categories,
@@ -82,13 +78,8 @@ bakeryCategoriesRouter.post(
       }
 
       const validatedData = createCategorySchema.parse(req.body)
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
       const category = await createProductCategory(
-        req.db,
+        pool,
         bakeryId,
         validatedData as CreateCategoryInput,
       )
@@ -141,13 +132,8 @@ bakeryCategoriesRouter.patch(
 
       const { categoryId } = req.params as any
       const validatedData = updateCategorySchema.parse(req.body)
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
       const category = await updateProductCategory(
-        req.db,
+        pool,
         bakeryId,
         categoryId,
         validatedData as UpdateCategoryInput,

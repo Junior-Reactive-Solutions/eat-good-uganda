@@ -3,6 +3,7 @@ import {
   deletePaymentCredential,
   getPaymentCredentials,
   updatePaymentCredential,
+  pool,
 } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
@@ -42,12 +43,7 @@ bakeryPaymentCredentialsRouter.get(
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
-      const credentials = await getPaymentCredentials(req.db, bakeryId)
+      const credentials = await getPaymentCredentials(pool, bakeryId)
 
       res.json({
         items: credentials,
@@ -87,13 +83,8 @@ bakeryPaymentCredentialsRouter.get(
       if (!provider || !validProviders.includes(provider)) {
         return res.status(400).json({ error: 'Invalid provider' })
       }
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
       const credentials = await getPaymentCredentials(
-        req.db,
+        pool,
         bakeryId,
         provider as 'mtn_momo' | 'airtel_money' | 'bank_transfer',
       )
@@ -133,11 +124,6 @@ bakeryPaymentCredentialsRouter.post(
       }
 
       const validatedData = createCredentialSchema.parse(req.body)
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
       // Encrypt credentials server-side using AES-256-GCM
       const configJson = JSON.stringify({
         account_number: validatedData.account_number,
@@ -147,7 +133,7 @@ bakeryPaymentCredentialsRouter.post(
 
       const encryptionResult = await aesGcmEncrypt(configJson, bakeryId)
 
-      const credential = await createPaymentCredential(req.db, bakeryId, {
+      const credential = await createPaymentCredential(pool, bakeryId, {
         provider: validatedData.provider,
         is_enabled: false,
         target_environment: 'production',
@@ -208,11 +194,6 @@ bakeryPaymentCredentialsRouter.patch(
 
       const credentialId = req.params.credentialId as string
       const validatedData = updateCredentialSchema.parse(req.body)
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
       // Build update object with encryption if needed
       interface UpdateInput {
         encrypted_config?: Buffer
@@ -233,7 +214,7 @@ bakeryPaymentCredentialsRouter.patch(
         updateInput.config_nonce = Buffer.from(encryptionResult.nonce, 'base64')
       }
 
-      const credential = await updatePaymentCredential(req.db, bakeryId, credentialId, updateInput)
+      const credential = await updatePaymentCredential(pool, bakeryId, credentialId, updateInput)
 
       if (!credential) {
         return res.status(404).json({ error: 'Credentials not found' })
@@ -287,12 +268,7 @@ bakeryPaymentCredentialsRouter.delete(
       }
 
       const credentialId = req.params.credentialId as string
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
-      const deleted = await deletePaymentCredential(req.db, bakeryId, credentialId)
+      const deleted = await deletePaymentCredential(pool, bakeryId, credentialId)
 
       if (!deleted) {
         return res.status(404).json({ error: 'Credentials not found' })

@@ -6,6 +6,7 @@ import {
   softDeleteProduct,
   updateProduct,
   type CreateProductInput,
+  pool,
 } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
@@ -54,12 +55,7 @@ bakeryProductsRouter.get(
 
       const page = Math.max(1, parseInt(req.query.page as string) || 1)
       const pageSize = Math.max(1, Math.min(100, parseInt(req.query.pageSize as string) || 20))
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
-      const result = await listProductsForBakeryAdmin(req.db, bakeryId, page, pageSize)
+      const result = await listProductsForBakeryAdmin(pool, bakeryId, page, pageSize)
 
       res.json({
         items: result.products,
@@ -98,12 +94,7 @@ bakeryProductsRouter.get(
       }
 
       const { productId } = req.params as any
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
-      const product = await getProductById(req.db, bakeryId, productId)
+      const product = await getProductById(pool, bakeryId, productId)
       if (!product) {
         return res.status(404).json({ error: 'Product not found' })
       }
@@ -140,12 +131,7 @@ bakeryProductsRouter.post(
       }
 
       const validatedData = createProductSchema.parse(req.body)
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
-      const product = await createProduct(req.db, bakeryId, validatedData as CreateProductInput)
+      const product = await createProduct(pool, bakeryId, validatedData as CreateProductInput)
 
       logger.info(
         {
@@ -195,12 +181,7 @@ bakeryProductsRouter.patch(
 
       const { productId } = req.params as any
       const validatedData = updateProductSchema.parse(req.body)
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
-      const product = await updateProduct(req.db, bakeryId, productId, validatedData as any)
+      const product = await updateProduct(pool, bakeryId, productId, validatedData as any)
       if (!product) {
         return res.status(404).json({ error: 'Product not found' })
       }
@@ -252,12 +233,7 @@ bakeryProductsRouter.delete(
       }
 
       const { productId } = req.params as any
-
-      if (!req.db) {
-        return res.status(500).json({ error: 'Database connection unavailable' })
-      }
-
-      const product = await softDeleteProduct(req.db, bakeryId, productId)
+      const product = await softDeleteProduct(pool, bakeryId, productId)
       if (!product) {
         return res.status(404).json({ error: 'Product not found' })
       }
