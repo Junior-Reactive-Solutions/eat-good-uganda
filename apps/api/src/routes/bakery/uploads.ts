@@ -32,7 +32,7 @@ const upload = multer({
 bakeryUploadsRouter.post(
   '/product-image',
   authenticateToken('bakery'),
-  requireBakeryContext,
+  requireBakeryContext(),
   upload.single('file'),
   async (req: Request, res: Response) => {
     const bakeryId = (req as any).bakery?.id as string | undefined
@@ -103,7 +103,7 @@ bakeryUploadsRouter.post(
 bakeryUploadsRouter.get(
   '/image-url',
   authenticateToken('bakery'),
-  requireBakeryContext,
+  requireBakeryContext(),
   (req: Request, res: Response) => {
     const publicId = req.query.publicId as string | undefined
 

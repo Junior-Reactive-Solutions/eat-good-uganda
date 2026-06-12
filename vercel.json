@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter @eatgood/shared build && pnpm --filter @eatgood/db build && pnpm --filter @eatgood/customer build",
+  "buildCommand": "pnpm --filter @eatgood/shared build && pnpm --filter @eatgood/customer build:ci",
   "outputDirectory": "apps/customer/dist",
   "framework": "vite",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]

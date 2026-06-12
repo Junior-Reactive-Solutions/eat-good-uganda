@@ -36,7 +36,7 @@ const AirtelCredentialsSchema = z.object({
 bakeryPaymentSettingsRouter.get(
   '/',
   authenticateToken('bakery'),
-  requireBakeryContext,
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     const bakeryId = (req as any).bakery?.id as string | undefined
 
@@ -91,7 +91,7 @@ bakeryPaymentSettingsRouter.get(
 bakeryPaymentSettingsRouter.post(
   '/mtn-momo',
   authenticateToken('bakery'),
-  requireBakeryContext,
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     const bakeryId = (req as any).bakery?.id as string | undefined
 
@@ -147,7 +147,7 @@ bakeryPaymentSettingsRouter.post(
 bakeryPaymentSettingsRouter.post(
   '/airtel-money',
   authenticateToken('bakery'),
-  requireBakeryContext,
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     const bakeryId = (req as any).bakery?.id as string | undefined
 
@@ -197,7 +197,7 @@ bakeryPaymentSettingsRouter.post(
 bakeryPaymentSettingsRouter.get(
   '/mtn-momo',
   authenticateToken('bakery'),
-  requireBakeryContext,
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     const bakeryId = (req as any).bakery?.id as string | undefined
 

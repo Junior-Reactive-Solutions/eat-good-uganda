@@ -34,8 +34,8 @@ export const bakeryPaymentCredentialsRouter = createRouter() as Router
  */
 bakeryPaymentCredentialsRouter.get(
   '/',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
@@ -73,8 +73,8 @@ bakeryPaymentCredentialsRouter.get(
  */
 bakeryPaymentCredentialsRouter.get(
   '/:provider',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
@@ -123,8 +123,8 @@ bakeryPaymentCredentialsRouter.get(
  */
 bakeryPaymentCredentialsRouter.post(
   '/',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
@@ -197,8 +197,8 @@ bakeryPaymentCredentialsRouter.post(
  */
 bakeryPaymentCredentialsRouter.patch(
   '/:credentialId',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id
@@ -277,8 +277,8 @@ bakeryPaymentCredentialsRouter.patch(
  */
 bakeryPaymentCredentialsRouter.delete(
   '/:credentialId',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as unknown as { bakery?: { id: string } }).bakery?.id

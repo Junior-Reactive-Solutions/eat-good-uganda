@@ -43,8 +43,8 @@ export const bakeryProductsRouter = createRouter() as Router
  */
 bakeryProductsRouter.get(
   '/',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as any).bakery?.id as string | undefined
@@ -88,8 +88,8 @@ bakeryProductsRouter.get(
  */
 bakeryProductsRouter.get(
   '/:productId',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as any).bakery?.id as string | undefined
@@ -130,8 +130,8 @@ bakeryProductsRouter.get(
  */
 bakeryProductsRouter.post(
   '/',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as any).bakery?.id as string | undefined
@@ -184,8 +184,8 @@ bakeryProductsRouter.post(
  */
 bakeryProductsRouter.patch(
   '/:productId',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as any).bakery?.id as string | undefined
@@ -242,8 +242,8 @@ bakeryProductsRouter.patch(
  */
 bakeryProductsRouter.delete(
   '/:productId',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as any).bakery?.id as string | undefined

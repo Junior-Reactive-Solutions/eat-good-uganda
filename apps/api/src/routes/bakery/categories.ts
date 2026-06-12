@@ -33,8 +33,8 @@ export const bakeryCategoriesRouter = createRouter() as Router
  */
 bakeryCategoriesRouter.get(
   '/',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as any).bakery?.id as string | undefined
@@ -72,8 +72,8 @@ bakeryCategoriesRouter.get(
  */
 bakeryCategoriesRouter.post(
   '/',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as any).bakery?.id as string | undefined
@@ -130,8 +130,8 @@ bakeryCategoriesRouter.post(
  */
 bakeryCategoriesRouter.patch(
   '/:categoryId',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as any).bakery?.id as string | undefined

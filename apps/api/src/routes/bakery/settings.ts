@@ -38,8 +38,8 @@ export const bakerySettingsRouter = createRouter() as Router
  */
 bakerySettingsRouter.get(
   '/',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as any).bakery?.id as string | undefined
@@ -77,8 +77,8 @@ bakerySettingsRouter.get(
  */
 bakerySettingsRouter.patch(
   '/',
-  authenticateToken,
-  requireBakeryContext,
+  authenticateToken('bakery'),
+  requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
       const bakeryId = (req as any).bakery?.id as string | undefined
