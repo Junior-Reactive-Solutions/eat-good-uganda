@@ -3,9 +3,12 @@ import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
 
+import { pool } from '@eatgood/db'
+
 import { env } from './env'
 import { csrf } from './middleware/csrf'
 import { generalRateLimit } from './middleware/rateLimit'
+import { logger } from './lib/logger'
 import { adminAnalyticsRouter } from './routes/admin/analytics'
 import auditLogsRouter from './routes/admin/audit-logs'
 import { adminAuthRouter } from './routes/admin/auth'
@@ -85,6 +88,36 @@ app.use(csrf)
 
 app.get('/v1/internal/health', (_req, res) => {
   res.status(200).json({ status: 'ok' })
+})
+
+app.post('/v1/internal/migrate-logos', async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `UPDATE bakeries SET logo_url = CASE slug
+         WHEN 'kampala-crust' THEN 'https://eat-good-uganda-customer.vercel.app/logos/kampala-crust-logo.png'
+         WHEN 'the-golden-whisk' THEN 'https://eat-good-uganda-customer.vercel.app/logos/the-golden-whisk-logo.png'
+         WHEN 'maison-lea' THEN 'https://eat-good-uganda-customer.vercel.app/logos/maison-lea-logo.png'
+         ELSE logo_url
+       END
+       WHERE slug IN ('kampala-crust', 'the-golden-whisk', 'maison-lea')
+       RETURNING slug, display_name, logo_url`,
+    )
+    logger.info({ rowCount: result.rowCount }, 'Migrated bakery logos')
+    res.status(200).json({
+      status: 'ok',
+      updated: result.rowCount,
+      bakeries: result.rows,
+    })
+  } catch (error) {
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      'Failed to migrate logos',
+    )
+    res.status(500).json({
+      error: 'Migration failed',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
 })
 
 app.use('/v1/public/bakeries', publicBakeriesRouter)
