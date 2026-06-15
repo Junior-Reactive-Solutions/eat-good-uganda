@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: eatgood-api
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: |
+      pnpm install --frozen-lockfile
+      pnpm --filter @eatgood/shared build
+      pnpm --filter @eatgood/db build
+      pnpm --filter @eatgood/api build
+    startCommand: node apps/api/dist/server.js
+    postBuildCommand: pnpm --filter @eatgood/db migrate
+    healthCheckPath: /v1/internal/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_CUSTOMER_SECRET
+        sync: false
+      - key: JWT_BAKERY_SECRET
+        sync: false
+      - key: JWT_SUPERADMIN_SECRET
+        sync: false
+      - key: CREDENTIALS_ENCRYPTION_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://eat-good-uganda-customer.vercel.app,https://bakery.eatgooduganda.com,https://admin.eatgooduganda.com
+      - key: LOG_LEVEL
+        value: info
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 1000
