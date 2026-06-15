@@ -1,19 +1,25 @@
 import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
-  plugins: [react()],
   test: {
-    environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/test.setup.ts'],
-    include: ['src/**/*.test.ts', 'src/**/*.spec.ts', 'src/**/*.test.tsx', 'src/**/*.spec.tsx'],
-    exclude: ['node_modules', 'dist', 'tests/e2e'],
+    environment: 'node',
+    setupFiles: ['./vitest.setup.ts'],
+    include: ['**/*.test.ts', '**/*.spec.ts'],
+    exclude: ['node_modules', 'dist', '.claude', '**/*.e2e.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
-      exclude: ['node_modules', 'dist', '**/*.test.ts', '**/*.spec.ts', '**/*.test.tsx', '**/*.spec.tsx'],
+      exclude: [
+        'node_modules',
+        'dist',
+        '.claude',
+        '**/*.test.ts',
+        '**/*.spec.ts',
+        '**/dist/**',
+        'packages/db/migrations/**',
+      ],
       thresholds: {
         lines: 70,
         functions: 70,
@@ -21,7 +27,6 @@ export default defineConfig({
         statements: 70,
       },
     },
-    testTimeout: 10000,
   },
   resolve: {
     alias: {
