@@ -3,10 +3,18 @@ import cron from 'node-cron'
 
 import { logger } from '../lib/logger'
 
+import { cleanupExpiredTokens } from './cleanupExpiredTokens'
 import { reconcilePendingPayments } from './reconcilePendingPayments'
+import { sendWeeklyDigests } from './sendWeeklyDigests'
 
-/** Every 15 minutes, on the quarter hour. */
+/** Every 15 minutes: reconcile stuck pending payments. */
 const RECONCILE_SCHEDULE = '*/15 * * * *'
+
+/** Every 6 hours: clean up expired tokens. */
+const CLEANUP_SCHEDULE = '0 */6 * * *'
+
+/** Every Sunday at 9am Africa/Kampala: send weekly digests. */
+const DIGEST_SCHEDULE = '0 9 * * 0'
 
 /**
  * Register all background jobs. Called once from `server.ts` at process start
@@ -18,6 +26,7 @@ const RECONCILE_SCHEDULE = '*/15 * * * *'
  * down the API process. A failed sweep is fine — the next tick retries.
  */
 export function startJobs(): void {
+  // Reconcile pending payments every 15 minutes
   cron.schedule(RECONCILE_SCHEDULE, () => {
     void reconcilePendingPayments(pool).catch((error: unknown) => {
       logger.error(
@@ -26,9 +35,36 @@ export function startJobs(): void {
       )
     })
   })
-
   logger.info(
     { schedule: RECONCILE_SCHEDULE },
     'registered pending-payment reconciliation job',
+  )
+
+  // Clean up expired tokens every 6 hours
+  cron.schedule(CLEANUP_SCHEDULE, () => {
+    void cleanupExpiredTokens(pool).catch((error: unknown) => {
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Token cleanup job failed',
+      )
+    })
+  })
+  logger.info(
+    { schedule: CLEANUP_SCHEDULE },
+    'registered token cleanup job',
+  )
+
+  // Send weekly digests every Sunday at 9am Africa/Kampala
+  cron.schedule(DIGEST_SCHEDULE, () => {
+    void sendWeeklyDigests(pool).catch((error: unknown) => {
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Weekly digest job failed',
+      )
+    })
+  }, { timezone: 'Africa/Kampala' })
+  logger.info(
+    { schedule: DIGEST_SCHEDULE, timezone: 'Africa/Kampala' },
+    'registered weekly digest job',
   )
 }

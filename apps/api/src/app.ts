@@ -39,6 +39,8 @@ import publicOrdersRouter from './routes/public/orders'
 import { mtnMomoWebhookRouter } from './routes/webhooks/mtn-momo'
 import airtelMoneyWebhookRouter from './routes/webhooks/airtel-money'
 import { apiDocsRouter } from './routes/api-docs'
+import { internalHealthRouter } from './routes/internal/health'
+import { internalReadyRouter } from './routes/internal/ready'
 
 const corsOrigins = env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
 
@@ -91,9 +93,8 @@ app.use(csrf)
 app.use('/', apiDocsRouter)
 
 // ─── Internal Routes ───────────────────────────────────────────────────────
-app.get('/v1/internal/health', (_req, res) => {
-  res.status(200).json({ status: 'ok' })
-})
+app.use('/v1/internal/health', internalHealthRouter)
+app.use('/v1/internal/ready', internalReadyRouter)
 
 app.post('/v1/internal/migrate-logos', async (_req, res) => {
   try {

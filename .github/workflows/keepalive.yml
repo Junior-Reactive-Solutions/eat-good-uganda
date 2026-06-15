@@ -2,8 +2,8 @@ name: Keep Alive
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
-  workflow_dispatch:
+    - cron: '*/14 * * * *' # Every 14 minutes (safely below Render's 15-minute idle timeout)
+  workflow_dispatch: # Manual trigger for testing
 
 jobs:
   ping:
