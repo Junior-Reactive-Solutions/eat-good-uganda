@@ -2,6 +2,7 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
+import * as Sentry from '@sentry/node'
 
 import { pool } from '@eatgood/db'
 
@@ -43,6 +44,15 @@ import { internalHealthRouter } from './routes/internal/health'
 import { internalReadyRouter } from './routes/internal/ready'
 
 const corsOrigins = env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
+
+// Initialize Sentry for error tracking in production
+if (env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: env.NODE_ENV,
+    tracesSampleRate: 0.1, // 10% of transactions for performance monitoring
+  })
+}
 
 export const app = express()
 
