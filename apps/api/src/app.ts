@@ -38,6 +38,7 @@ import { publicBakeriesRouter } from './routes/public/bakeries'
 import publicOrdersRouter from './routes/public/orders'
 import { mtnMomoWebhookRouter } from './routes/webhooks/mtn-momo'
 import airtelMoneyWebhookRouter from './routes/webhooks/airtel-money'
+import { apiDocsRouter } from './routes/api-docs'
 
 const corsOrigins = env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
 
@@ -86,6 +87,10 @@ app.use(cookieParser())
 app.use(generalRateLimit)
 app.use(csrf)
 
+// ─── API Documentation ────────────────────────────────────────────────────
+app.use('/', apiDocsRouter)
+
+// ─── Internal Routes ───────────────────────────────────────────────────────
 app.get('/v1/internal/health', (_req, res) => {
   res.status(200).json({ status: 'ok' })
 })
