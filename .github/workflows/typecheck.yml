@@ -1,12 +1,12 @@
-name: Lint
+name: TypeScript
 
 on:
   pull_request:
   workflow_dispatch:
 
 jobs:
-  lint:
-    name: ESLint
+  typecheck:
+    name: TypeScript Type Checking
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -28,5 +28,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run ESLint
-        run: pnpm -w lint
+      - name: Run TypeScript check
+        run: pnpm -w typecheck
