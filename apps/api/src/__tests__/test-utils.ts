@@ -7,7 +7,7 @@ import type { Express } from 'express'
 import request from 'supertest'
 import { pool, withTransaction } from '@eatgood/db'
 import { app as baseApp } from '../app'
-import type { SuperAgentTest } from 'supertest'
+import type { Agent } from 'supertest'
 
 /**
  * Returns a fresh Express app instance for testing
@@ -25,7 +25,7 @@ export function createTestApp(): Express {
 export async function loginAsCustomer(customer: {
   id: string
   email: string
-}): Promise<SuperAgentTest> {
+}): Promise<Agent> {
   const agent = request.agent(baseApp)
 
   // Simulate a login by making the login request
@@ -49,7 +49,7 @@ export async function loginAsBakeryUser(user: {
   id: string
   bakery_id: string
   email: string
-}): Promise<SuperAgentTest> {
+}): Promise<Agent> {
   const agent = request.agent(baseApp)
 
   const res = await agent.post('/v1/bakery/auth/login').send({
@@ -72,7 +72,7 @@ export async function loginAsBakeryUser(user: {
 export async function loginAsSuperAdmin(admin: {
   id: string
   email: string
-}): Promise<SuperAgentTest> {
+}): Promise<Agent> {
   const agent = request.agent(baseApp)
 
   const res = await agent.post('/v1/admin/auth/login').send({
@@ -220,7 +220,7 @@ export function assertValidSchema<T>(schema: any, data: any): asserts data is T 
  * Helper to create a Supertest agent with optional cookie
  * Useful for making authenticated requests
  */
-export function createAgent(app: Express, cookie?: string): SuperAgentTest {
+export function createAgent(app: Express, cookie?: string): Agent {
   const agent = request.agent(app)
   if (cookie) {
     agent.set('Cookie', cookie)
