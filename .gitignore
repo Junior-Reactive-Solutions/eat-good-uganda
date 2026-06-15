@@ -116,7 +116,7 @@ backend/src/db/migrations/_scratch/
 
 # ---------- Uploads / user-generated content ----------
 # Production images live in Cloudinary. Nothing user-generated is tracked.
-uploads/
+/uploads/
 public/uploads/
 apps/*/public/uploads/
 tmp/
