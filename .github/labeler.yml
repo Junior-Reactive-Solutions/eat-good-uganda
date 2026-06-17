@@ -1,0 +1,51 @@
+# Labeler configuration for automatic PR labeling
+# See: https://github.com/actions/labeler
+
+# Backend changes
+backend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'apps/api/**'
+          - 'packages/api/**'
+
+# Frontend changes
+frontend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'apps/customer/**'
+          - 'apps/bakery-admin/**'
+          - 'apps/super-admin/**'
+
+# Database changes
+database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'packages/db/**'
+          - 'packages/db/migrations/**'
+
+# Testing changes
+testing:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.test.ts'
+          - '**/*.test.tsx'
+          - '**/*.spec.ts'
+          - '**/__tests__/**'
+
+# Documentation changes
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**'
+          - '*.md'
+          - 'README.md'
+
+# CI/CD changes
+ci-cd:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+          - '.husky/**'
+          - '.eslintrc*'
+          - '.prettierrc*'
+          - 'tsconfig.json'
