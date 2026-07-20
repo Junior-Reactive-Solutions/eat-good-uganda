@@ -15,6 +15,20 @@ This document covers the production deployment setup for Eat Good Uganda across 
 | Email | Resend | Free (100/day) | Pre-existing |
 | DNS | Cloudflare | Free tier | Manual setup |
 
+## Live URLs (current)
+
+Custom domain DNS (`eatgooduganda.com` etc.) is **not yet configured**. Until Cloudflare is set up, these are the actual production URLs — `render.yaml`, `CORS_ORIGINS`, and the `PUBLIC_*` env vars all point here:
+
+| App | Live URL |
+|-----|----------|
+| Customer | https://eat-good-uganda-customer-tau.vercel.app |
+| Bakery Admin | https://eat-good-uganda-bakery-admin.vercel.app |
+| Super Admin | https://eat-good-uganda-super-admin.vercel.app |
+| API | https://eatgooduganda-api.onrender.com |
+| API Health | https://eatgooduganda-api.onrender.com/v1/internal/health |
+
+When Cloudflare DNS is cut over to the `eatgooduganda.com` domains described below, **add** the new origins to `CORS_ORIGINS` alongside these Vercel URLs rather than replacing them, until Vercel project domains are confirmed working — then remove the `.vercel.app` origins.
+
 ## Vercel Configuration
 
 ### Customer App (`apps/customer/vercel.json`)

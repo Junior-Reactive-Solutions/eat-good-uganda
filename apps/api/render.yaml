@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: eatgood-api
+    name: eatgooduganda-api
     env: node
     region: frankfurt
     plan: free
@@ -36,8 +36,12 @@ services:
         sync: false
       - key: SUPERADMIN_IP_ALLOWLIST
         value: ""
+      # NOTE: custom domain DNS is not yet live — these are the actual
+      # deployed Vercel URLs. Add the eatgooduganda.com origins alongside
+      # these (don't replace them) once Cloudflare DNS is cut over, so
+      # existing preview/production links don't break mid-migration.
       - key: CORS_ORIGINS
-        value: https://eatgooduganda.com,https://bakery.eatgooduganda.com,https://admin.eatgooduganda.com
+        value: https://eat-good-uganda-customer-tau.vercel.app,https://eat-good-uganda-bakery-admin.vercel.app,https://eat-good-uganda-super-admin.vercel.app
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
@@ -53,13 +57,13 @@ services:
       - key: RESEND_REPLY_TO
         value: support@eatgooduganda.com
       - key: PUBLIC_CUSTOMER_URL
-        value: https://eatgooduganda.com
+        value: https://eat-good-uganda-customer-tau.vercel.app
       - key: PUBLIC_BAKERY_ADMIN_URL
-        value: https://bakery.eatgooduganda.com
+        value: https://eat-good-uganda-bakery-admin.vercel.app
       - key: PUBLIC_SUPERADMIN_URL
-        value: https://admin.eatgooduganda.com
+        value: https://eat-good-uganda-super-admin.vercel.app
       - key: PUBLIC_API_URL
-        value: https://eatgood-api.onrender.com
+        value: https://eatgooduganda-api.onrender.com
       - key: MTN_MOMO_SANDBOX_SUBSCRIPTION_KEY
         sync: false
       - key: MTN_MOMO_SANDBOX_USER_ID
@@ -67,7 +71,7 @@ services:
       - key: MTN_MOMO_SANDBOX_API_KEY
         sync: false
       - key: MTN_MOMO_CALLBACK_HOST
-        value: https://eatgood-api.onrender.com
+        value: https://eatgooduganda-api.onrender.com
       - key: MTN_MOMO_TARGET_ENV
         value: production
       - key: AIRTEL_SANDBOX_CLIENT_ID
@@ -85,7 +89,7 @@ services:
       - key: SWAGGER_BASIC_AUTH
         sync: false
       - key: KEEPALIVE_PING_URL
-        value: https://eatgood-api.onrender.com/v1/internal/health
+        value: https://eatgooduganda-api.onrender.com/v1/internal/health
       - key: RATE_LIMIT_WINDOW_MS
         value: 900000
       - key: RATE_LIMIT_MAX_REQUESTS
