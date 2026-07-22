@@ -109,9 +109,9 @@ describe('Color Contrast Validation', () => {
 
       const results = validateColorPalette(palette, '#ffffff')
 
-      expect(results.dark.accessible).toBe(true)
-      expect(results.light.accessible).toBe(false)
-      expect(results.gray.ratio).toBeGreaterThan(0)
+      expect(results.dark?.accessible).toBe(true)
+      expect(results.light?.accessible).toBe(false)
+      expect(results.gray?.ratio).toBeGreaterThan(0)
     })
   })
 

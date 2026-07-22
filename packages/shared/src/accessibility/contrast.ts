@@ -12,7 +12,7 @@ function getRelativeLuminance(r: number, g: number, b: number): number {
   const [rs, gs, bs] = [r, g, b].map((c) => {
     c = c / 255
     return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
-  })
+  }) as [number, number, number]
 
   return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
 }
@@ -23,7 +23,7 @@ function getRelativeLuminance(r: number, g: number, b: number): number {
  */
 function parseColor(color: string): { r: number; g: number; b: number } | null {
   const hex = color.match(/^#?([a-f\d]{3}|[a-f\d]{6})$/i)
-  if (hex) {
+  if (hex && hex[1]) {
     let hexStr = hex[1]
     if (hexStr.length === 3) {
       hexStr = hexStr
@@ -39,11 +39,11 @@ function parseColor(color: string): { r: number; g: number; b: number } | null {
   }
 
   const rgb = color.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/)
-  if (rgb) {
+  if (rgb && rgb[1] && rgb[2] && rgb[3]) {
     return {
-      r: parseInt(rgb[1]),
-      g: parseInt(rgb[2]),
-      b: parseInt(rgb[3]),
+      r: parseInt(rgb[1], 10),
+      g: parseInt(rgb[2], 10),
+      b: parseInt(rgb[3], 10),
     }
   }
 
