@@ -27,6 +27,7 @@ const AboutPage = lazy(() => import('./pages/AboutPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
 const CustomerProfilePage = lazy(() => import('./pages/CustomerProfilePage'))
 const AddressesPage = lazy(() => import('./pages/AddressesPage'))
+const RouteErrorPage = lazy(() => import('./pages/RouteErrorPage'))
 
 function Lazy({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
@@ -36,6 +37,11 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <PublicLayout />,
+    errorElement: (
+      <Lazy>
+        <RouteErrorPage />
+      </Lazy>
+    ),
     children: [
       {
         index: true,
@@ -214,6 +220,14 @@ export const router = createBrowserRouter([
             ),
           },
         ],
+      },
+      {
+        path: '*',
+        element: (
+          <Lazy>
+            <RouteErrorPage />
+          </Lazy>
+        ),
       },
     ],
   },

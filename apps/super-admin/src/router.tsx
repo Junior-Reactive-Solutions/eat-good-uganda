@@ -14,6 +14,7 @@ const BakeryStaffPage = lazy(() => import('./pages/BakeryStaffPage'))
 const UserManagementPage = lazy(() => import('./pages/UserManagementPage'))
 const SupportPage = lazy(() => import('./pages/SupportPage'))
 const DataExportPage = lazy(() => import('./pages/DataExportPage'))
+const RouteErrorPage = lazy(() => import('./pages/RouteErrorPage'))
 
 function Lazy({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
@@ -27,6 +28,11 @@ export const router = createBrowserRouter([
         <LoginPage />
       </Lazy>
     ),
+    errorElement: (
+      <Lazy>
+        <RouteErrorPage />
+      </Lazy>
+    ),
   },
   {
     path: '/',
@@ -34,6 +40,11 @@ export const router = createBrowserRouter([
       <RequireAdminAuth>
         <AdminLayout />
       </RequireAdminAuth>
+    ),
+    errorElement: (
+      <Lazy>
+        <RouteErrorPage />
+      </Lazy>
     ),
     children: [
       {
@@ -104,6 +115,22 @@ export const router = createBrowserRouter([
           </Lazy>
         ),
       },
+      {
+        path: '*',
+        element: (
+          <Lazy>
+            <RouteErrorPage />
+          </Lazy>
+        ),
+      },
     ],
+  },
+  {
+    path: '*',
+    element: (
+      <Lazy>
+        <RouteErrorPage />
+      </Lazy>
+    ),
   },
 ])
