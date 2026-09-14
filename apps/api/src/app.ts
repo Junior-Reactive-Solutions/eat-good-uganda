@@ -23,6 +23,7 @@ import usersRouter from './routes/admin/users'
 import { bakeryAuthRouter } from './routes/bakery/auth'
 import { bakeryCategoriesRouter } from './routes/bakery/categories'
 import { bakeryMetricsRouter } from './routes/bakery/metrics'
+import { bakeryOrdersRouter } from './routes/bakery/orders'
 import { bakeryPaymentCredentialsRouter } from './routes/bakery/payment-credentials'
 import { bakeryPaymentSettingsRouter } from './routes/bakery/payment-settings'
 import { bakeryProductsRouter } from './routes/bakery/products'
@@ -153,6 +154,7 @@ app.use('/v1/bakery/uploads', bakeryUploadsRouter)
 app.use('/v1/bakery/products', bakeryProductsRouter)
 app.use('/v1/bakery/categories', bakeryCategoriesRouter)
 app.use('/v1/bakery/metrics', bakeryMetricsRouter)
+app.use('/v1/bakery/orders', bakeryOrdersRouter)
 app.use('/v1/admin/auth', adminAuthRouter)
 app.use('/v1/admin/dashboard', adminDashboardRouter)
 app.use('/v1/admin/analytics', adminAnalyticsRouter)
