@@ -24,7 +24,7 @@ bakeryMetricsRouter.get(
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
-      const metrics = await getBakeryMetrics((req as any).db, bakeryId)
+      const metrics = await getBakeryMetrics(pool, bakeryId)
 
       logger.info({}, 'Metrics retrieved')
 
