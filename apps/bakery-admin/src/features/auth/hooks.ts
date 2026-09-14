@@ -14,8 +14,8 @@ export function useMe() {
     queryKey: ['bakery-me'],
     queryFn: async () => {
       try {
-        const res = await api.get<MeResponse>('/v1/bakery/auth/me')
-        return res.data
+        const res = await api.get<{ user: MeResponse }>('/v1/bakery/auth/me')
+        return res.data.user
       } catch {
         return null
       }
