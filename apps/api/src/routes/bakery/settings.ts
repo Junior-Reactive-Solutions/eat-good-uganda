@@ -22,7 +22,6 @@ const updateProfileSchema = z.object({
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/)
     .optional(),
-  website: z.string().url().optional().nullable(),
   accepts_pickup: z.boolean().optional(),
   accepts_delivery: z.boolean().optional(),
   delivery_fee_minor: z.number().int().nonnegative().optional().nullable(),

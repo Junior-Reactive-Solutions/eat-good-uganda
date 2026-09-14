@@ -22,9 +22,7 @@ export interface BakeryProfile {
   description: string | null
   logo_url: string | null
   accent_color: string | null
-  website: string | null
   primary_color: string
-  currency_code: string
   timezone: string
   accepts_pickup: boolean
   accepts_delivery: boolean
@@ -47,8 +45,8 @@ export async function getBakeryProfile(
     sql`SELECT
           id, slug, legal_name, display_name, phone, email,
           address_line1, address_line2, city, country_code,
-          description, logo_url, accent_color, website,
-          primary_color, currency_code, timezone,
+          description, logo_url, accent_color,
+          primary_color, timezone,
           accepts_pickup, accepts_delivery,
           delivery_fee_minor, delivery_radius_km::float8 AS delivery_radius_km,
           min_order_minor,
@@ -72,7 +70,6 @@ export type UpdateBakeryProfileInput = Partial<
     | 'description'
     | 'logo_url'
     | 'accent_color'
-    | 'website'
     | 'accepts_pickup'
     | 'accepts_delivery'
     | 'delivery_fee_minor'
@@ -102,7 +99,6 @@ export async function updateBakeryProfile(
           description = COALESCE(${input.description ?? null}, description),
           logo_url = COALESCE(${input.logo_url ?? null}, logo_url),
           accent_color = COALESCE(${input.accent_color ?? null}, accent_color),
-          website = COALESCE(${input.website ?? null}, website),
           accepts_pickup = COALESCE(${input.accepts_pickup ?? null}, accepts_pickup),
           accepts_delivery = COALESCE(${input.accepts_delivery ?? null}, accepts_delivery),
           delivery_fee_minor = COALESCE(${input.delivery_fee_minor ?? null}, delivery_fee_minor),
@@ -113,8 +109,8 @@ export async function updateBakeryProfile(
         RETURNING
           id, slug, legal_name, display_name, phone, email,
           address_line1, address_line2, city, country_code,
-          description, logo_url, accent_color, website,
-          primary_color, currency_code, timezone,
+          description, logo_url, accent_color,
+          primary_color, timezone,
           accepts_pickup, accepts_delivery,
           delivery_fee_minor, delivery_radius_km::float8 AS delivery_radius_km,
           min_order_minor,
