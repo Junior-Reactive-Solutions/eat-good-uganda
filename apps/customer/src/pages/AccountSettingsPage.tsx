@@ -11,6 +11,7 @@ import {
 } from '../components/icons'
 import { Input as InputComponent } from '../components/Input'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import { PageMeta } from '../components/PageMeta'
 import {
   useAccountSettings,
   useUpdateNotificationPreferences,
@@ -101,6 +102,7 @@ export default function AccountSettingsPage() {
 
   return (
     <div className="space-y-6">
+      <PageMeta title="Account Settings" noIndex />
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold text-platform-fg">Account Settings</h1>

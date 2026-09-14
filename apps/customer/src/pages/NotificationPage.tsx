@@ -6,6 +6,7 @@ import {
   IconInteractionDelete,
 } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import { PageMeta } from '../components/PageMeta'
 import {
   useNotifications,
   useMarkNotificationAsRead,
@@ -92,6 +93,7 @@ export default function NotificationPage() {
 
   return (
     <div className="space-y-6">
+      <PageMeta title="Notifications" noIndex />
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>

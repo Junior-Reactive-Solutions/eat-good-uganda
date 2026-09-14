@@ -1,8 +1,13 @@
 import { PageHeader } from '../components/PageHeader'
+import { PageMeta } from '../components/PageMeta'
 
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 space-y-8">
+      <PageMeta
+        title="Terms of Service"
+        description="Read the terms and conditions for using Eat Good Uganda."
+      />
       <PageHeader
         heading="Terms of Service"
         subheading="Please read these terms carefully"

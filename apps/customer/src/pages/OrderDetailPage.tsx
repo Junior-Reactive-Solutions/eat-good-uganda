@@ -13,6 +13,7 @@ import {
   IconDeliveryBoda,
 } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import { PageMeta } from '../components/PageMeta'
 import { useOrderDetail } from '../features/orders/api'
 
 /**
@@ -178,6 +179,7 @@ export default function OrderDetailPage() {
   if (isError || !order) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8">
+        <PageMeta title="Order not found" noIndex />
         <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
           <IconAdminRejected size="lg" color="error" className="mx-auto mb-4" alt="" />
           <h1 className="mb-2 text-xl font-bold text-red-900">Order Not Found</h1>
@@ -201,6 +203,7 @@ export default function OrderDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
+      <PageMeta title={`Order ${order.order_number}`} noIndex />
       {/* Header Section */}
       <div className="mb-8">
         <div className="mb-4 flex items-start justify-between">

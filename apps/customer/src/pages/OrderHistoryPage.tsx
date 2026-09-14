@@ -6,6 +6,7 @@ import { IconNavigationCart } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { OrderFilters } from '../components/OrderFilters'
 import { OrderRow } from '../components/OrderRow'
+import { PageMeta } from '../components/PageMeta'
 import { useCustomerOrders } from '../features/orders/api'
 import type { OrderListFilters } from '../features/orders/api'
 
@@ -37,6 +38,7 @@ export default function OrderHistoryPage() {
 
   return (
     <div className="space-y-6">
+      <PageMeta title="Order History" noIndex />
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold text-platform-fg">Order History</h1>

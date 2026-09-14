@@ -1,6 +1,7 @@
 import { Card } from '../components/Card'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
+import { PageMeta } from '../components/PageMeta'
 import { ProfileForm } from '../components/ProfileForm'
 import { useCustomerProfile, useUpdateProfile } from '../features/profile/api'
 
@@ -14,6 +15,7 @@ export default function CustomerProfilePage() {
 
   return (
     <div className="space-y-6">
+      <PageMeta title="My Profile" noIndex />
       <PageHeader
         heading="My Profile"
         subheading="Update your personal information"

@@ -6,6 +6,7 @@ import {
   IconProductBreadLoaf,
 } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import { PageMeta } from '../components/PageMeta'
 import { usePublicBakery, usePublicCategories, usePublicProducts } from '../features/bakery/api'
 import cloudinaryImage from '../lib/cloudinary'
 
@@ -28,6 +29,7 @@ export default function BakeryPage() {
   if (!bakery) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-16 text-center">
+        <PageMeta title="Bakery not found" noIndex />
         <h1 className="text-2xl font-bold text-platform-fg">Bakery not found</h1>
         <p className="mt-2 text-platform-fg-muted">
           <Link to="/" className="text-platform-primary hover:underline">
@@ -42,6 +44,15 @@ export default function BakeryPage() {
 
   return (
     <div>
+      <PageMeta
+        title={bakery.display_name}
+        description={
+          bakery.description ??
+          bakery.tagline ??
+          `Order fresh bread, cakes, and pastries from ${bakery.display_name} on Eat Good Uganda.`
+        }
+        {...(bakery.logo_url ? { image: cloudinaryImage(bakery.logo_url, { w: 512, q: 'auto' }) } : {})}
+      />
       {/* Hero Section */}
       {bakery.hero_image_url && (
         <div className="relative h-64 w-full overflow-hidden bg-platform-bg sm:h-80">

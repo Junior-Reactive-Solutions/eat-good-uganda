@@ -1,8 +1,13 @@
 import { PageHeader } from '../components/PageHeader'
+import { PageMeta } from '../components/PageMeta'
 
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 space-y-8">
+      <PageMeta
+        title="About Us"
+        description="Eat Good Uganda connects customers with quality local bakeries across Uganda. Learn about our mission."
+      />
       <PageHeader
         heading="About Eat Good Uganda"
         subheading="Connecting customers with quality bakeries"

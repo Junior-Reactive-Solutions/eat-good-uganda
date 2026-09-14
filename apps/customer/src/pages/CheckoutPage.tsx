@@ -12,6 +12,7 @@ import FulfillmentSection from '../components/checkout/FulfillmentSection'
 import OrderReviewSection from '../components/checkout/OrderReviewSection'
 import PaymentMethodSection from '../components/checkout/PaymentMethodSection'
 import { IconAdminApproved, IconAdminRejected, IconInteractionClock } from '../components/icons'
+import { PageMeta } from '../components/PageMeta'
 import { useMe } from '../features/auth/hooks'
 import { useCart } from '../features/cart/hooks'
 import {
@@ -296,6 +297,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
+      <PageMeta title="Checkout" noIndex />
       <h1 className="mb-6 text-2xl font-bold text-platform-fg">Checkout</h1>
 
       {/* Error Message */}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { PageHeader } from '../components/PageHeader'
+import { PageMeta } from '../components/PageMeta'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -29,6 +30,10 @@ export default function ContactPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 space-y-8">
+      <PageMeta
+        title="Contact Us"
+        description="Get in touch with the Eat Good Uganda team — we'd love to hear from you."
+      />
       <PageHeader
         heading="Contact Us"
         subheading="We'd love to hear from you"

@@ -9,6 +9,7 @@ import {
   IconInteractionHelp,
   IconInteractionClock,
 } from '../components/icons'
+import { PageMeta } from '../components/PageMeta'
 import { usePublicBakeries } from '../features/bakery/api'
 import { useCurrentLocation } from '../features/geolocation/useCurrentLocation'
 import { useDebounce } from '../hooks/useDebounce'
@@ -35,6 +36,11 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-platform-bg">
+      <PageMeta
+        title="Eat Good Uganda — Order from Uganda's best bakeries"
+        raw
+        description="Fresh bread, cakes, and pastries — delivered to your door or ready for pickup. Discover bakeries near you on Eat Good Uganda."
+      />
       {/* Hero */}
       <section
         aria-labelledby="hero-heading"

@@ -8,6 +8,7 @@ import {
   IconNavigationCart,
 } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import { PageMeta } from '../components/PageMeta'
 import { usePublicBakery, usePublicProduct, usePublicProducts } from '../features/bakery/api'
 import { CartSwitchDialog } from '../features/cart/CartSwitchDialog'
 import { useAddToCart, useCart, useIsFromAnotherBakery } from '../features/cart/hooks'
@@ -50,6 +51,7 @@ export default function ProductDetailPage() {
   if (!slug || !productSlug || !bakery || !product) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-16 text-center">
+        <PageMeta title="Product not found" noIndex />
         <h1 className="text-2xl font-bold text-platform-fg">Product not found</h1>
         <p className="mt-2 text-platform-fg-muted">
           <Link to={`/b/${slug ?? ''}`} className="text-platform-primary hover:underline">
@@ -144,6 +146,14 @@ export default function ProductDetailPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      <PageMeta
+        title={`${product.name} — ${bakery.display_name}`}
+        description={
+          product.description ??
+          `${product.name} from ${bakery.display_name} — UGX ${(product.base_price_minor / 100).toLocaleString()}. Order fresh on Eat Good Uganda.`
+        }
+        {...(images.length > 0 ? { image: cloudinaryImage(images[0], { w: 800, q: 'auto' }) } : {})}
+      />
       <CartSwitchDialog
         isOpen={showCartSwitchDialog}
         onOpenChange={setShowCartSwitchDialog}

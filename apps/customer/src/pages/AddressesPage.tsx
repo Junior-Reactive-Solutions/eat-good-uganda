@@ -7,6 +7,7 @@ import { Card } from '../components/Card'
 import { IconNavigationCart, IconInteractionEdit, IconInteractionDelete } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
+import { PageMeta } from '../components/PageMeta'
 import {
   useCustomerAddresses,
   useCreateAddress,
@@ -52,6 +53,7 @@ export default function AddressesPage() {
 
   return (
     <div className="space-y-6">
+      <PageMeta title="My Addresses" noIndex />
       <div className="flex items-center justify-between">
         <PageHeader
           heading="My Addresses"

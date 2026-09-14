@@ -1,8 +1,13 @@
 import { PageHeader } from '../components/PageHeader'
+import { PageMeta } from '../components/PageMeta'
 
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 space-y-8">
+      <PageMeta
+        title="Privacy Policy"
+        description="Learn how Eat Good Uganda collects, uses, and protects your personal data."
+      />
       <PageHeader
         heading="Privacy Policy"
         subheading="How we protect your data"
