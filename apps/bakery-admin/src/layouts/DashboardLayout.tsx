@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { Button } from '../components/Button'
+import { api } from '../lib/api'
 import { useBakery } from '../contexts/bakery'
 import { useMe, useAuthSetup } from '../features/auth/hooks'
 
@@ -18,12 +20,17 @@ export function DashboardLayout() {
   const { data: me } = useMe()
   const { bakeryId } = useBakery()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   useAuthSetup()
 
   const handleLogout = () => {
-    // TODO: Implement logout (clear auth cookie, invalidate query)
-    localStorage.removeItem('auth_token')
-    void navigate('/login')
+    api
+      .post('/v1/bakery/auth/logout')
+      .catch(() => null)
+      .finally(() => {
+        queryClient.clear()
+        void navigate('/login')
+      })
   }
 
   const navItems = [

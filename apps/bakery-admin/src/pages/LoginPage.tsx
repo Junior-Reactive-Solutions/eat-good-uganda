@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     setLoading(true)
     try {
-      await api.post('/v1/bakery/login', { email, password })
+      await api.post('/v1/bakery/auth/login', { email, password })
       const redirect = searchParams.get('redirect') || '/dashboard'
       void navigate(redirect)
     } catch (error) {
