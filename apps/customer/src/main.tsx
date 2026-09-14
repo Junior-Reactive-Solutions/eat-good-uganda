@@ -11,7 +11,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     dsn: import.meta.env.VITE_SENTRY_DSN,
     environment: import.meta.env.MODE,
     tracesSampleRate: 0.1, // 10% of transactions for performance monitoring
-    integrations: [new Sentry.Replay()],
+    integrations: [Sentry.replayIntegration()],
     replaysSessionSampleRate: 0.1, // 10% of sessions recorded
     replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors recorded
   })

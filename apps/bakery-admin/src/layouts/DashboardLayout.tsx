@@ -1,11 +1,11 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { useQueryClient } from '@tanstack/react-query'
 
 import { Button } from '../components/Button'
-import { api } from '../lib/api'
 import { useBakery } from '../contexts/bakery'
 import { useMe, useAuthSetup } from '../features/auth/hooks'
+import { api } from '../lib/api'
 
 import {
   IconNavigationHome,
