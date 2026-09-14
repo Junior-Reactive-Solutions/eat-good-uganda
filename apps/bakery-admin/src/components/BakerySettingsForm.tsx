@@ -16,7 +16,6 @@ const settingsFormSchema = z.object({
   description: z.string().max(1000).nullable(),
   logo_url: z.url('Invalid logo URL').nullable(),
   accent_color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color format'),
-  website: z.url('Invalid website URL').nullable(),
   accepts_pickup: z.boolean(),
   accepts_delivery: z.boolean(),
   delivery_fee_minor: z.number().int().nonnegative().nullable(),
@@ -56,7 +55,6 @@ export function BakerySettingsForm({
           description: profile.description || null,
           logo_url: profile.logo_url || null,
           accent_color: profile.accent_color || '#000000',
-          website: profile.website || null,
           accepts_pickup: profile.accepts_pickup,
           accepts_delivery: profile.accepts_delivery,
           delivery_fee_minor: profile.delivery_fee_minor || null,
@@ -74,7 +72,6 @@ export function BakerySettingsForm({
           description: null,
           logo_url: null,
           accent_color: '#000000',
-          website: null,
           accepts_pickup: true,
           accepts_delivery: false,
           delivery_fee_minor: null,
@@ -254,26 +251,6 @@ export function BakerySettingsForm({
           )}
         </div>
 
-        <div>
-          <label htmlFor="website" className="block text-sm font-medium text-platform-fg mb-1">
-            Website
-          </label>
-          <input
-            id="website"
-            type="url"
-            placeholder="https://yourbakery.com"
-            {...register('website')}
-            disabled={isLoading}
-            className="w-full px-3 py-2 border border-platform-border rounded-md bg-platform-surface text-platform-fg placeholder-platform-fg-muted focus:outline-none focus:ring-2 focus:ring-bakery-primary disabled:opacity-50"
-            aria-invalid={errors.website ? 'true' : 'false'}
-            aria-describedby={errors.website ? 'website-error' : undefined}
-          />
-          {errors.website && (
-            <p id="website-error" className="mt-1 text-xs text-platform-error">
-              {errors.website.message}
-            </p>
-          )}
-        </div>
       </div>
 
       {/* Branding */}

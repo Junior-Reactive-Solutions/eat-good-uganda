@@ -28,8 +28,6 @@ const mockProfile: BakeryProfile = {
   logo_url: 'https://example.com/logo.png',
   accent_color: '#FF5733',
   primary_color: '#FF6B35',
-  website: 'https://sweetdreams.com',
-  currency_code: 'UGX',
   timezone: 'Africa/Kampala',
   accepts_pickup: true,
   accepts_delivery: true,
