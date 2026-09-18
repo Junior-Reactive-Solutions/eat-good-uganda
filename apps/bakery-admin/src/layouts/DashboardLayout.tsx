@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { useBakery } from '../contexts/bakery'
@@ -9,10 +9,12 @@ import { api } from '../lib/api'
 
 import {
   IconNavigationHome,
+  IconNavigationSettings,
   IconAdminCustomers,
   IconAdminInventory,
   IconInteractionDelete,
   IconNavigationMenu,
+  IconPaymentGeneric,
 } from '@/components/icons'
 
 export function DashboardLayout() {
@@ -22,6 +24,13 @@ export function DashboardLayout() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   useAuthSetup()
+
+  const initials = (me?.full_name ?? me?.email ?? 'B')
+    .split(' ')
+    .map((w) => w[0] ?? '')
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 
   const handleLogout = () => {
     api
@@ -33,10 +42,22 @@ export function DashboardLayout() {
       })
   }
 
-  const navItems = [
-    { label: 'Dashboard', icon: IconNavigationHome, path: '/dashboard' },
-    { label: 'Orders', icon: IconAdminCustomers, path: '/orders' },
-    { label: 'Menu', icon: IconAdminInventory, path: '/menu' },
+  const navGroups = [
+    {
+      label: 'Operate',
+      items: [
+        { label: 'Dashboard', icon: IconNavigationHome, path: '/dashboard' },
+        { label: 'Orders', icon: IconAdminCustomers, path: '/orders' },
+        { label: 'Menu', icon: IconAdminInventory, path: '/menu' },
+      ],
+    },
+    {
+      label: 'Configure',
+      items: [
+        { label: 'Settings', icon: IconNavigationSettings, path: '/settings' },
+        { label: 'Payments', icon: IconPaymentGeneric, path: '/payment-setup' },
+      ],
+    },
   ]
 
   return (
@@ -55,25 +76,50 @@ export function DashboardLayout() {
           </div>
 
           {/* Navigation Menu */}
-          <nav className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-2">
-              {navItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => {
-                      void navigate(item.path)
-                      setSidebarOpen(false)
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left hover:bg-white/10 transition-colors text-sm font-medium"
-                  >
-                    <Icon size="md" color="default" alt="" />
-                    {item.label}
-                  </button>
-                )
-              })}
-            </div>
+          <nav aria-label="Main" className="flex-1 overflow-y-auto px-3 py-2">
+            {navGroups.map((group) => (
+              <div key={group.label} className="mb-1">
+                <p className="px-3 pb-1.5 pt-3 text-[10px] font-semibold uppercase tracking-[0.13em] text-white/40">
+                  {group.label}
+                </p>
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const ItemIcon = item.icon
+                    return (
+                      <NavLink
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => {
+                          setSidebarOpen(false)
+                        }}
+                        className={({ isActive }) =>
+                          [
+                            'relative flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platform-primary',
+                            isActive
+                              ? 'bg-white/10 text-white'
+                              : 'text-white/75 hover:bg-white/5 hover:text-white',
+                          ].join(' ')
+                        }
+                      >
+                        {({ isActive }) => (
+                          <>
+                            {isActive && (
+                              <span
+                                aria-hidden="true"
+                                className="absolute -left-3 bottom-1.5 top-1.5 w-[3px] rounded-r bg-platform-primary"
+                              />
+                            )}
+                            <ItemIcon size="md" color="default" alt="" />
+                            {item.label}
+                          </>
+                        )}
+                      </NavLink>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
 
           {/* Sidebar Footer - User Info & Logout */}
@@ -123,9 +169,26 @@ export function DashboardLayout() {
             )}
           </button>
           <div className="flex-1" />
-          <div className="text-sm text-platform-fg-muted">
-            Bakery ID: <span className="font-mono text-xs">{bakeryId}</span>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              void navigator.clipboard?.writeText(bakeryId ?? '')
+            }}
+            title="Copy bakery ID for support"
+            className="inline-flex min-h-[36px] items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-platform-fg-muted transition-colors hover:bg-platform-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platform-primary"
+          >
+            <span className="grid h-7 w-7 flex-none place-items-center rounded-lg bg-platform-primary text-[11px] font-bold text-white">
+              {initials}
+            </span>
+            <span className="text-left leading-tight">
+              <span className="block text-[13px] font-semibold text-platform-fg">
+                {me?.full_name ?? 'Bakery'}
+              </span>
+              <span className="block font-mono text-[10px] text-platform-fg-muted">
+                {bakeryId ? `${bakeryId.slice(0, 8)}…` : '—'}
+              </span>
+            </span>
+          </button>
         </header>
 
         {/* Page Content */}

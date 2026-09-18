@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { useMe, useAuthSetup, logoutAdmin } from '../features/auth/hooks'
@@ -20,6 +20,7 @@ export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { data: me } = useMe()
   const navigate = useNavigate()
+  const location = useLocation()
   useAuthSetup()
 
   const handleLogout = async (): Promise<void> => {
@@ -32,15 +33,32 @@ export function AdminLayout() {
     void navigate('/login')
   }
 
-  const navItems = [
-    { label: 'Dashboard', icon: IconNavigationHome, path: '/dashboard' },
-    { label: 'Bakeries', icon: IconAdminAnalytics, path: '/bakeries' },
-    { label: 'Staff', icon: IconAdminStaff, path: '/staff' },
-    { label: 'Audit Logs', icon: IconAdminAuditLog, path: '/audit-logs' },
-    { label: 'Users', icon: IconAdminCustomers, path: '/users' },
-    { label: 'Support', icon: IconInteractionPhone, path: '/support' },
-    { label: 'Exports', icon: IconInteractionDownload, path: '/exports' },
+  const navGroups = [
+    {
+      label: 'Oversight',
+      items: [
+        { label: 'Dashboard', icon: IconNavigationHome, path: '/dashboard' },
+        { label: 'Bakeries', icon: IconAdminAnalytics, path: '/bakeries' },
+        { label: 'Users', icon: IconAdminCustomers, path: '/users' },
+        { label: 'Support', icon: IconInteractionPhone, path: '/support' },
+      ],
+    },
+    {
+      label: 'Governance',
+      items: [
+        { label: 'Audit Logs', icon: IconAdminAuditLog, path: '/audit-logs' },
+        { label: 'Staff', icon: IconAdminStaff, path: '/staff' },
+        { label: 'Exports', icon: IconInteractionDownload, path: '/exports' },
+      ],
+    },
   ]
+
+  // Breadcrumb label for the current route, so the header stops saying
+  // "Admin Dashboard" on every page.
+  const currentLabel =
+    navGroups
+      .flatMap((g) => g.items)
+      .find((item) => location.pathname.startsWith(item.path))?.label ?? 'Dashboard'
 
   return (
     <div className="flex h-screen bg-platform-surface">
@@ -58,25 +76,50 @@ export function AdminLayout() {
           </div>
 
           {/* Navigation Menu */}
-          <nav className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-2">
-              {navItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => {
-                      void navigate(item.path)
-                      setSidebarOpen(false)
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left hover:bg-white/10 transition-colors text-sm font-medium"
-                  >
-                    <Icon size="md" color="default" alt="" />
-                    {item.label}
-                  </button>
-                )
-              })}
-            </div>
+          <nav aria-label="Main" className="flex-1 overflow-y-auto px-3 py-2">
+            {navGroups.map((group) => (
+              <div key={group.label} className="mb-1">
+                <p className="px-3 pb-1.5 pt-3 text-[10px] font-semibold uppercase tracking-[0.13em] text-white/40">
+                  {group.label}
+                </p>
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const ItemIcon = item.icon
+                    return (
+                      <NavLink
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => {
+                          setSidebarOpen(false)
+                        }}
+                        className={({ isActive }) =>
+                          [
+                            'relative flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platform-primary',
+                            isActive
+                              ? 'bg-white/10 text-white'
+                              : 'text-white/75 hover:bg-white/5 hover:text-white',
+                          ].join(' ')
+                        }
+                      >
+                        {({ isActive }) => (
+                          <>
+                            {isActive && (
+                              <span
+                                aria-hidden="true"
+                                className="absolute -left-3 bottom-1.5 top-1.5 w-[3px] rounded-r bg-platform-primary"
+                              />
+                            )}
+                            <ItemIcon size="md" color="default" alt="" />
+                            {item.label}
+                          </>
+                        )}
+                      </NavLink>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
 
           {/* Sidebar Footer - User Info & Logout */}
@@ -106,7 +149,15 @@ export function AdminLayout() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
         <header className="bg-platform-surface border-b border-platform-border p-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-platform-fg">Admin Dashboard</h2>
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
+            <span className="text-platform-fg-muted">Eat Good Uganda</span>
+            <span aria-hidden="true" className="text-platform-border">
+              /
+            </span>
+            <span aria-current="page" className="font-semibold text-platform-fg">
+              {currentLabel}
+            </span>
+          </nav>
           <Button
             variant="ghost"
             onClick={() => {
