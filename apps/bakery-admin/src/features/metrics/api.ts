@@ -39,3 +39,42 @@ export const useBakeryMetrics = () => {
     refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
   })
 }
+
+export interface ActionQueueOrder {
+  id: string
+  orderNumber: string
+  createdAt: string
+  totalMinor: number
+  waitMinutes: number
+}
+
+export interface ActionQueueDueOrder {
+  id: string
+  orderNumber: string
+  scheduledFor: string
+  fulfilmentMode: 'pickup' | 'delivery'
+}
+
+export interface ActionQueueProduct {
+  id: string
+  name: string
+}
+
+export interface BakeryActionQueue {
+  unconfirmedOrders: ActionQueueOrder[]
+  dueSoonOrders: ActionQueueDueOrder[]
+  outOfStockProducts: ActionQueueProduct[]
+  hasEnabledPaymentMethod: boolean
+}
+
+export const useBakeryActionQueue = () => {
+  return useQuery({
+    queryKey: ['metrics', 'action-queue'],
+    queryFn: async () => {
+      const { data } = await api.get<BakeryActionQueue>('/v1/bakery/metrics/action-queue')
+      return data
+    },
+    staleTime: 60 * 1000, // 1 minute — this data should feel current
+    refetchInterval: 2 * 60 * 1000, // Refetch every 2 minutes
+  })
+}

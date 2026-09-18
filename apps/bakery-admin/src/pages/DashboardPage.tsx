@@ -1,10 +1,11 @@
+import { ActionQueue } from '../components/ActionQueue'
 import { BarChart } from '../components/BarChart'
 import { LineChart } from '../components/LineChart'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { MetricCard } from '../components/MetricCard'
 import { PageHeader } from '../components/PageHeader'
 import { PieChart } from '../components/PieChart'
-import { useBakeryMetrics } from '../features/metrics/api'
+import { useBakeryActionQueue, useBakeryMetrics } from '../features/metrics/api'
 
 import {
   IconAdminRevenue,
@@ -15,6 +16,7 @@ import {
 
 export default function DashboardPage() {
   const { data: metrics, isLoading, error } = useBakeryMetrics()
+  const { data: actionQueue } = useBakeryActionQueue()
 
   if (isLoading) {
     return (

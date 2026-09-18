@@ -99,7 +99,7 @@ export default function OrdersPage() {
                 : 'bg-white border border-platform-border text-platform-fg hover:bg-platform-accent'
             }`}
           >
-            {status ? status.replace(/_/g, ' ').toUpperCase() : 'ALL ORDERS'}
+            {status === 'pending_payment' ? 'TO CONFIRM' : status ? status.replace(/_/g, ' ').toUpperCase() : 'ALL ORDERS'}
           </button>
         ))}
       </div>

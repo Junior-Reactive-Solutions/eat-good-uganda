@@ -17,13 +17,14 @@ import { requireBakeryContext } from '../../middleware/requireBakeryContext'
 export const bakeryOrdersRouter = createRouter() as Router
 
 const ORDER_STATUS_VALUES = [
-  'pending',
+  'pending_payment',
   'confirmed',
   'preparing',
   'ready',
   'out_for_delivery',
   'delivered',
   'cancelled',
+  'refunded',
 ] as const
 
 const listOrdersQuerySchema = z.object({
