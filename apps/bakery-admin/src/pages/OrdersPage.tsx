@@ -1,9 +1,10 @@
 import type { OrderStatus } from '@eatgood/shared'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import { OrderBoard } from '../components/OrderBoard'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
 import { useOrders } from '../features/orders/api'
 
@@ -21,15 +22,82 @@ function formatDate(date: string | Date): string {
 }
 
 const ORDER_LIMIT = 20
+const BOARD_LIMIT = 100
+
+const VALID_STATUSES: OrderStatus[] = [
+  'pending_payment',
+  'confirmed',
+  'preparing',
+  'ready',
+  'out_for_delivery',
+  'delivered',
+  'cancelled',
+  'refunded',
+]
+
+function readStatusFromUrl(value: string | null): OrderStatus | undefined {
+  return VALID_STATUSES.find((s) => s === value)
+}
+
+const STATUS_LABELS: Record<OrderStatus, string> = {
+  pending_payment: 'To confirm',
+  confirmed: 'Confirmed',
+  preparing: 'Preparing',
+  ready: 'Ready',
+  out_for_delivery: 'Out for delivery',
+  delivered: 'Delivered',
+  cancelled: 'Cancelled',
+  refunded: 'Refunded',
+}
 
 export default function OrdersPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [offset, setOffset] = useState(0)
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>()
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>(() =>
+    readStatusFromUrl(searchParams.get('status')),
+  )
+  const explicitView = searchParams.get('view')
+  // A status deep link (e.g. from the action queue) should land on the
+  // filtered table, not the board, which ignores status filters entirely.
+  const view: 'board' | 'table' =
+    explicitView === 'table' || explicitView === 'board'
+      ? explicitView
+      : searchParams.get('status')
+        ? 'table'
+        : 'board'
   const navigate = useNavigate()
 
-  const filters = statusFilter
-    ? { limit: ORDER_LIMIT, offset, status: statusFilter }
-    : { limit: ORDER_LIMIT, offset }
+  const handleStatusChange = (status: OrderStatus | undefined) => {
+    setStatusFilter(status)
+    setOffset(0)
+    const next = new URLSearchParams(searchParams)
+    if (status) {
+      next.set('status', status)
+    } else {
+      next.delete('status')
+    }
+    setSearchParams(next, { replace: true })
+  }
+
+  const handleViewChange = (nextView: 'board' | 'table') => {
+    const next = new URLSearchParams(searchParams)
+    if (nextView === 'table') {
+      next.set('view', 'table')
+    } else {
+      next.delete('view')
+    }
+    setSearchParams(next, { replace: true })
+  }
+
+  // The board shows every active status as its own column, so it always
+  // fetches unfiltered (a larger page — enough for a single bakery's active
+  // orders) rather than respecting the table's status tabs.
+  const filters =
+    view === 'board'
+      ? { limit: BOARD_LIMIT, offset: 0 }
+      : statusFilter
+        ? { limit: ORDER_LIMIT, offset, status: statusFilter }
+        : { limit: ORDER_LIMIT, offset }
   const { data, isLoading, error } = useOrders(filters)
 
   const orders = data?.items || []
@@ -41,9 +109,11 @@ export default function OrdersPage() {
 
   const statusOptions: (OrderStatus | undefined)[] = [
     undefined,
+    'pending_payment',
     'confirmed',
     'preparing',
     'ready',
+    'out_for_delivery',
     'delivered',
     'cancelled',
   ]
@@ -79,33 +149,74 @@ export default function OrdersPage() {
 
   return (
     <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Orders</h1>
-        <p className="text-platform-fg-muted">Manage and track bakery orders</p>
-      </div>
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Orders</h1>
+          <p className="text-platform-fg-muted">Manage and track bakery orders</p>
+        </div>
 
-      {/* Filters */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        {statusOptions.map((status) => (
+        <div className="inline-flex rounded-lg border border-platform-border bg-white p-1">
           <button
-            key={status || 'all'}
             onClick={() => {
-              setStatusFilter(status)
-              setOffset(0)
+              handleViewChange('board')
             }}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              statusFilter === status
+            aria-pressed={view === 'board'}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              view === 'board'
                 ? 'bg-platform-primary text-white'
-                : 'bg-white border border-platform-border text-platform-fg hover:bg-platform-accent'
+                : 'text-platform-fg-muted hover:bg-platform-accent'
             }`}
           >
-            {status === 'pending_payment' ? 'TO CONFIRM' : status ? status.replace(/_/g, ' ').toUpperCase() : 'ALL ORDERS'}
+            Board
           </button>
-        ))}
+          <button
+            onClick={() => {
+              handleViewChange('table')
+            }}
+            aria-pressed={view === 'table'}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              view === 'table'
+                ? 'bg-platform-primary text-white'
+                : 'text-platform-fg-muted hover:bg-platform-accent'
+            }`}
+          >
+            Table
+          </button>
+        </div>
       </div>
 
-      {/* Orders Table */}
-      {orders.length === 0 ? (
+      {view === 'table' && (
+        <div className="mb-6 flex flex-wrap gap-2">
+          {statusOptions.map((status) => (
+            <button
+              key={status || 'all'}
+              onClick={() => {
+                handleStatusChange(status)
+              }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                statusFilter === status
+                  ? 'bg-platform-primary text-white'
+                  : 'bg-white border border-platform-border text-platform-fg hover:bg-platform-accent'
+              }`}
+            >
+              {status ? STATUS_LABELS[status].toUpperCase() : 'ALL ORDERS'}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {view === 'board' ? (
+        orders.length === 0 ? (
+          <div className="rounded-lg border border-platform-border bg-white p-12 text-center">
+            <p className="text-platform-fg-muted mb-4">No orders yet</p>
+            <p className="text-sm text-platform-fg-muted">
+              New orders will appear here as they come in.
+            </p>
+          </div>
+        ) : (
+          <OrderBoard orders={orders} />
+        )
+      ) : orders.length === 0 ? (
         <div className="rounded-lg border border-platform-border bg-white p-12 text-center">
           <p className="text-platform-fg-muted mb-4">No orders found</p>
           <p className="text-sm text-platform-fg-muted">Try adjusting your filters</p>

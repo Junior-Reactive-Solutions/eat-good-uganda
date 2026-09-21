@@ -81,11 +81,27 @@ weight so they sit in the set indistinguishably. Sketches are in the Ops Console
 
 ## Phase 3 — Tables and pipeline
 
-- [ ] Shared `DataTable`: sticky header, sortable columns, saved views in the URL, bulk select,
-      row actions, result counts.
-- [ ] Orders pipeline board with one-tap status advance, wired to `PATCH /v1/bakery/orders/:id`.
+**Status: mostly done**
+
+- [x] Orders pipeline board (`OrderBoard.tsx`): six columns matching the real `order_status`
+      transitions, each card carrying one primary advance action wired to the existing
+      `PATCH /v1/bakery/orders/:id`. A waiting timer on the Pending column turns red past 15
+      minutes. Board/Table toggle persists in `?view=`.
+- [x] Fixed a second bug surfaced while wiring this up: the Phase 2 commit's URL-driven status
+      filter for Orders never actually landed (a multi-part find/replace silently applied only
+      one of its edits). `pending_payment` is now a real filterable tab, `?status=` round-trips
+      correctly, and the action queue's "Review" deep link lands on the right filtered view.
+- [x] Super Admin Bakeries: converted the card grid to a sortable table — click a column header
+      to sort, click again to reverse direction. Saved-view tabs (All / Pending / Active /
+      Suspended) replace the status `<select>`. Bulk select with a dark action bar that appears
+      on first selection; "Approve N" calls the existing per-bakery approve endpoint for each
+      selected pending row (no bulk endpoint exists yet — see Known debt).
+- [ ] Shared `DataTable` component — the two tables above still duplicate their sort/select
+      logic rather than sharing one component. Worth extracting once a third table needs the
+      same behaviour.
 - [ ] Three empty-state variants (no data yet / no results for filter / error) replacing every
-      bare "No results" string.
+      bare "No results" string — partially done (Orders board has its own "No orders yet"; the
+      generic empty state used elsewhere is still the old one-liner).
 
 ## Phase 4 — Forms, shortcuts, polish
 
@@ -144,3 +160,12 @@ Rules: no entrance animation on content already in view; one ambient loop maximu
   imported by all three. Deferred to keep Phase 1 low-risk.
 - The customer app's Vercel project lost its GitHub link and last deployed on 12 June 2026.
   It must be reconnected before any customer-side work can be verified live.
+- **No bulk approve endpoint for bakeries.** The Bakeries table's bulk approve calls
+  `POST /:bakeryId/approve` once per selected row. Fine at today's volume; a real
+  `POST /v1/admin/bakeries/bulk-approve` should replace it before onboarding scales up, both
+  for a single audit-log entry and to avoid N sequential round-trips.
+- **Found and fixed while building Phase 3:** a prior patch (Phase 2, `feat(super-admin): add
+  platform action queue`) claimed to wire `?status=` into the bakery-admin Orders page but a
+  multi-part scripted edit silently applied only one of several intended replacements — the
+  `useSearchParams` wiring never actually landed. The lesson: verify each replacement
+  individually rather than asserting only that *some* change occurred.
