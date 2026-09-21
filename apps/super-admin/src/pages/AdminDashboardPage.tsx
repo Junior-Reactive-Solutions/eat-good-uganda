@@ -1,29 +1,22 @@
 import { useEffect, useState, type JSX } from 'react'
-import { useNavigate } from 'react-router-dom'
-
 import { BarChart } from '../components/charts/BarChart'
 import { LineChart } from '../components/charts/LineChart'
 import { MetricCard } from '../components/charts/MetricCard'
 import { PieChart } from '../components/charts/PieChart'
+import { ActionQueue } from '../components/ActionQueue'
 import { LoadingSpinner } from '../components/LoadingSpinner'
-import { useAdminDashboard } from '../features/admin/api'
+import { useAdminDashboard, usePlatformActionQueue } from '../features/admin/api'
 import {
   usePlatformMetrics,
   useMetricsTimeSeries,
   useTopBakeries,
 } from '../features/analytics/api'
 
-import {
-  IconAdminRevenue,
-  IconAdminCustomers,
-  IconAdminAnalytics,
-  IconInteractionHelp,
-} from '@/components/icons'
+import { IconAdminRevenue, IconAdminCustomers, IconAdminAnalytics } from '@/components/icons'
 
 type DateRange = 'week' | 'month' | 'year'
 
 export default function AdminDashboardPage(): JSX.Element {
-  const navigate = useNavigate()
   const [dateRange, setDateRange] = useState<DateRange>('month')
   const [startDate, setStartDate] = useState<Date>(() => {
     const date = new Date()
@@ -40,6 +33,7 @@ export default function AdminDashboardPage(): JSX.Element {
   } = usePlatformMetrics()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: dashboardData } = useAdminDashboard()
+  const { data: actionQueue } = usePlatformActionQueue()
 
   // Fetch time series data for charts
   const { data: revenueData, isLoading: revenueLoading } = useMetricsTimeSeries({
@@ -132,25 +126,14 @@ export default function AdminDashboardPage(): JSX.Element {
         <p className="text-platform-fg-muted mt-1">Platform metrics and overview</p>
       </div>
 
-      {/* Pending Approvals Alert */}
-      {analyticsMetrics.pendingApprovalCount > 0 && (
-        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 flex items-center gap-3">
-          <IconInteractionHelp size="md" color="default" alt="" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-yellow-900">
-              {analyticsMetrics.pendingApprovalCount} bakeries pending approval
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              navigate('/admin/bakeries?status=pending_approval')
-            }}
-            className="px-3 py-1 text-sm font-medium text-yellow-700 bg-yellow-100 hover:bg-yellow-200 rounded transition-colors"
-          >
-            Review
-          </button>
-        </div>
+      {/* Needs your decision */}
+      {actionQueue && (
+        <ActionQueue
+          pendingApprovals={actionQueue.pendingApprovals}
+          slaBreachingTickets={actionQueue.slaBreachingTickets}
+          bakeriesMissingPayment={actionQueue.bakeriesMissingPayment}
+          stalledOnboarding={actionQueue.stalledOnboarding}
+        />
       )}
 
       {/* Date Range Selector */}

@@ -31,6 +31,8 @@ export {
 // Admin-only exports: only import from apps/api/src/routes/admin/** or apps/super-admin/**
 // eslint-disable-next-line no-restricted-imports
 export { adminGetDashboardMetrics, type DashboardMetrics } from './queries/admin/dashboard-metrics'
+// eslint-disable-next-line no-restricted-imports
+export { getPlatformActionQueue, type PlatformActionQueue } from './queries/admin/action-queue'
 export { createAuditLog, getAuditLogs, type AuditLog } from './queries/audit-logs'
 export {
   banCustomer,
