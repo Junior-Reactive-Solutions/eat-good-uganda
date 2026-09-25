@@ -172,7 +172,7 @@ export function DashboardLayout() {
           <button
             type="button"
             onClick={() => {
-              void navigator.clipboard?.writeText(bakeryId ?? '')
+              void navigator.clipboard.writeText(bakeryId).catch(() => null)
             }}
             title="Copy bakery ID for support"
             className="inline-flex min-h-[36px] items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-platform-fg-muted transition-colors hover:bg-platform-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platform-primary"

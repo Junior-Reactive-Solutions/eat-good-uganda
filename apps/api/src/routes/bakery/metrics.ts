@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 import { getBakeryActionQueue, getBakeryMetrics, pool } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
@@ -20,7 +19,7 @@ bakeryMetricsRouter.get(
   requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = req.bakery?.id
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }
@@ -54,7 +53,7 @@ bakeryMetricsRouter.get(
   requireBakeryContext(),
   async (req: Request, res: Response) => {
     try {
-      const bakeryId = (req as any).bakery?.id as string | undefined
+      const bakeryId = req.bakery?.id
       if (!bakeryId) {
         return res.status(401).json({ error: 'Unauthorized' })
       }

@@ -43,8 +43,15 @@ function QueueRow({ severity, title, subtitle, action }: QueueRowProps) {
 function formatWaitDays(days: number): string {
   if (days < 1) return 'today'
   if (days === 1) return '1 day'
-  return `${Math.floor(days)} days`
+  return `${String(Math.floor(days))} days`
 }
+
+function plural(count: number, singular: string, pluralForm: string): string {
+  return `${String(count)} ${count === 1 ? singular : pluralForm}`
+}
+
+const secondaryLinkClass =
+  'rounded-lg border border-platform-border bg-platform-surface px-3 py-1.5 text-xs font-semibold text-platform-fg hover:bg-platform-accent'
 
 interface ActionQueueProps {
   pendingApprovals: PendingBakeryApproval[]
@@ -56,7 +63,7 @@ interface ActionQueueProps {
 /**
  * "Needs your decision" — the platform operator's queue of bakeries and
  * tickets waiting on a human. Replaces the old pattern of leading the
- * dashboard with revenue charts.
+ * dashboard with revenue charts. Renders nothing when there is nothing to do.
  */
 export function ActionQueue({
   pendingApprovals,
@@ -64,17 +71,19 @@ export function ActionQueue({
   bakeriesMissingPayment,
   stalledOnboarding,
 }: ActionQueueProps) {
+  const oldestPending = pendingApprovals[0]
+  const firstMissingPayment = bakeriesMissingPayment[0]
+  const firstStalled = stalledOnboarding[0]
+
   const totalItems =
-    (pendingApprovals.length > 0 ? 1 : 0) +
+    (oldestPending ? 1 : 0) +
     (slaBreachingTickets.length > 0 ? 1 : 0) +
-    (bakeriesMissingPayment.length > 0 ? 1 : 0) +
-    (stalledOnboarding.length > 0 ? 1 : 0)
+    (firstMissingPayment ? 1 : 0) +
+    (firstStalled ? 1 : 0)
 
   if (totalItems === 0) {
     return null
   }
-
-  const oldestWaitDays = pendingApprovals[0]?.waitDays ?? 0
 
   return (
     <section
@@ -89,25 +98,25 @@ export function ActionQueue({
         <span className="grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-platform-primary px-1.5 text-xs font-bold text-white">
           {totalItems}
         </span>
-        {pendingApprovals.length > 0 && (
+        {oldestPending && (
           <span className="ml-auto text-xs text-platform-fg-muted">
-            Oldest waiting {formatWaitDays(oldestWaitDays)}
+            Oldest waiting {formatWaitDays(oldestPending.waitDays)}
           </span>
         )}
       </div>
 
-      {pendingApprovals.length > 0 && (
+      {oldestPending && (
         <QueueRow
           severity="urgent"
           title={
             pendingApprovals.length === 1
-              ? `${pendingApprovals[0]!.displayName} applied to join`
-              : `${pendingApprovals.length} bakeries awaiting approval`
+              ? `${oldestPending.displayName} applied to join`
+              : `${String(pendingApprovals.length)} bakeries awaiting approval`
           }
           subtitle={
             pendingApprovals.length === 1
-              ? `Submitted ${formatWaitDays(pendingApprovals[0]!.waitDays)} ago · ${pendingApprovals[0]!.city}`
-              : `Oldest waiting ${formatWaitDays(oldestWaitDays)} · ${pendingApprovals[0]!.displayName} and ${pendingApprovals.length - 1} more`
+              ? `Submitted ${formatWaitDays(oldestPending.waitDays)} ago · ${oldestPending.city}`
+              : `Oldest waiting ${formatWaitDays(oldestPending.waitDays)} · ${oldestPending.displayName} and ${String(pendingApprovals.length - 1)} more`
           }
           action={
             <Link
@@ -123,60 +132,51 @@ export function ActionQueue({
       {slaBreachingTickets.length > 0 && (
         <QueueRow
           severity="urgent"
-          title={`${slaBreachingTickets.length} support ticket${slaBreachingTickets.length === 1 ? '' : 's'} past SLA`}
+          title={`${plural(slaBreachingTickets.length, 'support ticket', 'support tickets')} past SLA`}
           subtitle={slaBreachingTickets
             .slice(0, 2)
             .map((t) => `${t.bakeryName} — ${t.subject} (${formatWaitDays(t.waitDays)})`)
             .join(' · ')}
           action={
-            <Link
-              to="/support"
-              className="rounded-lg border border-platform-border bg-platform-surface px-3 py-1.5 text-xs font-semibold text-platform-fg hover:bg-platform-accent"
-            >
+            <Link to="/support" className={secondaryLinkClass}>
               Open queue
             </Link>
           }
         />
       )}
 
-      {bakeriesMissingPayment.length > 0 && (
+      {firstMissingPayment && (
         <QueueRow
           severity="soon"
           title={
             bakeriesMissingPayment.length === 1
-              ? `${bakeriesMissingPayment[0]!.displayName} has no payment method configured`
-              : `${bakeriesMissingPayment.length} active bakeries have no payment method`
+              ? `${firstMissingPayment.displayName} has no payment method configured`
+              : `${String(bakeriesMissingPayment.length)} active bakeries have no payment method`
           }
           subtitle={
             bakeriesMissingPayment.length === 1
-              ? `Active for ${formatWaitDays(bakeriesMissingPayment[0]!.activeDays)} · customers cannot check out`
+              ? `Active for ${formatWaitDays(firstMissingPayment.activeDays)} · customers cannot check out`
               : 'Customers cannot check out at these bakeries'
           }
           action={
-            <Link
-              to="/bakeries"
-              className="rounded-lg border border-platform-border bg-platform-surface px-3 py-1.5 text-xs font-semibold text-platform-fg hover:bg-platform-accent"
-            >
+            <Link to="/bakeries" className={secondaryLinkClass}>
               Contact owners
             </Link>
           }
         />
       )}
 
-      {stalledOnboarding.length > 0 && (
+      {firstStalled && (
         <QueueRow
           severity="soon"
           title={
             stalledOnboarding.length === 1
-              ? `${stalledOnboarding[0]!.displayName} has never published a product`
-              : `${stalledOnboarding.length} bakeries approved but never published a product`
+              ? `${firstStalled.displayName} has never published a product`
+              : `${String(stalledOnboarding.length)} bakeries approved but never published a product`
           }
           subtitle="Onboarding appears stalled — worth a check-in"
           action={
-            <Link
-              to="/bakeries"
-              className="rounded-lg border border-platform-border bg-platform-surface px-3 py-1.5 text-xs font-semibold text-platform-fg hover:bg-platform-accent"
-            >
+            <Link to="/bakeries" className={secondaryLinkClass}>
               View list
             </Link>
           }

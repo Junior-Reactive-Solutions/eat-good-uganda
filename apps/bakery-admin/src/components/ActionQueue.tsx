@@ -41,15 +41,24 @@ function QueueRow({ severity, title, subtitle, action }: QueueRowProps) {
 
 function formatWait(minutes: number): string {
   if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${Math.round(minutes)} min waiting`
+  if (minutes < 60) return `${String(Math.round(minutes))} min waiting`
   const hours = Math.floor(minutes / 60)
   const mins = Math.round(minutes % 60)
-  return mins > 0 ? `${hours}h ${mins}m waiting` : `${hours}h waiting`
+  return mins > 0
+    ? `${String(hours)}h ${String(mins)}m waiting`
+    : `${String(hours)}h waiting`
 }
 
-function formatDueTime(iso: string): string {
+function formatClock(iso: string): string {
   return new Date(iso).toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' })
 }
+
+function plural(count: number, singular: string, pluralForm: string): string {
+  return `${String(count)} ${count === 1 ? singular : pluralForm}`
+}
+
+const secondaryLinkClass =
+  'rounded-lg border border-platform-border bg-platform-surface px-3 py-1.5 text-xs font-semibold text-platform-fg hover:bg-platform-accent'
 
 interface ActionQueueProps {
   unconfirmedOrders: ActionQueueOrder[]
@@ -61,7 +70,7 @@ interface ActionQueueProps {
 /**
  * "Needs you now" — the single most important thing a bakery operator sees
  * on opening the dashboard. Replaces the old pattern of leading with four
- * zero-value metric cards.
+ * zero-value metric cards. Renders nothing when there is nothing to do.
  */
 export function ActionQueue({
   unconfirmedOrders,
@@ -69,17 +78,18 @@ export function ActionQueue({
   outOfStockProducts,
   hasEnabledPaymentMethod,
 }: ActionQueueProps) {
+  const oldestOrder = unconfirmedOrders[0]
+  const firstOutOfStock = outOfStockProducts[0]
+
   const totalItems =
-    (unconfirmedOrders.length > 0 ? 1 : 0) +
+    (oldestOrder ? 1 : 0) +
     (dueSoonOrders.length > 0 ? 1 : 0) +
-    (outOfStockProducts.length > 0 ? 1 : 0) +
+    (firstOutOfStock ? 1 : 0) +
     (hasEnabledPaymentMethod ? 0 : 1)
 
   if (totalItems === 0) {
     return null
   }
-
-  const oldestWaitMinutes = unconfirmedOrders[0]?.waitMinutes ?? 0
 
   return (
     <section
@@ -94,18 +104,18 @@ export function ActionQueue({
         <span className="grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-platform-primary px-1.5 text-xs font-bold text-white">
           {totalItems}
         </span>
-        {unconfirmedOrders.length > 0 && (
+        {oldestOrder && (
           <span className="ml-auto text-xs text-platform-fg-muted">
-            Oldest waiting {formatWait(oldestWaitMinutes)}
+            Oldest {formatWait(oldestOrder.waitMinutes)}
           </span>
         )}
       </div>
 
-      {unconfirmedOrders.length > 0 && (
+      {oldestOrder && (
         <QueueRow
           severity="urgent"
-          title={`${unconfirmedOrders.length} order${unconfirmedOrders.length === 1 ? '' : 's'} to confirm`}
-          subtitle={`Oldest placed ${new Date(unconfirmedOrders[0]!.createdAt).toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' })} · ${formatWait(oldestWaitMinutes)}`}
+          title={`${plural(unconfirmedOrders.length, 'order', 'orders')} to confirm`}
+          subtitle={`Oldest placed ${formatClock(oldestOrder.createdAt)} · ${formatWait(oldestOrder.waitMinutes)}`}
           action={
             <Link
               to="/orders?status=pending_payment"
@@ -120,36 +130,30 @@ export function ActionQueue({
       {dueSoonOrders.length > 0 && (
         <QueueRow
           severity="soon"
-          title={`${dueSoonOrders.length} order${dueSoonOrders.length === 1 ? '' : 's'} due in the next 3 hours`}
+          title={`${plural(dueSoonOrders.length, 'order', 'orders')} due in the next 3 hours`}
           subtitle={dueSoonOrders
             .slice(0, 3)
-            .map((o) => `${o.orderNumber} at ${formatDueTime(o.scheduledFor)}`)
+            .map((o) => `${o.orderNumber} at ${formatClock(o.scheduledFor)}`)
             .join(' · ')}
           action={
-            <Link
-              to="/orders"
-              className="rounded-lg border border-platform-border bg-platform-surface px-3 py-1.5 text-xs font-semibold text-platform-fg hover:bg-platform-accent"
-            >
+            <Link to="/orders" className={secondaryLinkClass}>
               Open board
             </Link>
           }
         />
       )}
 
-      {outOfStockProducts.length > 0 && (
+      {firstOutOfStock && (
         <QueueRow
           severity="soon"
           title={
             outOfStockProducts.length === 1
-              ? `${outOfStockProducts[0]!.name} is out of stock`
-              : `${outOfStockProducts.length} products are out of stock`
+              ? `${firstOutOfStock.name} is out of stock`
+              : `${String(outOfStockProducts.length)} products are out of stock`
           }
           subtitle="Marked unavailable — customers can't order these right now"
           action={
-            <Link
-              to="/menu"
-              className="rounded-lg border border-platform-border bg-platform-surface px-3 py-1.5 text-xs font-semibold text-platform-fg hover:bg-platform-accent"
-            >
+            <Link to="/menu" className={secondaryLinkClass}>
               Restock
             </Link>
           }
@@ -162,10 +166,7 @@ export function ActionQueue({
           title="No payment method is enabled"
           subtitle="Customers can't check out until MTN MoMo, Airtel Money or bank transfer is set up"
           action={
-            <Link
-              to="/payment-setup"
-              className="rounded-lg border border-platform-border bg-platform-surface px-3 py-1.5 text-xs font-semibold text-platform-fg hover:bg-platform-accent"
-            >
+            <Link to="/payment-setup" className={secondaryLinkClass}>
               Set up
             </Link>
           }

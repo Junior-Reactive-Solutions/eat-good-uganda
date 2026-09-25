@@ -19,18 +19,20 @@ import { ICON_SIZES } from '@/types/icon'
  * @example
  * export const IconNavigationHome = adaptIcon(House, 'home')
  */
+/** Icon props without `children`: the glyph is supplied by the adapter, never by callers. */
+type AdaptedIconProps = Omit<IconProps, 'children'>
+
 export function adaptIcon(
   Glyph: PhosphorGlyph,
   defaultAlt: string,
-): React.FC<IconProps> {
-  const Adapted: React.FC<IconProps> = ({
+): React.FC<AdaptedIconProps> {
+  const Adapted: React.FC<AdaptedIconProps> = ({
     size = 'md',
     color = 'default',
     state = 'default',
     className = '',
     alt,
     'data-testid': dataTestId,
-    children: _children,
     ...rest
   }) => {
     const label = alt ?? defaultAlt

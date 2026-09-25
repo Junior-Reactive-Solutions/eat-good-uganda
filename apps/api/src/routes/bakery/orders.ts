@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   getOrderById,
   listOrdersForBakery,
   pool,
   updateOrderStatus,
 } from '@eatgood/db'
-import type { OrderStatus } from '@eatgood/shared'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 import { z } from 'zod/v4'
@@ -48,7 +46,7 @@ bakeryOrdersRouter.get(
   authenticateToken('bakery'),
   requireBakeryContext(),
   async (req: Request, res: Response) => {
-    const bakeryId = (req as any).bakery?.id as string | undefined
+    const bakeryId = req.bakery?.id
     if (!bakeryId) return res.status(401).json({ error: 'Unauthorized' })
 
     const parsed = listOrdersQuerySchema.safeParse(req.query)
@@ -83,10 +81,10 @@ bakeryOrdersRouter.get(
 
       // Fetch customer names for customer orders
       const customerIds = [...new Set(orders.map((o) => o.customer_id).filter(Boolean))]
-      let customerMap: Record<string, { full_name: string; email: string; phone: string | null }> = {}
+      const customerMap: Record<string, { full_name: string; email: string; phone: string | null }> = {}
       if (customerIds.length > 0) {
         const ids = customerIds as string[]
-        const placeholders = ids.map((_, i) => `$${i + 1}`).join(',')
+        const placeholders = ids.map((_, i) => `$${String(i + 1)}`).join(',')
         const result = await pool.query<{ id: string; full_name: string; email: string; phone: string | null }>(
           `SELECT id, full_name, email, phone FROM customers WHERE id IN (${placeholders})`,
           ids,
@@ -98,9 +96,9 @@ bakeryOrdersRouter.get(
 
       // Fetch payment methods
       const orderIds = orders.map((o) => o.id)
-      let paymentMap: Record<string, string> = {}
+      const paymentMap: Record<string, string> = {}
       if (orderIds.length > 0) {
-        const placeholders = orderIds.map((_, i) => `$${i + 1}`).join(',')
+        const placeholders = orderIds.map((_, i) => `$${String(i + 1)}`).join(',')
         const result = await pool.query<{ order_id: string; method: string }>(
           `SELECT DISTINCT ON (order_id) order_id, method FROM payments WHERE order_id IN (${placeholders}) ORDER BY order_id, created_at DESC`,
           orderIds,
@@ -145,7 +143,7 @@ bakeryOrdersRouter.get(
   authenticateToken('bakery'),
   requireBakeryContext(),
   async (req: Request, res: Response) => {
-    const bakeryId = (req as any).bakery?.id as string | undefined
+    const bakeryId = req.bakery?.id
     if (!bakeryId) return res.status(401).json({ error: 'Unauthorized' })
     const { orderId } = req.params as { orderId: string }
 
@@ -226,7 +224,7 @@ bakeryOrdersRouter.patch(
   authenticateToken('bakery'),
   requireBakeryContext(),
   async (req: Request, res: Response) => {
-    const bakeryId = (req as any).bakery?.id as string | undefined
+    const bakeryId = req.bakery?.id
     if (!bakeryId) return res.status(401).json({ error: 'Unauthorized' })
     const { orderId } = req.params as { orderId: string }
 
@@ -236,7 +234,7 @@ bakeryOrdersRouter.patch(
     }
 
     try {
-      const updated = await updateOrderStatus(pool, bakeryId, orderId, parsed.data.status as OrderStatus)
+      const updated = await updateOrderStatus(pool, bakeryId, orderId, parsed.data.status)
       if (!updated) return res.status(404).json({ error: 'Order not found' })
 
       res.json({ id: updated.id, status: updated.status, updated_at: updated.updated_at })

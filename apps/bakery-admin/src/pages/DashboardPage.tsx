@@ -82,6 +82,16 @@ export default function DashboardPage() {
       {/* Header */}
       <PageHeader title="Dashboard" subtitle="View your bakery metrics and performance" />
 
+      {/* Needs you now */}
+      {actionQueue && (
+        <ActionQueue
+          unconfirmedOrders={actionQueue.unconfirmedOrders}
+          dueSoonOrders={actionQueue.dueSoonOrders}
+          outOfStockProducts={actionQueue.outOfStockProducts}
+          hasEnabledPaymentMethod={actionQueue.hasEnabledPaymentMethod}
+        />
+      )}
+
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
