@@ -31,6 +31,60 @@ export async function listOrdersForBakery(
   return result.rows
 }
 
+export interface ListOrdersFilteredOptions {
+  /** Single status filter. Ignored if `statuses` is also set. */
+  status?: OrderStatus | undefined
+  /** Filter to any of several statuses (e.g. the board's "active" set). */
+  statuses?: OrderStatus[] | undefined
+  dateFrom?: Date | undefined
+  dateTo?: Date | undefined
+  limit?: number
+  offset?: number
+}
+
+/**
+ * Status/date filters applied in SQL (not in memory after fetch), with a
+ * real total via a window COUNT(*) so pagination and empty-tab states are
+ * accurate regardless of how the rows are distributed across pages.
+ */
+export async function listOrdersForBakeryFiltered(
+  db: Database,
+  bakeryId: string,
+  opts: ListOrdersFilteredOptions = {},
+): Promise<{ items: Order[]; total: number }> {
+  const { status, statuses, dateFrom, dateTo, limit = 50, offset = 0 } = opts
+
+  let where = sql`WHERE bakery_id = ${bakeryId}`
+  if (status) {
+    where = sql`${where} AND status = ${status}`
+  } else if (statuses && statuses.length > 0) {
+    where = sql`${where} AND status = ANY(${statuses})`
+  }
+  if (dateFrom) {
+    where = sql`${where} AND created_at >= ${dateFrom}`
+  }
+  if (dateTo) {
+    where = sql`${where} AND created_at <= ${dateTo}`
+  }
+
+  const result = await query<Order & { total_count: string }>(
+    db,
+    sql`SELECT ${ORDER_COLS}, COUNT(*) OVER() AS total_count
+        FROM orders
+        ${where}
+        ORDER BY created_at DESC
+        LIMIT ${limit} OFFSET ${offset}`,
+  )
+
+  const total = result.rows[0] ? Number(result.rows[0].total_count) : 0
+  const items = result.rows.map((row): Order => {
+    const { total_count, ...order } = row
+    void total_count
+    return order
+  })
+  return { items, total }
+}
+
 export async function listOrdersForCustomer(
   db: Database,
   customerId: string,
