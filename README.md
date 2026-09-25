@@ -99,6 +99,10 @@ This repository is fully active with comprehensive GitHub tooling:
 - **Architecture:** [docs/01-ARCHITECTURE.md](docs/01-ARCHITECTURE.md)
 - **Database:** [docs/02-DATABASE_SCHEMA.md](docs/02-DATABASE_SCHEMA.md)
 - **Decisions:** [docs/17-DECISIONS_LOG.md](docs/17-DECISIONS_LOG.md)
+- **Latest work, blockers & what is next:** [docs/23-SESSION_LOG_2026-09.md](docs/23-SESSION_LOG_2026-09.md)
+- **UI redesign plan (phase checklist):** [docs/22-UI_TRANSITION_PLAN.md](docs/22-UI_TRANSITION_PLAN.md)
+- **Design decks (open in a browser):** [ops console](docs/design/ops-console.html) · [storefront](docs/design/storefront.html)
+- **Master tracker:** [docs/PROGRESS_TRACKER.md](docs/PROGRESS_TRACKER.md)
 
 ---
 

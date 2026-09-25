@@ -387,3 +387,97 @@ All of the following were settled in the planning session that preceded scaffold
 ---
 
 _Future entries append below this line. Each entry is permanent; changes to a decision are a new entry referencing the old one._
+
+---
+
+## September 2026 — UI transition and production hardening
+
+_Narrative and evidence for everything below: [`23-SESSION_LOG_2026-09.md`](23-SESSION_LOG_2026-09.md). Forward plan: [`22-UI_TRANSITION_PLAN.md`](22-UI_TRANSITION_PLAN.md)._
+
+### Icons: adopt Phosphor Icons behind the existing `IconProps` contract
+
+**Decision:** Add `@phosphor-icons/react` (MIT) to all three frontends and add `adaptIcon(Glyph, defaultAlt)` in `components/icons/adapt.tsx`. 40 of the 45 icon components per app are regenerated as thin re-exports; five stay hand-drawn (`IconPaymentMomo`, `IconPaymentAirtel` — brand marks; `IconProductCupcake`, `IconProductDonut`, `IconProductPastry` — no equivalent). An icon with `alt=""` renders `aria-hidden`; only icons with real alt text are `role="img"`.
+
+**Context:** The hand-drawn set mixed 2px, 1.5px and 1px strokes inside single glyphs and every new icon was a hand-authoring job. Flaticon was considered and rejected: its free tier legally requires per-author attribution on every screen, styles differ per author, and there is no React package. Phosphor's props (`size`, `color`, `weight`, `alt`) nearly match `IconProps`, and its `fill` weight gives a native "active" state. All 39 mapped glyph names were verified against the installed package (1,512 glyphs).
+
+**Consequences:** No call site changed. Every icon in the customer app also changed appearance and has not yet been seen in production. The 45 components remain triplicated across the three apps (debt: move to `packages/ui`). No library covers East African staples (mandazi, chapati, rolex, samosa, matoke); roughly twelve custom glyphs should be commissioned on Phosphor's 256×256 grid. No emoji in product UI — icons only.
+
+### Navigation: `NavLink`, grouped, with a real active state
+
+**Decision:** Both admin rails use React Router `NavLink` (visible active edge, `aria-current="page"`, middle-click works), grouped Operate/Configure (bakery) and Oversight/Governance (super-admin). Settings and Payments are added to the bakery rail. The super-admin header is a route-derived breadcrumb; the bakery header shows the user's identity with a copyable short id instead of the tenant UUID.
+
+**Context:** Nav items were `<button onClick={navigate}>` with no active state, no `aria-current`, and no way to open in a new tab. Payments and Settings were reachable only by typing the URL, and a bakery with no payment method configured could not take orders.
+
+**Consequences:** The full UUID is still one click from the clipboard for support. Nav item height is 44px.
+
+### Dashboards lead with a server-computed "action queue"
+
+**Decision:** Each admin dashboard opens on a queue of things that need a human, computed server-side and served from a dedicated endpoint: `GET /v1/bakery/metrics/action-queue` (tenant-scoped) and `GET /v1/admin/dashboard/action-queue` (cross-tenant, admin-only). Thresholds are constants in the query modules: support-ticket SLA **24 h**, orders "due soon" **3 h**, "stalled onboarding" **3 days** after approval with no published product.
+
+**Context:** Both dashboards opened on totals (four zeros for a new bakery) and gave no answer to "what needs me right now?".
+
+**Consequences:** Separate endpoints let the queue refetch every 2 minutes independently of slow-moving metrics. The thresholds are heuristics — no formal SLA field exists — and are product decisions to revisit. Known inaccuracy: the bakery queue counts every `pending_payment` order as "to confirm", including MoMo orders still awaiting the customer's PIN; it should become payment-method-aware. Admin query helpers stay import-restricted by ESLint (`no-restricted-imports`); the `index.ts` re-export carries the same `eslint-disable-next-line` as the existing admin export.
+
+### Route handlers use the shared `pool`, never `req.db`
+
+**Decision:** Handlers call `pool` (from `@eatgood/db`) directly. Nothing in the middleware chain ever assigns `req.db`. The only acceptable use is the `req.db ?? pool` fallback (test injection) already present in `customer/payments.ts` and `webhooks/mtn-momo.ts`.
+
+**Context:** Three separate routes read `req.db` and therefore returned 500 on every request: bakery metrics (`b9d7616`, earlier `9a0c5b7`) and `GET /v1/admin/dashboard` (fixed in `333c30e`, after an earlier commit claimed to have fixed it).
+
+**Consequences:** Consider removing `req.db` from the Express type augmentation so the mistake cannot compile. Every tenant-scoped query must still filter by `bakery_id`.
+
+### 404 handling needs a catch-all route, not just `errorElement`
+
+**Decision:** Every app adds `path: '*'` (nested under the authenticated layout so the sidebar survives, and at top level) alongside `errorElement` on top-level routes, both rendering a per-app `RouteErrorPage` that uses `isRouteErrorResponse` to distinguish a 404 from a runtime error.
+
+**Context:** React Router's default "Unexpected Application Error! 404" screen appears when *no route matches at all*; `errorElement` only handles a matched route that throws.
+
+**Consequences:** An unauthenticated visitor to an unknown admin path is redirected to `/login` before reaching the 404 (by design). Verified in the served bundles; not yet seen visually.
+
+### Customer page metadata uses React 19 native hoisting
+
+**Decision:** A small `PageMeta` component renders `<title>`, description, Open Graph and Twitter tags; React 19 hoists them into `<head>`. No `react-helmet`. Private pages emit `noindex`. Bakery, menu and product pages derive values from live data.
+
+**Context:** Every page shared one static title. React 19 makes a metadata library unnecessary.
+
+**Consequences:** **Limitation:** this is a client-rendered SPA, and WhatsApp, Facebook and X crawlers do not execute JavaScript, so shared links show only the static `index.html` defaults. Truly dynamic link previews require prerendering or edge middleware (open item). `og-default.png` is JPEG data with a `.png` name and `og:url` is hard-coded to the `.vercel.app` root.
+
+### Orders UI: board by default, table for search and deep links
+
+**Decision:** `/orders` defaults to a pipeline board whose columns follow `VALID_TRANSITIONS` (`pending_payment → confirmed → preparing → ready → out_for_delivery/delivered`), each card carrying one primary advance action via the existing `PATCH`. Board/Table persists in `?view=`; a bare `?status=` deep link lands on the filtered table because the board ignores status filters.
+
+**Context:** Advancing an order took open-detail → change select → save → back. The deck's central proposal was to show the status enum as a pipeline.
+
+**Consequences:** Known limitations (tracked in the plan): the API applies status/date filters after pagination with an approximate total; the board loads only the latest 100 orders; the card nests a button inside `role="button"`; failures are not surfaced.
+
+### Bulk approve is a client-side loop until a bulk endpoint exists
+
+**Decision:** The Bakeries table's "Approve N" calls `POST /v1/admin/bakeries/:bakeryId/approve` once per selected pending row. Bulk *suspend* is deliberately omitted because suspension requires a reason.
+
+**Context:** No bulk endpoint exists, and the design's headline scenario is approving several applications in one pass.
+
+**Consequences:** Acceptable at current volume. A real `POST /v1/admin/bakeries/bulk-approve` should replace it, giving one audit entry and per-row results.
+
+### Bakery settings: drop the missing columns instead of migrating (for now)
+
+**Decision:** `website` and `currency_code` are removed from `getBakeryProfile`/`updateBakeryProfile`, the `BakeryProfile` type, the Zod schema, the form and its tests. Migration `0024_add_website_currency_to_bakeries.sql` is committed but **not applied**.
+
+**Context:** The columns never existed (migration `0003`), so `GET /v1/bakery/settings` failed with `column "website" does not exist`. Applying a migration was impossible because the local database credentials are stale (`28P01`).
+
+**Consequences:** The Website field is absent from Settings until the migration is applied and the code restored. Decide: apply `0024` and re-add the field, or delete `0024`.
+
+### Customer experience constraints set by the owner
+
+**Decision:** The customer app is designed phone-first, then tablet, then desktop; uses icons instead of emoji wherever a glyph can be used; and limits motion to six named animations (sheet rise, toast, skeleton shimmer, tap + count bump, list stagger, status halo), transform/opacity only, at most 320 ms, with at most one ambient loop per screen and `prefers-reduced-motion` removing all of it.
+
+**Context:** Owner direction while approving the storefront deck: "efficient and looks first, not complex and flashy".
+
+**Consequences:** These bind Phase 5. Deck: [`design/storefront.html`](design/storefront.html).
+
+### Verification standard: exit codes, exact-count edits, bundle scans
+
+**Decision:** A check counts only with an explicit exit code (empty output is "unknown", never "pass"). Scripted find/replace must assert an exact match count per replacement. After an edit, grep for the expected symbol and compare `git diff --stat` with intent. Production deploys are verified by searching the served bundle for a feature-specific string.
+
+**Context:** Earlier work committed two features that had only half-applied (CRLF files defeated multi-line patterns and a "something changed" guard still passed) and reported lint clean from empty background output. See the session log §7.
+
+**Consequences:** Slower, but claims in commit messages now match the diff. Normalise line endings before scripting (there is no `.gitattributes` yet).

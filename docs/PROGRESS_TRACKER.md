@@ -1,10 +1,18 @@
 # Eat Good Uganda — Master Progress Tracker
 
 **Project:** Multi-tenant bakery commerce platform  
-**Last Updated:** 2026-06-05  
+**Last Updated:** 2026-09-25  
 **Maintained by:** Spryra (Aaron Mugumya — aaronmugumya04@gmail.com)
 
 > **For next chat:** Read this entire file before doing anything. This is the binding source of truth for what has been done, what is in progress, and what comes next. All decisions, bugs, fixes, and credentials are documented here. Do NOT guess — consult this file.
+
+> **Update (2026-09-25) — read this first.** Everything after mid-June 2026 (bakery-admin production fixes, the
+> 404/metadata work, the icon-system and navigation overhaul, action queues, the orders board and bakeries table,
+> and a corrective audit) is recorded in [`23-SESSION_LOG_2026-09.md`](23-SESSION_LOG_2026-09.md) (what was done,
+> how, where, why, blockers, what is live, what is next). The forward checklist is
+> [`22-UI_TRANSITION_PLAN.md`](22-UI_TRANSITION_PLAN.md); the two design decks are in [`design/`](design/);
+> the decisions are appended to [`17-DECISIONS_LOG.md`](17-DECISIONS_LOG.md). Sections 4, 12, 14 and 17 below
+> describe the state as of **June 2026** and are kept as history.
 
 ---
 
@@ -858,6 +866,28 @@ The Super Admin login requires a 6-digit rotating code. To set it up:
 
 ## 12. Git Commit Log
 
+### September 2026 (most recent first) — details in `23-SESSION_LOG_2026-09.md`
+
+```
+(docs)   docs: session log, plan refresh, decisions, tracker, design decks
+333c30e  fix: land missing action-queue wiring and clear lint errors from earlier commits
+5ce815a  feat(bakery-admin,super-admin): add orders pipeline board and bakeries table
+f9dfac9  feat(super-admin): add platform action queue and fix req.db bug   (route file only half-landed; fixed in 333c30e)
+7904f0c  feat(bakery-admin): add the action queue and fix order status bugs (page wiring only half-landed; fixed in 333c30e / 5ce815a)
+e689ccf  feat(ui): adopt Phosphor icons and fix admin navigation
+8f902dd  feat(customer): add per-page titles and Open Graph/Twitter meta tags
+8bba6c2  fix(bakery-admin): remove website field from settings form
+9fc6eec  fix(ui): add 404/error boundary pages to all three apps
+ae8f06b  fix(api): remove website/currency_code from bakery settings query (columns not in schema)
+8a5d65c  fix(bakery-admin): unwrap { user } response from /me endpoint
+9126b22  feat(api): implement /v1/bakery/orders endpoint
+b9d7616  fix(api): use pool directly in bakery metrics route instead of req.db
+41e1268  fix(sentry): use replayIntegration() instead of deprecated new Sentry.Replay()
+8286966  fix(bakery-admin): correct auth API paths and implement proper logout
+```
+
+### Earlier commits (June 2026)
+
 ### Recent Commits (Most Recent First)
 
 ```
@@ -1240,6 +1270,11 @@ b054e25  fix: improve super admin login UX and debug TOTP authentication
 
 | Date | What Changed | By |
 |------|--------------|----|
+| 2026-09-25 | **Documentation pass**: added `23-SESSION_LOG_2026-09.md` (full account, blockers, live status, ordered next steps), refreshed `22-UI_TRANSITION_PLAN.md`, appended 11 entries to `17-DECISIONS_LOG.md`, saved the two design decks under `docs/design/` | Session (Sonnet 5) |
+| 2026-09-25 | **Corrective audit (`333c30e`)**: two features from earlier commits had only half-landed (admin dashboard `req.db` fix + `/action-queue` route; bakery dashboard never rendered its queue). Fixed, plus ~30 lint errors. All 3 frontends + API re-verified with exit codes | Session (Sonnet 5) |
+| 2026-09-21 | **UI transition Phases 2–3**: action queues (bakery + super-admin), orders pipeline board, sortable bakeries table with bulk approve | Session (Sonnet 5) |
+| 2026-09-18 | **UI transition Phase 1**: Phosphor icon system via adapter, NavLink navigation with active state, header fixes | Session (Opus 5) |
+| 2026-09-14 | **Bakery Admin production fixes**: CSRF login path, /me unwrap, Sentry v10 API (unblocked Vercel builds), `req.db` metrics 500, new /v1/bakery/orders API, settings 500 (missing columns); 404/error pages in all apps; customer page titles + OG tags | Session (Sonnet 4.6 / Sonnet 5) |
 | 2026-06-11 | **PHASE 6A CRITICAL FIXES**: Fixed 3 order creation bugs — bakery_id validation from request body, product price lookup with real subtotals, fire-and-forget email pattern | Session (Sonnet + Haiku) |
 | 2026-06-08 | Integrated professional bakery logos: Replaced 5MB+ SVG data URIs with lightweight PNG files (1.5-1.6MB each). Updated database via seed script. Logos now display on customer app, bakery admin, and super admin. | Session (Sonnet) |
 | 2026-06-05 | Fixed TOTP 401 error (critical otplib API bug) + improved button visibility + added debug logging | Session (Sonnet) |

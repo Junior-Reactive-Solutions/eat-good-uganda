@@ -3,12 +3,25 @@
 Tracks the move from the current admin/customer interfaces to the redesign agreed in
 September 2026. Each phase is independently shippable and independently revertable.
 
+## Status board (as of 2026-09-25)
+
+| Phase | State | Live? |
+| --- | --- | --- |
+| 1 — Shell, navigation, icons | **Done** (2 follow-ups open) | Yes, verified |
+| 2 — Action queues | **Done** (bakery queue in the live bundle since 07:07 UTC; super-admin needs an authenticated check) | Yes (super-admin unverified behind login) |
+| 3 — Tables and pipeline | **Done in code** (limitations listed in the phase) | Yes, bundle-verified |
+| 4 — Forms, shortcuts, polish | Not started | — |
+| 5 — Customer storefront | Not started, **blocked** on reconnecting the customer Vercel project | No |
+
+The full narrative — what was done, how, where, why, and every blocker — is in
+[`23-SESSION_LOG_2026-09.md`](23-SESSION_LOG_2026-09.md). This document is the forward-looking checklist.
+
 ## Design references
 
 | Deck | Covers |
 | --- | --- |
-| Ops Console | Super Admin + Bakery Admin, 8 screens, icon set, shortcut map |
-| Storefront | Customer, 7 screens, phone-first, motion spec |
+| [Ops Console](design/ops-console.html) | Super Admin + Bakery Admin, 8 screens, icon set, shortcut map |
+| [Storefront](design/storefront.html) | Customer, 7 screens, phone-first, motion spec |
 
 Both decks are the source of truth for layout decisions. Where this document and a deck
 disagree, the deck wins and this document should be corrected.
@@ -29,7 +42,7 @@ Carried unchanged through every phase:
 
 ## Phase 1 — Shell, navigation, icons
 
-**Status: in progress**
+**Status: done — two follow-ups open (shared `PageHeader`, icon consolidation)**
 
 - [x] Add `@phosphor-icons/react` (MIT) to all three apps.
 - [x] `adaptIcon()` adapter maps Phosphor glyphs onto the existing `IconProps` contract, so
@@ -70,18 +83,31 @@ weight so they sit in the set indistinguishably. Sketches are in the Ops Console
 
 ## Phase 2 — Action queues
 
-- [ ] `ActionQueue` component: severity stripe, counting title, evidence subtitle, inline action.
-- [ ] Bakery Admin queries: unconfirmed orders with wait timer, collections due, out-of-stock
-      products, missing payment rails.
-- [ ] Super Admin queries: pending approvals, SLA-breaching tickets, stalled onboarding,
-      bakeries live without a payment method.
+**Status: done in code (`7904f0c`, `f9dfac9`, corrected in `333c30e`)**
+
+- [x] `ActionQueue` component (one per app): severity stripe, counting title, evidence subtitle,
+      inline action; renders nothing when the queue is empty.
+- [x] Bakery Admin data: `getBakeryActionQueue` → `GET /v1/bakery/metrics/action-queue`
+      (orders to confirm with wait time, orders due within 3 h, published-but-unavailable
+      products, whether a payment method is enabled). Tenant-scoped by `bakery_id`.
+- [x] Super Admin data: `getPlatformActionQueue` → `GET /v1/admin/dashboard/action-queue`
+      (pending approvals, tickets older than 24 h, active bakeries with no payment method,
+      approved bakeries with no published product after 3 days).
+- [x] Fixed on the way: order status enum mismatch (`pending` vs `pending_payment`);
+      `GET /v1/admin/dashboard` returning 500 (it read the never-populated `req.db`); the old
+      super-admin banner linking to a route that does not exist.
+- [ ] **Queue accuracy:** "orders to confirm" includes `pending_payment` orders that are still
+      waiting on the customer's mobile-money PIN. Make it payment-method-aware.
 - [ ] New-bakery dashboard becomes a setup checklist instead of four zeros.
 - [ ] KPI tile with delta, sparkline and prior-period value. Direction and sentiment are
       separate inputs so a rising failure count reads red.
+- [ ] Verify live: super-admin queue and dashboard need an authenticated check (TOTP). The bakery
+      queue is present in the live bundle (2026-09-25 07:07 UTC); a visual check with the seed
+      login is still recommended.
 
 ## Phase 3 — Tables and pipeline
 
-**Status: mostly done**
+**Status: done in code (`5ce815a`); limitations below must be fixed before heavy use**
 
 - [x] Orders pipeline board (`OrderBoard.tsx`): six columns matching the real `order_status`
       transitions, each card carrying one primary advance action wired to the existing
@@ -102,6 +128,19 @@ weight so they sit in the set indistinguishably. Sketches are in the Ops Console
 - [ ] Three empty-state variants (no data yet / no results for filter / error) replacing every
       bare "No results" string — partially done (Orders board has its own "No orders yet"; the
       generic empty state used elsewhere is still the old one-liner).
+
+### Phase 3 limitations to fix
+
+- [ ] **Orders list filters run after pagination.** `GET /v1/bakery/orders` fetches a page ordered
+      by recency and then filters by status/date in memory, with an approximate `total`. The
+      "To confirm" tab can look empty while older pending orders exist. Move filters into SQL and
+      return a real `COUNT(*)`.
+- [ ] **Board window.** The board loads the latest 100 orders of any status, so accumulating
+      `delivered` orders can push still-active older orders off the board. Query active statuses.
+- [ ] **Board card a11y and feedback.** The card is `role="button"` containing a real button
+      (nested interactive). Mutation failures are not shown to the user; no undo toast; no cancel.
+- [ ] **Bulk approve** has no dedicated endpoint, no per-row result feedback, and only sees the
+      current page's selection.
 
 ## Phase 4 — Forms, shortcuts, polish
 
@@ -164,8 +203,21 @@ Rules: no entrance animation on content already in view; one ambient loop maximu
   `POST /:bakeryId/approve` once per selected row. Fine at today's volume; a real
   `POST /v1/admin/bakeries/bulk-approve` should replace it before onboarding scales up, both
   for a single audit-log entry and to avoid N sequential round-trips.
-- **Found and fixed while building Phase 3:** a prior patch (Phase 2, `feat(super-admin): add
-  platform action queue`) claimed to wire `?status=` into the bakery-admin Orders page but a
+- **Found and fixed while building Phase 3:** a prior patch (Phase 2, `7904f0c`
+  `feat(bakery-admin): add the action queue`) claimed to wire `?status=` into the bakery-admin Orders page but a
   multi-part scripted edit silently applied only one of several intended replacements — the
   `useSearchParams` wiring never actually landed. The lesson: verify each replacement
   individually rather than asserting only that *some* change occurred.
+- **A second silent partial edit was found later** (`f9dfac9` and `7904f0c` again): the
+  `GET /v1/admin/dashboard/action-queue` endpoint and the `req.db` fix were never applied to the
+  API route, and the bakery dashboard imported its new component without rendering it. Corrected
+  in `333c30e`. The verification rules that came out of this (exact match counts, grep after
+  edit, exit codes not silence) are in `23-SESSION_LOG_2026-09.md` §7.
+- **Lint debt inherited from earlier phases:** the customer app reports 17 ESLint errors and 12
+  TypeScript errors in test files. None come from this work (proved with `git blame`), but they
+  make the lint gate unreliable until cleared.
+- **Social previews:** per-page Open Graph tags are set client-side, which WhatsApp/Facebook/X
+  crawlers do not execute. Dynamic previews need prerendering or edge middleware.
+  `og-default.png` is JPEG data with a `.png` name and should be regenerated at 1200×630.
+- **Migration `0024`** (`website`, `currency_code` on `bakeries`) is committed but unapplied
+  because the local database credentials are stale. Apply it or delete it.
