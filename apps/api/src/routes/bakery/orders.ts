@@ -1,9 +1,4 @@
-import {
-  getOrderById,
-  listOrdersForBakery,
-  pool,
-  updateOrderStatus,
-} from '@eatgood/db'
+import { getOrderById, listOrdersForBakeryFiltered, pool, updateOrderStatus } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 import { z } from 'zod/v4'
@@ -27,6 +22,13 @@ const ORDER_STATUS_VALUES = [
 
 const listOrdersQuerySchema = z.object({
   status: z.enum(ORDER_STATUS_VALUES).optional(),
+  // Comma-separated list, e.g. "confirmed,preparing,ready" — used by the
+  // board to fetch only active statuses instead of the latest N of any status.
+  statuses: z
+    .string()
+    .optional()
+    .transform((value) => value?.split(',').filter(Boolean))
+    .pipe(z.array(z.enum(ORDER_STATUS_VALUES)).optional()),
   date_from: z.string().optional(),
   date_to: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
@@ -54,41 +56,39 @@ bakeryOrdersRouter.get(
       return res.status(400).json({ error: 'Invalid query', issues: parsed.error.issues })
     }
 
-    const { limit, offset, status, date_from, date_to } = parsed.data
+    const { limit, offset, status, statuses, date_from, date_to } = parsed.data
+
+    let dateTo: Date | undefined
+    if (date_to) {
+      dateTo = new Date(date_to)
+      dateTo.setHours(23, 59, 59, 999)
+    }
 
     try {
-      // Fetch raw orders from DB
-      let orders = await listOrdersForBakery(pool, bakeryId, limit + 1, offset)
-
-      // Client-side status filter (DB function doesn't support it; no new query needed)
-      if (status) {
-        orders = orders.filter((o) => o.status === status)
-      }
-
-      // Date range filter
-      if (date_from) {
-        const from = new Date(date_from)
-        orders = orders.filter((o) => o.created_at >= from)
-      }
-      if (date_to) {
-        const to = new Date(date_to)
-        to.setHours(23, 59, 59, 999)
-        orders = orders.filter((o) => o.created_at <= to)
-      }
-
-      const hasMore = orders.length > limit
-      if (hasMore) orders.pop()
+      const { items: orders, total } = await listOrdersForBakeryFiltered(pool, bakeryId, {
+        status,
+        statuses,
+        dateFrom: date_from ? new Date(date_from) : undefined,
+        dateTo,
+        limit,
+        offset,
+      })
 
       // Fetch customer names for customer orders
       const customerIds = [...new Set(orders.map((o) => o.customer_id).filter(Boolean))]
-      const customerMap: Record<string, { full_name: string; email: string; phone: string | null }> = {}
+      const customerMap: Record<
+        string,
+        { full_name: string; email: string; phone: string | null }
+      > = {}
       if (customerIds.length > 0) {
         const ids = customerIds as string[]
         const placeholders = ids.map((_, i) => `$${String(i + 1)}`).join(',')
-        const result = await pool.query<{ id: string; full_name: string; email: string; phone: string | null }>(
-          `SELECT id, full_name, email, phone FROM customers WHERE id IN (${placeholders})`,
-          ids,
-        )
+        const result = await pool.query<{
+          id: string
+          full_name: string
+          email: string
+          phone: string | null
+        }>(`SELECT id, full_name, email, phone FROM customers WHERE id IN (${placeholders})`, ids)
         for (const row of result.rows) {
           customerMap[row.id] = { full_name: row.full_name, email: row.email, phone: row.phone }
         }
@@ -126,9 +126,12 @@ bakeryOrdersRouter.get(
         }
       })
 
-      res.json({ items, total: items.length + offset + (hasMore ? 1 : 0), offset, limit })
+      res.json({ items, total, offset, limit })
     } catch (error) {
-      logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to list orders')
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Failed to list orders',
+      )
       res.status(500).json({ error: 'Failed to list orders' })
     }
   },
@@ -156,10 +159,11 @@ bakeryOrdersRouter.get(
       let customerEmail: string = order.guest_email ?? ''
       let customerPhone: string | null = order.guest_phone ?? null
       if (order.customer_id) {
-        const cResult = await pool.query<{ full_name: string; email: string; phone: string | null }>(
-          'SELECT full_name, email, phone FROM customers WHERE id = $1',
-          [order.customer_id],
-        )
+        const cResult = await pool.query<{
+          full_name: string
+          email: string
+          phone: string | null
+        }>('SELECT full_name, email, phone FROM customers WHERE id = $1', [order.customer_id])
         if (cResult.rows[0]) {
           customerName = cResult.rows[0].full_name
           customerEmail = cResult.rows[0].email
@@ -209,7 +213,10 @@ bakeryOrdersRouter.get(
         items: itemsResult.rows,
       })
     } catch (error) {
-      logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to get order detail')
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Failed to get order detail',
+      )
       res.status(500).json({ error: 'Failed to get order' })
     }
   },
