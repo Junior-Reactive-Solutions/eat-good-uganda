@@ -99,7 +99,9 @@ export type PublicBakery = {
   city: string
   accepts_pickup: boolean
   accepts_delivery: boolean
+  delivery_fee_minor: number | null
   delivery_radius_km: number | null
+  min_order_minor: number | null
   distance_km: number | null
 }
 
@@ -128,6 +130,7 @@ export async function listPublicBakeries(
             logo_url, primary_color, accent_color,
             address_line1, address_line2, city,
             accepts_pickup, accepts_delivery,
+            delivery_fee_minor, min_order_minor,
             delivery_radius_km::float8 AS delivery_radius_km,
             earth_distance(
               ll_to_earth(latitude::float8, longitude::float8),
@@ -153,6 +156,7 @@ export async function listPublicBakeries(
           logo_url, primary_color, accent_color,
           address_line1, address_line2, city,
           accepts_pickup, accepts_delivery,
+          delivery_fee_minor, min_order_minor,
           delivery_radius_km::float8 AS delivery_radius_km,
           NULL::float8 AS distance_km
         FROM bakeries

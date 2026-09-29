@@ -2,12 +2,66 @@ import { Link } from 'react-router-dom'
 
 import type { PublicBakery } from '../features/bakery/api'
 
-import { IconDeliveryLocation } from './icons'
+import {
+  IconDeliveryLocation,
+  IconDeliveryPickup,
+  IconDeliveryBoda,
+  IconInteractionClock,
+} from './icons'
 
 type Props = { bakery: PublicBakery }
 
 function cloudinaryThumb(url: string): string {
   return url.replace('/upload/', '/upload/w_200,h_200,c_fill,q_auto,f_auto/')
+}
+
+function formatUGX(minor: number): string {
+  return new Intl.NumberFormat('en-UG', {
+    style: 'currency',
+    currency: 'UGX',
+    minimumFractionDigits: 0,
+  }).format(minor / 100)
+}
+
+function FulfilmentChips({ bakery }: { bakery: PublicBakery }) {
+  const chips: Array<{ icon: React.ReactNode; label: string }> = []
+
+  if (bakery.accepts_delivery) {
+    const feeLabel =
+      bakery.delivery_fee_minor != null
+        ? bakery.delivery_fee_minor === 0
+          ? 'Free delivery'
+          : `Delivery ${formatUGX(bakery.delivery_fee_minor)}`
+        : 'Delivery available'
+    chips.push({ icon: <IconDeliveryBoda size="sm" color="default" alt="" />, label: feeLabel })
+  }
+
+  if (bakery.accepts_pickup) {
+    chips.push({ icon: <IconDeliveryPickup size="sm" color="default" alt="" />, label: 'Pickup' })
+  }
+
+  if (bakery.min_order_minor != null && bakery.min_order_minor > 0) {
+    chips.push({
+      icon: <IconInteractionClock size="sm" color="default" alt="" />,
+      label: `Min ${formatUGX(bakery.min_order_minor)}`,
+    })
+  }
+
+  if (chips.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap gap-1.5 pt-1">
+      {chips.map(({ icon, label }) => (
+        <span
+          key={label}
+          className="inline-flex items-center gap-1 rounded-full bg-platform-accent px-2 py-0.5 text-xs text-platform-fg-muted"
+        >
+          {icon}
+          {label}
+        </span>
+      ))}
+    </div>
+  )
 }
 
 export function BakeryCard({ bakery }: Props) {
@@ -41,6 +95,8 @@ export function BakeryCard({ bakery }: Props) {
         {bakery.tagline && (
           <p className="line-clamp-2 text-sm text-platform-fg-muted">{bakery.tagline}</p>
         )}
+
+        <FulfilmentChips bakery={bakery} />
 
         <div className="mt-auto flex items-center justify-between pt-2">
           <div className="flex min-w-0 items-center gap-1 text-xs text-platform-fg-muted">

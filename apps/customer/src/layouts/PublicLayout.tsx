@@ -1,10 +1,13 @@
 import { useState } from 'react'
-import { Link, Outlet, useMatch } from 'react-router-dom'
+import { Link, NavLink, Outlet, useMatch } from 'react-router-dom'
 
 import logo from '../assets/brand/logo.svg'
 import CartDrawer from '../components/CartDrawer'
 import CartIcon from '../components/CartIcon'
 import {
+  IconNavigationFavorites,
+  IconNavigationHome,
+  IconNavigationOrders,
   IconNavigationProfile,
   IconProductBreadLoaf,
 } from '../components/icons'
@@ -92,13 +95,52 @@ function Footer() {
   )
 }
 
+const TAB_NAV_ITEMS = [
+  { to: '/', icon: IconNavigationHome, label: 'Home', end: true },
+  { to: '/orders', icon: IconNavigationOrders, label: 'Orders', end: false },
+  { to: '/saved', icon: IconNavigationFavorites, label: 'Saved', end: false },
+  { to: '/account', icon: IconNavigationProfile, label: 'Account', end: false },
+] as const
+
+function BottomTabBar() {
+  return (
+    <nav
+      aria-label="Bottom navigation"
+      className="sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-platform-border bg-platform-surface/95 backdrop-blur-sm"
+    >
+      <ul className="flex h-16 items-stretch">
+        {TAB_NAV_ITEMS.map(({ to, icon: Icon, label, end }) => (
+          <li key={to} className="flex flex-1">
+            <NavLink
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                `flex flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-platform-primary ${
+                  isActive ? 'text-platform-primary' : 'text-platform-fg-muted'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon size="sm" color={isActive ? 'primary' : 'default'} alt="" />
+                  <span>{label}</span>
+                </>
+              )}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
 export function PublicLayout() {
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false)
   const isBakeryRoute = useMatch('/b/:slug/*')
   const { items, bakerySlug } = useCart()
 
   return (
-    <div className="flex min-h-screen flex-col bg-platform-bg">
+    <div className="flex min-h-screen flex-col bg-platform-bg pb-16 sm:pb-0">
       <Nav
         onOpenCart={() => {
           setCartDrawerOpen(true)
@@ -115,6 +157,7 @@ export function PublicLayout() {
         )}
       </main>
       <Footer />
+      <BottomTabBar />
       <CartDrawer
         isOpen={cartDrawerOpen}
         onClose={() => {

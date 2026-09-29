@@ -17,7 +17,9 @@ export type PublicBakery = {
   city: string
   accepts_pickup: boolean
   accepts_delivery: boolean
+  delivery_fee_minor: number | null
   delivery_radius_km: number | null
+  min_order_minor: number | null
   distance_km: number | null
 }
 

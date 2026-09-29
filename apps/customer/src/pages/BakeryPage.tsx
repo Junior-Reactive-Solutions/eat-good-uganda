@@ -2,6 +2,11 @@ import { Link, useParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import {
+  IconDeliveryBoda,
+  IconDeliveryLocation,
+  IconDeliveryPickup,
+  IconInteractionClock,
+  IconInteractionPhone,
   IconNavigationMenu,
   IconProductBreadLoaf,
 } from '../components/icons'
@@ -51,7 +56,9 @@ export default function BakeryPage() {
           bakery.tagline ??
           `Order fresh bread, cakes, and pastries from ${bakery.display_name} on Eat Good Uganda.`
         }
-        {...(bakery.logo_url ? { image: cloudinaryImage(bakery.logo_url, { w: 512, q: 'auto' }) } : {})}
+        {...(bakery.logo_url
+          ? { image: cloudinaryImage(bakery.logo_url, { w: 512, q: 'auto' }) }
+          : {})}
       />
       {/* Hero Section */}
       {bakery.hero_image_url && (
@@ -84,8 +91,47 @@ export default function BakeryPage() {
               <p className="mt-3 text-platform-fg-muted">{bakery.description}</p>
             )}
             <div className="mt-4 flex flex-col gap-2 text-sm text-platform-fg-muted">
-              <p>📍 {bakery.address_line1}</p>
-              {bakery.phone && <p>📞 {bakery.phone}</p>}
+              <p className="flex items-center gap-1.5">
+                <IconDeliveryLocation size="sm" color="default" alt="" />
+                {bakery.address_line1}
+              </p>
+              {bakery.phone && (
+                <p className="flex items-center gap-1.5">
+                  <IconInteractionPhone size="sm" color="default" alt="" />
+                  {bakery.phone}
+                </p>
+              )}
+            </div>
+
+            {/* Fulfilment fact strip */}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {bakery.accepts_delivery && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-platform-border px-3 py-1 text-sm text-platform-fg-muted">
+                  <IconDeliveryBoda size="sm" color="default" alt="" />
+                  {bakery.delivery_fee_minor != null
+                    ? bakery.delivery_fee_minor === 0
+                      ? 'Free delivery'
+                      : `Delivery ${new Intl.NumberFormat('en-UG', { style: 'currency', currency: 'UGX', minimumFractionDigits: 0 }).format(bakery.delivery_fee_minor / 100)}`
+                    : 'Delivery available'}
+                </span>
+              )}
+              {bakery.accepts_pickup && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-platform-border px-3 py-1 text-sm text-platform-fg-muted">
+                  <IconDeliveryPickup size="sm" color="default" alt="" />
+                  Pickup available
+                </span>
+              )}
+              {bakery.min_order_minor != null && bakery.min_order_minor > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-platform-border px-3 py-1 text-sm text-platform-fg-muted">
+                  <IconInteractionClock size="sm" color="default" alt="" />
+                  Min order{' '}
+                  {new Intl.NumberFormat('en-UG', {
+                    style: 'currency',
+                    currency: 'UGX',
+                    minimumFractionDigits: 0,
+                  }).format(bakery.min_order_minor / 100)}
+                </span>
+              )}
             </div>
           </div>
           <Link to={`/b/${bakerySlug}/menu`}>
@@ -163,12 +209,7 @@ export default function BakeryPage() {
         {!productsData ||
           (productsData.products.length === 0 && (
             <div className="rounded-lg border border-platform-border bg-platform-surface p-8 text-center">
-              <IconProductBreadLoaf
-                size="lg"
-                color="default"
-                className="mx-auto mb-4"
-                alt=""
-              />
+              <IconProductBreadLoaf size="lg" color="default" className="mx-auto mb-4" alt="" />
               <h3 className="text-lg font-semibold text-platform-fg">No products yet</h3>
               <p className="mt-1 text-platform-fg-muted">
                 This bakery hasn't added any products yet. Check back soon!
