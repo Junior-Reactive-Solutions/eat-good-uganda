@@ -5,23 +5,23 @@ September 2026. Each phase is independently shippable and independently revertab
 
 ## Status board (as of 2026-09-25)
 
-| Phase | State | Live? |
-| --- | --- | --- |
-| 1 — Shell, navigation, icons | **Done** (2 follow-ups open) | Yes, verified |
-| 2 — Action queues | **Done** (bakery queue in the live bundle since 07:07 UTC; super-admin needs an authenticated check) | Yes (super-admin unverified behind login) |
-| 3 — Tables and pipeline | **Done in code** (limitations listed in the phase) | Yes, bundle-verified |
-| 4 — Forms, shortcuts, polish | Not started | — |
-| 5 — Customer storefront | Not started, **blocked** on reconnecting the customer Vercel project | No |
+| Phase                        | State                                                                                                | Live?                                     |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| 1 — Shell, navigation, icons | **Done** (2 follow-ups open)                                                                         | Yes, verified                             |
+| 2 — Action queues            | **Done** (bakery queue in the live bundle since 07:07 UTC; super-admin needs an authenticated check) | Yes (super-admin unverified behind login) |
+| 3 — Tables and pipeline      | **Done in code** (limitations listed in the phase)                                                   | Yes, bundle-verified                      |
+| 4 — Forms, shortcuts, polish | **Partial** (shortcuts + settings done; nav guard + menu switches + axe sweep remain)                | Yes, bundle-verified pending              |
+| 5 — Customer storefront      | Not started, **blocked** on reconnecting the customer Vercel project                                 | No                                        |
 
 The full narrative — what was done, how, where, why, and every blocker — is in
 [`23-SESSION_LOG_2026-09.md`](23-SESSION_LOG_2026-09.md). This document is the forward-looking checklist.
 
 ## Design references
 
-| Deck | Covers |
-| --- | --- |
+| Deck                                   | Covers                                                        |
+| -------------------------------------- | ------------------------------------------------------------- |
 | [Ops Console](design/ops-console.html) | Super Admin + Bakery Admin, 8 screens, icon set, shortcut map |
-| [Storefront](design/storefront.html) | Customer, 7 screens, phone-first, motion spec |
+| [Storefront](design/storefront.html)   | Customer, 7 screens, phone-first, motion spec                 |
 
 Both decks are the source of truth for layout decisions. Where this document and a deck
 disagree, the deck wins and this document should be corrected.
@@ -64,13 +64,13 @@ Carried unchanged through every phase:
 
 Five glyphs have no Phosphor equivalent and stay custom:
 
-| Icon | Why |
-| --- | --- |
-| `IconPaymentMomo` | MTN brand mark — must not be substituted |
-| `IconPaymentAirtel` | Airtel brand mark — must not be substituted |
-| `IconProductCupcake` | No Phosphor equivalent |
-| `IconProductDonut` | No Phosphor equivalent |
-| `IconProductPastry` | No Phosphor equivalent (no icon set has a croissant) |
+| Icon                 | Why                                                  |
+| -------------------- | ---------------------------------------------------- |
+| `IconPaymentMomo`    | MTN brand mark — must not be substituted             |
+| `IconPaymentAirtel`  | Airtel brand mark — must not be substituted          |
+| `IconProductCupcake` | No Phosphor equivalent                               |
+| `IconProductDonut`   | No Phosphor equivalent                               |
+| `IconProductPastry`  | No Phosphor equivalent (no icon set has a croissant) |
 
 `IconDeliveryBoda` was slated to stay custom but maps cleanly to Phosphor `Moped`, which is a
 better drawing than the hand-built one. It has been migrated.
@@ -144,12 +144,18 @@ weight so they sit in the set indistinguishably. Sketches are in the Ops Console
 
 ## Phase 4 — Forms, shortcuts, polish
 
-- [ ] Sectioned settings with sticky save bar, dirty tracking and navigation guard. Payments
-      folds in as a section.
-- [ ] Menu availability switches with optimistic update and undo toast.
-- [ ] Keyboard shortcut map (see Ops Console deck) plus the `?` cheat sheet.
-- [ ] **WCAG 2.1.4 requirement:** single-key shortcuts must be disableable. Ship
-      Settings -> Accessibility -> "Single-key shortcuts", default on.
+**Status: partially done (`ec2f57e`)**
+
+- [x] `PageHeader` gains a `primaryAction` slot; MenuPage and PaymentSetupPage migrated to it.
+- [x] `ToastProvider`: dismissable toast queue (up to 4 concurrent), undo action slot, 3s/5s TTL.
+- [x] `ShortcutProvider`: `Cmd/Ctrl+K` command palette, `?` cheat sheet, `g+` navigation
+      sequences (d/o/m/c/s/p). Registered in `DashboardLayout`.
+- [x] `BakerySettingsPage`: sticky save bar on `isDirty`, Accessibility section with
+      WCAG-2.1.4 `single-key shortcuts` toggle (stored in localStorage, default on).
+- [ ] Navigation guard on BakerySettingsPage — `useBlocker` is available in React Router v6.8+;
+      confirm before navigating away with unsaved changes. Deferred (requires upgrade check).
+- [ ] Payments folds in as a section inside Settings rather than a separate route.
+- [ ] Menu availability switches with optimistic update and undo toast (phase 4B).
 - [ ] axe-playwright sweep of all admin pages against the AA checklist.
 
 ## Phase 5 — Customer storefront
@@ -172,25 +178,25 @@ Phone first, tablet second, desktop third. Depends on Phases 1-4 for shared comp
 
 Six named animations, transform and opacity only, nothing over 320ms:
 
-| Motion | Use | Spec |
-| --- | --- | --- |
-| Sheet rise | Filters, variant pickers, address selection | translateY, 320ms, ease-out |
-| Toast | Confirm an action with no visible result; carries undo | translateY + opacity, 200ms |
-| Skeleton shimmer | Replaces every list spinner | background-position, 1.5s loop |
-| Tap + count bump | Add to basket | scale, 120ms press, 200ms spring |
-| List stagger | Results after search/filter, first six items | translateY + opacity, 70ms stagger |
-| Status halo | Current tracking step only | scale + opacity, 2.2s loop |
+| Motion           | Use                                                    | Spec                               |
+| ---------------- | ------------------------------------------------------ | ---------------------------------- |
+| Sheet rise       | Filters, variant pickers, address selection            | translateY, 320ms, ease-out        |
+| Toast            | Confirm an action with no visible result; carries undo | translateY + opacity, 200ms        |
+| Skeleton shimmer | Replaces every list spinner                            | background-position, 1.5s loop     |
+| Tap + count bump | Add to basket                                          | scale, 120ms press, 200ms spring   |
+| List stagger     | Results after search/filter, first six items           | translateY + opacity, 70ms stagger |
+| Status halo      | Current tracking step only                             | scale + opacity, 2.2s loop         |
 
 Rules: no entrance animation on content already in view; one ambient loop maximum per screen;
 `prefers-reduced-motion` removes every animation and transition.
 
 ## Open decisions
 
-| Question | Blocks |
-| --- | --- |
-| Are ratings in scope for v1? There is no `ratings` table. | Discovery cards, order history |
-| Is "Notify me when back in stock" worth the notification plumbing? | Sold-out product rows |
-| Rail stays espresso, or goes light cream with an amber active fill? | Phase 1 polish |
+| Question                                                            | Blocks                         |
+| ------------------------------------------------------------------- | ------------------------------ |
+| Are ratings in scope for v1? There is no `ratings` table.           | Discovery cards, order history |
+| Is "Notify me when back in stock" worth the notification plumbing?  | Sold-out product rows          |
+| Rail stays espresso, or goes light cream with an amber active fill? | Phase 1 polish                 |
 
 ## Known debt surfaced during this work
 
@@ -207,7 +213,7 @@ Rules: no entrance animation on content already in view; one ambient loop maximu
   `feat(bakery-admin): add the action queue`) claimed to wire `?status=` into the bakery-admin Orders page but a
   multi-part scripted edit silently applied only one of several intended replacements — the
   `useSearchParams` wiring never actually landed. The lesson: verify each replacement
-  individually rather than asserting only that *some* change occurred.
+  individually rather than asserting only that _some_ change occurred.
 - **A second silent partial edit was found later** (`f9dfac9` and `7904f0c` again): the
   `GET /v1/admin/dashboard/action-queue` endpoint and the `req.db` fix were never applied to the
   API route, and the bakery dashboard imported its new component without rendering it. Corrected
