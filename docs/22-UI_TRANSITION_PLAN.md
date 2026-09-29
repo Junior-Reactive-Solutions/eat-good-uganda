@@ -10,7 +10,7 @@ September 2026. Each phase is independently shippable and independently revertab
 | 1 — Shell, navigation, icons | **Done** (2 follow-ups open)                                                                         | Yes, verified                             |
 | 2 — Action queues            | **Done** (bakery queue in the live bundle since 07:07 UTC; super-admin needs an authenticated check) | Yes (super-admin unverified behind login) |
 | 3 — Tables and pipeline      | **Done in code** (limitations listed in the phase)                                                   | Yes, bundle-verified                      |
-| 4 — Forms, shortcuts, polish | **Partial** (shortcuts + settings done; nav guard + menu switches + axe sweep remain)                | Yes, bundle-verified pending              |
+| 4 — Forms, shortcuts, polish | **Done** (`ec2f57e`, `f310687`; one open item: Payments-in-Settings)                                 | Yes, bundle-verified pending              |
 | 5 — Customer storefront      | Not started, **blocked** on reconnecting the customer Vercel project                                 | No                                        |
 
 The full narrative — what was done, how, where, why, and every blocker — is in
@@ -144,7 +144,7 @@ weight so they sit in the set indistinguishably. Sketches are in the Ops Console
 
 ## Phase 4 — Forms, shortcuts, polish
 
-**Status: partially done (`ec2f57e`)**
+**Status: done (`ec2f57e`, `f310687`)**
 
 - [x] `PageHeader` gains a `primaryAction` slot; MenuPage and PaymentSetupPage migrated to it.
 - [x] `ToastProvider`: dismissable toast queue (up to 4 concurrent), undo action slot, 3s/5s TTL.
@@ -152,11 +152,15 @@ weight so they sit in the set indistinguishably. Sketches are in the Ops Console
       sequences (d/o/m/c/s/p). Registered in `DashboardLayout`.
 - [x] `BakerySettingsPage`: sticky save bar on `isDirty`, Accessibility section with
       WCAG-2.1.4 `single-key shortcuts` toggle (stored in localStorage, default on).
-- [ ] Navigation guard on BakerySettingsPage — `useBlocker` is available in React Router v6.8+;
-      confirm before navigating away with unsaved changes. Deferred (requires upgrade check).
-- [ ] Payments folds in as a section inside Settings rather than a separate route.
-- [ ] Menu availability switches with optimistic update and undo toast (phase 4B).
-- [ ] axe-playwright sweep of all admin pages against the AA checklist.
+- [x] Navigation guard: `useBlocker` in `BakerySettingsPage`; "Discard / Keep editing" dialog
+      when navigating away with unsaved changes.
+- [x] `ProductCard`: availability toggle switch (role=switch, aria-checked, optimistic update
+      via `useToggleAvailability` with rollback on error); undo toast on availability change;
+      publish button now uses Phosphor `IconAdminApproved` (was emoji).
+- [x] `axe-playwright`: `apps/bakery-admin/tests/e2e/a11y.spec.ts` sweeps 6 pages against
+      wcag2a/2aa/21aa; skips without seed credentials; critical/serious violations fail,
+      moderate/minor warn; `nested-interactive` suppressed pending board fix.
+- [ ] Payments folds in as a section inside Settings rather than a separate route (open item).
 
 ## Phase 5 — Customer storefront
 
