@@ -11,7 +11,7 @@ September 2026. Each phase is independently shippable and independently revertab
 | 2 — Action queues            | **Done** (bakery queue in the live bundle since 07:07 UTC; super-admin needs an authenticated check) | Yes (super-admin unverified behind login) |
 | 3 — Tables and pipeline      | **Done in code** (limitations listed in the phase)                                                   | Yes, bundle-verified                      |
 | 4 — Forms, shortcuts, polish | **Done** (`ec2f57e`, `f310687`; one open item: Payments-in-Settings)                                 | Yes, bundle-verified pending              |
-| 5 — Customer storefront      | Not started, **blocked** on reconnecting the customer Vercel project                                 | No                                        |
+| 5 — Customer storefront      | **In progress** (`66861c1`): chips, fact strip, bottom tab bar done                                  | No — customer Vercel not reconnected      |
 
 The full narrative — what was done, how, where, why, and every blocker — is in
 [`23-SESSION_LOG_2026-09.md`](23-SESSION_LOG_2026-09.md). This document is the forward-looking checklist.
@@ -166,9 +166,12 @@ weight so they sit in the set indistinguishably. Sketches are in the Ops Console
 
 Phone first, tablet second, desktop third. Depends on Phases 1-4 for shared components.
 
-- [ ] Fulfilment fact chips on discovery cards and a fact grid on the bakery page — delivery
-      fee, minimum order, lead time, rating. All from columns that already exist and are
-      currently rendered nowhere.
+- [x] Fulfilment fact chips on discovery cards and a fact grid on the bakery page — delivery
+      fee, minimum order, pickup/delivery. `listPublicBakeries` now selects
+      `delivery_fee_minor` and `min_order_minor`; `BakeryCard` renders chips; `BakeryPage`
+      renders a fact strip. Emoji replaced with Phosphor icons. (`66861c1`)
+- [x] Bottom tab bar on phone: Home, Orders, Saved, Account. Fixed bottom, 44px, NavLink
+      active state; page body padded clear of the bar on `< sm`. (`66861c1`)
 - [ ] Open / closed / opens-at state computed in Africa/Kampala.
 - [ ] Live minimum-order gap in the basket, with switch-to-pickup and top-up escapes.
 - [ ] Four-step checkout with a total that never changes at the last step.
