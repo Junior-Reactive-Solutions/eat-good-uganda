@@ -7,7 +7,13 @@ import { IconNavigationCart } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
 import { ProductCard } from '../components/ProductCard'
-import { useProducts, useDeleteProduct, useUpdateProduct } from '../features/menu/api'
+import { useToast } from '../components/Toast'
+import {
+  useDeleteProduct,
+  useProducts,
+  useToggleAvailability,
+  useUpdateProduct,
+} from '../features/menu/api'
 
 export default function MenuPage() {
   const [page, setPage] = useState(1)
@@ -17,11 +23,35 @@ export default function MenuPage() {
 
   const { data, isLoading, error } = useProducts(page, 20)
   const deleteProduct = useDeleteProduct()
+  const toggleAvailability = useToggleAvailability()
+  const { show } = useToast()
   // Use a dummy ID if publishConfirm is not set to avoid hook issues
   const updateProduct = useUpdateProduct(publishConfirm?.id ?? 'placeholder-id')
 
   const handleDeleteProduct = (productId: string) => {
     deleteProduct.mutate(productId)
+  }
+
+  const handleToggleAvailable = (productId: string, nextAvailable: boolean) => {
+    const previousAvailable = !nextAvailable
+    toggleAvailability.mutate(
+      { id: productId, isAvailable: nextAvailable },
+      {
+        onSuccess: () => {
+          show({
+            message: nextAvailable ? 'Marked as available.' : 'Marked as unavailable.',
+            variant: 'success',
+            undoLabel: 'Undo',
+            onUndo: () => {
+              toggleAvailability.mutate({ id: productId, isAvailable: previousAvailable })
+            },
+          })
+        },
+        onError: () => {
+          show({ message: 'Failed to update availability. Please try again.', variant: 'error' })
+        },
+      },
+    )
   }
 
   const handlePublishConfirm = (productId: string, isPublished: boolean) => {
@@ -109,6 +139,7 @@ export default function MenuPage() {
                 product={product}
                 onDelete={handleDeleteProduct}
                 onTogglePublish={handlePublishConfirm}
+                onToggleAvailable={handleToggleAvailable}
               />
             ))}
           </div>

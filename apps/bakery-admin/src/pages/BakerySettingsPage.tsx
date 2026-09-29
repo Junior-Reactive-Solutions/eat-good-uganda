@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useBlocker } from 'react-router-dom'
 
 import { BakerySettingsForm } from '../components/BakerySettingsForm'
 import { Button } from '../components/Button'
@@ -59,9 +60,13 @@ export default function BakerySettingsPage() {
   const { show } = useToast()
   const [isDirty, setIsDirty] = useState(false)
 
+  // Block navigation when there are unsaved changes
+  const blocker = useBlocker(isDirty && !updateProfile.isPending)
+
   useEffect(() => {
     if (updateProfile.isSuccess) {
       show({ message: 'Settings saved successfully.', variant: 'success' })
+      setIsDirty(false)
     }
   }, [updateProfile.isSuccess, show])
 
@@ -116,10 +121,40 @@ export default function BakerySettingsPage() {
       {isDirty && (
         <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-between gap-4 border-t border-platform-border bg-platform-surface/95 px-8 py-4 backdrop-blur-sm">
           <p className="text-sm text-platform-fg-muted">You have unsaved changes.</p>
-          <div className="flex gap-3">
-            <Button type="submit" form="bakery-settings-form" disabled={updateProfile.isPending}>
-              {updateProfile.isPending ? 'Saving…' : 'Save changes'}
-            </Button>
+          <Button type="submit" form="bakery-settings-form" disabled={updateProfile.isPending}>
+            {updateProfile.isPending ? 'Saving…' : 'Save changes'}
+          </Button>
+        </div>
+      )}
+
+      {/* Navigation guard dialog */}
+      {blocker.state === 'blocked' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-sm rounded-xl border border-platform-border bg-platform-surface p-6 shadow-xl">
+            <h2 className="text-base font-semibold text-platform-fg mb-2">Discard changes?</h2>
+            <p className="text-sm text-platform-fg-muted mb-6">
+              You have unsaved changes. If you leave now, they will be lost.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="secondary"
+                className="flex-1"
+                onClick={() => {
+                  blocker.reset()
+                }}
+              >
+                Keep editing
+              </Button>
+              <Button
+                variant="danger"
+                className="flex-1"
+                onClick={() => {
+                  blocker.proceed()
+                }}
+              >
+                Discard
+              </Button>
+            </div>
           </div>
         </div>
       )}

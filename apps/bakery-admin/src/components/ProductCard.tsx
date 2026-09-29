@@ -3,12 +3,18 @@ import { Link } from 'react-router-dom'
 
 import { Button } from './Button'
 import { Card } from './Card'
-import { IconInteractionEdit, IconInteractionDelete, IconAdminInventory } from './icons'
+import {
+  IconAdminApproved,
+  IconAdminInventory,
+  IconInteractionDelete,
+  IconInteractionEdit,
+} from './icons'
 
 interface ProductCardProps {
   product: Product
   onDelete: (productId: string) => void
   onTogglePublish: (productId: string, isPublished: boolean) => void
+  onToggleAvailable?: (productId: string, isAvailable: boolean) => void
   categoryName?: string
 }
 
@@ -16,6 +22,7 @@ export function ProductCard({
   product,
   onDelete,
   onTogglePublish,
+  onToggleAvailable,
   categoryName,
 }: ProductCardProps) {
   const handleDelete = () => {
@@ -41,7 +48,7 @@ export function ProductCard({
 
       {/* Content */}
       <div className="flex-1">
-        {/* Name and Status */}
+        {/* Name and publish status */}
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="font-semibold text-sm leading-snug line-clamp-2 text-platform-fg">
             {product.name}
@@ -51,7 +58,7 @@ export function ProductCard({
               className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 shrink-0"
               aria-label="Published"
             >
-              Published
+              Live
             </span>
           ) : (
             <span
@@ -63,15 +70,8 @@ export function ProductCard({
           )}
         </div>
 
-        {/* Category and Availability */}
-        <div className="mb-3 space-y-1">
-          <p className="text-xs text-platform-fg-muted">
-            {categoryName ? `Category: ${categoryName}` : 'Uncategorized'}
-          </p>
-          <p className="text-xs text-platform-fg-muted">
-            {product.is_available ? 'Available' : 'Unavailable'}
-          </p>
-        </div>
+        {/* Category */}
+        <p className="text-xs text-platform-fg-muted mb-3">{categoryName ?? 'Uncategorized'}</p>
 
         {/* Price */}
         <p className="text-sm font-semibold text-platform-fg mb-4">
@@ -81,6 +81,30 @@ export function ProductCard({
             minimumFractionDigits: 0,
           }).format(product.base_price_minor / 100)}
         </p>
+
+        {/* Availability toggle */}
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs text-platform-fg-muted">
+            {product.is_available ? 'Available now' : 'Unavailable'}
+          </span>
+          <button
+            role="switch"
+            aria-checked={product.is_available}
+            aria-label={`${product.is_available ? 'Mark' : 'Make'} ${product.name} ${product.is_available ? 'unavailable' : 'available'}`}
+            onClick={() => {
+              onToggleAvailable?.(product.id, !product.is_available)
+            }}
+            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-platform-primary ${
+              product.is_available ? 'bg-platform-primary' : 'bg-platform-border'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow ring-0 transition-transform ${
+                product.is_available ? 'translate-x-4' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Actions */}
@@ -106,8 +130,13 @@ export function ProductCard({
           aria-label={
             product.is_published ? `Unpublish ${product.name}` : `Publish ${product.name}`
           }
+          title={product.is_published ? 'Unpublish' : 'Publish'}
         >
-          {product.is_published ? '🔒' : '🔓'}
+          <IconAdminApproved
+            size="sm"
+            color={product.is_published ? 'success' : 'default'}
+            alt=""
+          />
         </Button>
 
         <Button
@@ -117,7 +146,7 @@ export function ProductCard({
           className="text-platform-error"
           aria-label={`Delete ${product.name}`}
         >
-          <IconInteractionDelete size="sm" color="default" alt="" />
+          <IconInteractionDelete size="sm" color="error" alt="" />
         </Button>
       </div>
     </Card>
