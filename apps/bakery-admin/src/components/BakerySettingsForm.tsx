@@ -1,9 +1,8 @@
 import type { BakeryProfile } from '@eatgood/db'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-
-import { Button } from './Button'
 
 const settingsFormSchema = z.object({
   legal_name: z.string().min(1, 'Legal name is required').max(255),
@@ -29,17 +28,19 @@ interface BakerySettingsFormProps {
   profile: BakeryProfile | null
   isLoading?: boolean
   onSubmit: (data: SettingsFormData) => void
+  onDirtyChange?: (isDirty: boolean) => void
 }
 
 export function BakerySettingsForm({
   profile,
   isLoading = false,
   onSubmit,
+  onDirtyChange,
 }: BakerySettingsFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     watch,
   } = useForm<SettingsFormData>({
     resolver: zodResolver(settingsFormSchema),
@@ -80,13 +81,17 @@ export function BakerySettingsForm({
         },
   })
 
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
+
   const accentColor = watch('accent_color')
   const logoUrl = watch('logo_url')
   const acceptsDelivery = watch('accepts_delivery')
 
   return (
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form id="bakery-settings-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Basic Information */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-platform-fg">Basic Information</h3>
@@ -250,7 +255,6 @@ export function BakerySettingsForm({
             </p>
           )}
         </div>
-
       </div>
 
       {/* Branding */}
@@ -463,13 +467,6 @@ export function BakerySettingsForm({
             </p>
           )}
         </div>
-      </div>
-
-      {/* Submit Button */}
-      <div className="flex gap-3 pt-6 border-t border-platform-border">
-        <Button type="submit" disabled={isLoading} className="flex-1">
-          {isLoading ? 'Saving...' : 'Save Changes'}
-        </Button>
       </div>
     </form>
   )

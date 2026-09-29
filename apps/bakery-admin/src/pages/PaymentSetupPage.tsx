@@ -146,20 +146,23 @@ export default function PaymentSetupPage() {
 
   return (
     <div className="space-y-6 p-8">
-      <div className="flex items-center justify-between">
-        <PageHeader title="Payment Setup" subtitle="Configure your payment methods" />
-        {!isAdding && (
-          <Button
-            onClick={() => {
-              setIsAdding(true)
-            }}
-            className="gap-2"
-          >
-            <IconNavigationCart size="sm" color="default" alt="" />
-            Add Payment Method
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title="Payment Setup"
+        subtitle="Configure your payment methods"
+        primaryAction={
+          !isAdding ? (
+            <Button
+              onClick={() => {
+                setIsAdding(true)
+              }}
+              className="gap-2"
+            >
+              <IconNavigationCart size="sm" color="default" alt="" />
+              Add Payment Method
+            </Button>
+          ) : undefined
+        }
+      />
 
       {isLoading && (
         <div className="flex items-center justify-center py-12">

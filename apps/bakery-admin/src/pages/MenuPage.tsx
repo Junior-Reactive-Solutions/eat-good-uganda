@@ -49,16 +49,18 @@ export default function MenuPage() {
 
   return (
     <div className="space-y-6 p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <PageHeader title="Menu Management" subtitle="Create and edit your bakery products" />
-        <Link to="/menu/create">
-          <Button className="gap-2">
-            <IconNavigationCart size="sm" color="default" alt="" />
-            Create Product
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Menu Management"
+        subtitle="Create and edit your bakery products"
+        primaryAction={
+          <Link to="/menu/create">
+            <Button className="gap-2">
+              <IconNavigationCart size="sm" color="default" alt="" />
+              Create Product
+            </Button>
+          </Link>
+        }
+      />
 
       {/* Loading State */}
       {isLoading && <LoadingSpinner label="Loading products..." />}
