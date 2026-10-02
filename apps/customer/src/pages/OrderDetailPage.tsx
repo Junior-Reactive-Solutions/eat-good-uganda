@@ -74,84 +74,120 @@ const statusIcons: Record<string, React.ReactNode> = {
   refunded: <IconAdminRejected size="sm" color="error" alt="" />,
 }
 
+const TIMELINE_STEPS = [
+  { key: 'pending_payment', label: 'Payment pending' },
+  { key: 'confirmed', label: 'Confirmed' },
+  { key: 'preparing', label: 'Preparing your order' },
+  { key: 'ready', label: 'Ready for collection' },
+  { key: 'delivered', label: 'Delivered' },
+] as const
+
+const COMPLETED_STEPS: Record<string, readonly string[]> = {
+  pending_payment: ['pending_payment'],
+  confirmed: ['pending_payment', 'confirmed'],
+  preparing: ['pending_payment', 'confirmed', 'preparing'],
+  ready: ['pending_payment', 'confirmed', 'preparing', 'ready'],
+  out_for_delivery: ['pending_payment', 'confirmed', 'preparing', 'ready', 'delivered'],
+  delivered: ['pending_payment', 'confirmed', 'preparing', 'ready', 'delivered'],
+}
+
+const ETA_MINUTES: Partial<Record<string, number>> = {
+  pending_payment: 0,
+  confirmed: 45,
+  preparing: 30,
+  ready: 5,
+  out_for_delivery: 15,
+}
+
 function StatusTimeline({ order }: { order: Order }) {
-  const steps = [
-    { key: 'pending_payment', label: 'Payment Pending' },
-    { key: 'confirmed', label: 'Confirmed' },
-    { key: 'preparing', label: 'Preparing' },
-    { key: 'ready', label: 'Ready' },
-    { key: 'delivered', label: 'Delivered' },
-  ]
-
-  // Map order status to timeline step
-  const getCompletedSteps = (status: string): string[] => {
-    const completed: Record<string, string[]> = {
-      pending_payment: ['pending_payment'],
-      confirmed: ['pending_payment', 'confirmed'],
-      preparing: ['pending_payment', 'confirmed', 'preparing'],
-      ready: ['pending_payment', 'confirmed', 'preparing', 'ready'],
-      out_for_delivery: ['pending_payment', 'confirmed', 'preparing', 'ready', 'delivered'],
-      delivered: ['pending_payment', 'confirmed', 'preparing', 'ready', 'delivered'],
-      cancelled: [], // Don't show timeline for cancelled orders
-      refunded: ['delivered'], // Show as delivered if refunded
-    }
-    return completed[status] || []
-  }
-
-  const completedSteps = getCompletedSteps(order.status)
+  const completedSteps = COMPLETED_STEPS[order.status] ?? []
+  const etaMinutes = ETA_MINUTES[order.status]
 
   return (
     <div className="rounded-lg border border-platform-border bg-platform-surface p-6">
-      <h3 className="mb-6 font-semibold text-platform-fg">Order Status</h3>
-      <div className="flex items-center justify-between">
-        {steps.map((step, index) => {
+      {/* ETA card — only for active statuses */}
+      {etaMinutes !== undefined && etaMinutes > 0 && (
+        <div className="mb-5 flex items-center gap-3 rounded-lg bg-platform-accent px-4 py-3">
+          <IconInteractionClock size="sm" color="primary" alt="" />
+          <p className="text-sm font-medium text-platform-fg">
+            Estimated time: <span className="text-platform-primary">{etaMinutes} min</span>
+          </p>
+        </div>
+      )}
+
+      <h3 className="mb-5 font-semibold text-platform-fg">Order progress</h3>
+
+      {/* Vertical timeline */}
+      <ol aria-label="Order status timeline">
+        {TIMELINE_STEPS.map((step, index) => {
           const isCompleted = completedSteps.includes(step.key)
-          const isCurrent = order.status === step.key
+          const isCurrent =
+            order.status === step.key ||
+            (order.status === 'out_for_delivery' && step.key === 'delivered')
+          const isLast = index === TIMELINE_STEPS.length - 1
 
           return (
-            <div key={step.key} className="flex flex-col items-center">
-              {/* Step Circle */}
-              <div
-                className={`mb-2 flex h-10 w-10 items-center justify-center rounded-full ${
-                  isCompleted
-                    ? 'bg-green-600 text-white'
-                    : isCurrent
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-300 text-gray-600'
-                }`}
-              >
-                {isCompleted || isCurrent ? (
-                  statusIcons[step.key]
-                ) : (
-                  <div className="h-2 w-2 rounded-full bg-current" />
+            <li key={step.key} className="flex gap-4">
+              {/* Circle + connector column */}
+              <div className="flex flex-col items-center">
+                {/* Circle with optional status-halo animation on current step */}
+                <div className="relative flex h-9 w-9 shrink-0 items-center justify-center">
+                  {isCurrent && (
+                    <span
+                      className="absolute inset-0 rounded-full bg-platform-primary opacity-30 motion-safe:animate-[halo_2.2s_ease-in-out_infinite]"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <div
+                    className={`relative flex h-7 w-7 items-center justify-center rounded-full ${
+                      isCompleted || isCurrent
+                        ? 'bg-platform-primary text-white'
+                        : 'border-2 border-platform-border bg-platform-surface text-platform-fg-muted'
+                    }`}
+                  >
+                    {isCompleted || isCurrent ? (
+                      statusIcons[step.key]
+                    ) : (
+                      <span className="h-2 w-2 rounded-full bg-current" aria-hidden="true" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Vertical connector */}
+                {!isLast && (
+                  <div
+                    className={`w-0.5 flex-1 my-1 ${
+                      isCompleted ? 'bg-platform-primary' : 'bg-platform-border'
+                    }`}
+                  />
                 )}
               </div>
 
-              {/* Step Label */}
-              <span
-                className={`text-center text-xs font-medium ${
-                  isCompleted || isCurrent ? 'text-platform-fg' : 'text-platform-fg-muted'
-                }`}
-              >
-                {step.label}
-              </span>
-
-              {/* Connector Line */}
-              {index < steps.length - 1 && (
-                <div
-                  className={`mx-2 my-2 h-1 w-8 ${
-                    isCompleted &&
-                    steps[index + 1] &&
-                    completedSteps.includes(steps[index + 1]!.key)
-                      ? 'bg-green-600'
-                      : 'bg-gray-300'
+              {/* Label column */}
+              <div className={`pb-6 ${isLast ? 'pb-0' : ''}`}>
+                <p
+                  className={`text-sm font-medium leading-9 ${
+                    isCompleted || isCurrent ? 'text-platform-fg' : 'text-platform-fg-muted'
                   }`}
-                />
-              )}
-            </div>
+                >
+                  {step.label}
+                </p>
+              </div>
+            </li>
           )
         })}
-      </div>
+      </ol>
+
+      {/* Keyframe injected once per page render — prefers-reduced-motion guard */}
+      <style>{`
+        @keyframes halo {
+          0%, 100% { transform: scale(1); opacity: 0.3; }
+          50% { transform: scale(1.5); opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .motion-safe\\:animate-\\[halo_2\\.2s_ease-in-out_infinite\\] { animation: none; }
+        }
+      `}</style>
     </div>
   )
 }
