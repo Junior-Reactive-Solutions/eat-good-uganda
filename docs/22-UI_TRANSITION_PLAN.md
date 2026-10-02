@@ -177,9 +177,11 @@ Phone first, tablet second, desktop third. Depends on Phases 1-4 for shared comp
 - [ ] Four-step checkout with a total that never changes at the last step.
 - [ ] Mobile money states: waiting (with `*165#` fallback and visible expiry), timeout
       (leading with "no money has left your account", order held 15 minutes), success.
-- [ ] Order tracking timeline mirroring the bakery's pipeline, with ETA card.
-- [ ] `/account` becomes a real hub instead of "Account settings coming soon".
-- [ ] Bottom tab bar on phone: Home, Orders, Saved, Account.
+- [x] Order tracking timeline mirroring the bakery's pipeline, with ETA card. Vertical
+      layout, platform tokens, status-halo CSS animation (2.2s), prefers-reduced-motion
+      guard. (`8e8188a`)
+- [x] `/account` becomes a real hub — quick-action tiles (Profile, Orders, Addresses,
+      Settings), first-name greeting, most-recent-order peek. (`8e8188a`)
 
 ### Motion spec
 
