@@ -69,9 +69,12 @@ export default [
     },
   },
   {
+    // Test and config files are excluded from tsconfig; disable type-aware rules for them.
+    // parserOptions.project: false must be explicit so it is not clobbered by languageOptions.
     files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/*.config.ts'],
+    ...tseslint.configs.disableTypeChecked,
     languageOptions: {
-      parserOptions: { projectService: true },
+      parserOptions: { projectService: false },
       globals: { ...globals.browser, ...globals.node },
     },
   },

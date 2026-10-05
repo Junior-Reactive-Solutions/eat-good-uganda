@@ -1,10 +1,16 @@
-import { defineConfig } from 'vitest/config'
 import path from 'path'
+
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    // Provide a fallback DATABASE_URL so unit tests that mock @eatgood/db
+    // can still load the setup file without a real database.
+    env: {
+      DATABASE_URL: process.env.DATABASE_URL ?? 'postgresql://test:test@localhost:5432/test_db',
+    },
     setupFiles: ['./src/test.setup.ts'],
     include: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
     exclude: ['node_modules', 'dist'],

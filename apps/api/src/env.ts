@@ -45,6 +45,7 @@ const envSchema = z.object({
   PUBLIC_CUSTOMER_URL: z.string().default('http://localhost:5173'),
   PUBLIC_BAKERY_ADMIN_URL: z.string().default('http://localhost:5174'),
   PUBLIC_ADMIN_URL: z.string().optional(),
+  SUPER_ADMIN_EMAIL: z.string().default('admin@eatgooduganda.com'),
 })
 
 export const env = envSchema.parse(process.env)

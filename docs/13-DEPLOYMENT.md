@@ -177,3 +177,51 @@ We upgrade plans when:
 - Vercel Hobby's bandwidth or build-minute limits are exceeded → Pro
 
 None of these is expected in the first 3–6 months based on the anticipated traffic of 5–10 bakeries and a few hundred orders per month.
+
+## Email deliverability — DKIM / SPF / DMARC
+
+All transactional email is sent via **Resend**. For reliable inbox delivery, configure these DNS records on `eatgooduganda.com` before the first production send.
+
+### SPF
+
+Add a TXT record so Resend's sending servers are authorised:
+
+```
+Type: TXT
+Name: @  (or the sending subdomain, e.g. mail)
+Value: v=spf1 include:amazonses.com ~all
+```
+
+Resend routes through Amazon SES under the hood, so `include:amazonses.com` is correct. If you use a dedicated subdomain (e.g. `mail.eatgooduganda.com`) as the `From` domain, scope the record to that subdomain.
+
+### DKIM
+
+Resend generates a DKIM key pair per domain. After adding `eatgooduganda.com` (and any sending subdomain) in the Resend dashboard:
+
+1. Copy the CNAME records Resend shows under **Domain → DKIM**.
+2. Add each CNAME to your DNS provider (one CNAME per selector — usually two records).
+3. Wait for Resend to mark the domain as **Verified** (can take up to 48 hours for propagation).
+
+Without DKIM, major providers (Gmail, Outlook) will soft-reject or junk the emails.
+
+### DMARC
+
+DMARC ties SPF and DKIM together and instructs receiving servers what to do with failures.
+
+```
+Type: TXT
+Name: _dmarc
+Value: v=DMARC1; p=none; rua=mailto:dmarc-reports@eatgooduganda.com; adkim=r; aspf=r
+```
+
+Start with `p=none` (monitor mode). Once SPF and DKIM pass cleanly for two weeks with no false positives in the aggregate reports, tighten to `p=quarantine`, then `p=reject`.
+
+### Resend domain verification checklist
+
+1. [ ] Add `eatgooduganda.com` in the Resend dashboard
+2. [ ] Add SPF TXT record to DNS
+3. [ ] Add DKIM CNAME records to DNS (two records per domain)
+4. [ ] Add DMARC TXT record (`_dmarc`)
+5. [ ] Confirm "Verified" status in Resend dashboard
+6. [ ] Set `RESEND_FROM_EMAIL=no-reply@eatgooduganda.com` and `SUPER_ADMIN_EMAIL` in production env vars
+7. [ ] Send a test email via the Resend dashboard and confirm it arrives in inbox (not spam)

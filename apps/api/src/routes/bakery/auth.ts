@@ -11,7 +11,9 @@ import {
 import { Router as createRouter } from 'express'
 import type { Router } from 'express'
 
+import { env } from '../../env'
 import { clearAuthCookies, setAuthCookies } from '../../lib/cookies'
+import { sendEmail } from '../../lib/email'
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { authRateLimit } from '../../middleware/rateLimit'
 import { requireBakeryContext } from '../../middleware/requireBakeryContext'
@@ -32,6 +34,20 @@ bakeryAuthRouter.post('/signup', authRateLimit, async (req, res) => {
     const body = bakerySignupSchema.parse(req.body)
 
     const { bakery, owner } = await signupBakery(pool, body)
+
+    // Alert super-admin of new pending bakery application (fire-and-forget)
+    void sendEmail({
+      to: env.SUPER_ADMIN_EMAIL,
+      template: 'admin-bakery-pending',
+      data: {
+        bakery_name: bakery.display_name,
+        owner_name: owner.full_name,
+        owner_email: owner.email,
+        application_link: `${env.PUBLIC_ADMIN_URL ?? 'http://localhost:5175'}/bakeries/${bakery.id}`,
+      },
+      idempotencyKey: `admin-bakery-pending:${bakery.id}:${env.SUPER_ADMIN_EMAIL}`,
+      bakeryId: bakery.id,
+    })
 
     return res.status(201).json({
       bakery: {
