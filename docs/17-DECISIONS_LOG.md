@@ -503,3 +503,15 @@ _Narrative and evidence for everything below: [`23-SESSION_LOG_2026-09.md`](23-S
 **Context:** The alternative was a single SQL query using `AT TIME ZONE` and `NOW()`, but that ties correctness to the database server's timezone config and makes unit testing harder. A pure TypeScript function with an injectable `now` parameter is trivial to test and keeps all scheduling logic in one place.
 
 **Consequences:** `computeOpenStatus` must be called server-side (it needs `Date` and `Intl`); it is not safe to ship to the browser without a polyfill check. The `opens_soon` threshold (≤ 60 minutes) is a constant in the function; change it there if the product requirement shifts.
+
+---
+
+## 2026-10-05 — Manual OpenAPI 3.1 spec over @asteasolutions/zod-to-openapi
+
+**Decision:** The OpenAPI 3.1 spec (`apps/api/src/lib/openapi.ts`) is authored as a hand-written plain TypeScript object returned by `getOpenAPISpec()`, not generated from Zod schemas via a library.
+
+**Context:** `@asteasolutions/zod-to-openapi` is incompatible with zod v4 (the version used throughout this project). Attempting to use it results in type errors and runtime failures because zod v4 changed its internal schema shape significantly. A manual spec also gives exact control over the output without fighting generator quirks.
+
+**Alternatives considered:** `zod-openapi` (similar zod v4 incompatibility), a custom zod-to-openapi transformer (too much maintenance surface). The existing Swagger UI route at `/api-docs` already consumed a plain spec object, making the manual approach a natural fit.
+
+**Consequences:** Schema changes in `packages/shared` are not automatically reflected in the spec — developers must update `openapi.ts` when adding or changing validated endpoints. The contract tests in `apps/api/tests/contract.test.ts` (256 assertions) catch missing paths and broken `$ref`s at CI time.
