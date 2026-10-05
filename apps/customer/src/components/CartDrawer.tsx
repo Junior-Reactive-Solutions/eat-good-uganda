@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 
+import { usePublicBakery } from '../features/bakery/api'
 import {
   useCart,
   useCartTotal,
@@ -9,12 +10,25 @@ import {
 
 import { Button } from './Button'
 import CartItemRow from './CartItemRow'
-import { IconNavigationCart, IconInteractionDelete } from './icons'
+import {
+  IconNavigationCart,
+  IconInteractionDelete,
+  IconInteractionHelp,
+  IconDeliveryPickup,
+} from './icons'
 
 interface CartDrawerProps {
   isOpen: boolean
   onClose: () => void
   bakerySlug: string | null
+}
+
+function formatUGX(minor: number): string {
+  return new Intl.NumberFormat('en-UG', {
+    style: 'currency',
+    currency: 'UGX',
+    minimumFractionDigits: 0,
+  }).format(minor / 100)
 }
 
 export default function CartDrawer({ isOpen, onClose, bakerySlug }: CartDrawerProps) {
@@ -24,9 +38,22 @@ export default function CartDrawer({ isOpen, onClose, bakerySlug }: CartDrawerPr
   const removeFromCart = useRemoveFromCart()
   const updateQuantity = useUpdateCartQuantity()
 
+  const { data: bakery } = usePublicBakery(bakerySlug ?? '')
+
+  const minOrderMinor = bakery?.min_order_minor ?? null
+  const gap = minOrderMinor !== null && total < minOrderMinor ? minOrderMinor - total : 0
+  const belowMinimum = gap > 0
+
   const handleCheckout = (): void => {
     if (bakerySlug && items.length > 0) {
       void navigate(`/b/${bakerySlug}/checkout`)
+      onClose()
+    }
+  }
+
+  const handlePickupCheckout = (): void => {
+    if (bakerySlug && items.length > 0) {
+      void navigate(`/b/${bakerySlug}/checkout?mode=pickup`)
       onClose()
     }
   }
@@ -99,15 +126,37 @@ export default function CartDrawer({ isOpen, onClose, bakerySlug }: CartDrawerPr
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-platform-border px-4 py-4">
-            <div className="mb-4 flex items-center justify-between">
+          <div className="border-t border-platform-border px-4 py-4 space-y-3">
+            <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-platform-fg">Subtotal</span>
-              <span className="text-sm font-semibold text-platform-fg">
-                UGX {(total / 100).toLocaleString('en-US')}
-              </span>
+              <span className="text-sm font-semibold text-platform-fg">{formatUGX(total)}</span>
             </div>
-            <p className="mb-4 text-xs text-platform-fg-muted">
-              Payment method fees calculated at checkout
+
+            {/* Minimum-order gap banner */}
+            {belowMinimum && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5"
+              >
+                <p className="flex items-center gap-1.5 text-xs font-medium text-amber-800">
+                  <IconInteractionHelp size="sm" color="default" alt="" />
+                  {formatUGX(gap)} more needed for delivery (min {formatUGX(minOrderMinor ?? 0)})
+                </p>
+                {bakery?.accepts_pickup && (
+                  <button
+                    onClick={handlePickupCheckout}
+                    className="mt-1.5 flex items-center gap-1 text-xs text-amber-700 underline underline-offset-2 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-platform-primary rounded"
+                  >
+                    <IconDeliveryPickup size="sm" color="default" alt="" />
+                    Order for pickup instead — no minimum
+                  </button>
+                )}
+              </div>
+            )}
+
+            <p className="text-xs text-platform-fg-muted">
+              Delivery fees and payment method fees calculated at checkout
             </p>
             <Button
               variant="primary"
@@ -115,7 +164,7 @@ export default function CartDrawer({ isOpen, onClose, bakerySlug }: CartDrawerPr
               onClick={handleCheckout}
               disabled={!bakerySlug || items.length === 0}
             >
-              Proceed to Checkout
+              {belowMinimum ? 'Checkout anyway' : 'Proceed to Checkout'}
             </Button>
           </div>
         )}

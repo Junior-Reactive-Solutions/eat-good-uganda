@@ -39,6 +39,7 @@ import { api } from '../lib/api'
 type MomoPhase = 'idle' | 'initiating' | 'polling' | 'success' | 'failed' | 'timeout'
 
 const MOMO_POLL_TIMEOUT_MS = 5 * 60 * 1000 // 5 minutes
+const MOMO_EXPIRY_SECONDS = 5 * 60 // displayed countdown
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
@@ -54,6 +55,8 @@ export default function CheckoutPage() {
   const [momoOrderId, setMomoOrderId] = useState<string | null>(null)
   const [momoError, setMomoError] = useState<string | null>(null)
   const momoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const momoCountdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [momoSecondsLeft, setMomoSecondsLeft] = useState(MOMO_EXPIRY_SECONDS)
 
   const initiateMomo = useInitiateMomoPayment()
   const { data: momoStatus } = usePaymentStatus(momoOrderId ?? '', momoPhase === 'polling')
@@ -64,6 +67,7 @@ export default function CheckoutPage() {
 
     if (momoStatus.status === 'paid') {
       if (momoTimeoutRef.current) clearTimeout(momoTimeoutRef.current)
+      if (momoCountdownRef.current) clearInterval(momoCountdownRef.current)
       setMomoPhase('success')
       // Redirect to order confirmation after a short delay
       setTimeout(() => {
@@ -73,15 +77,17 @@ export default function CheckoutPage() {
       }, 2000)
     } else if (momoStatus.status === 'failed') {
       if (momoTimeoutRef.current) clearTimeout(momoTimeoutRef.current)
+      if (momoCountdownRef.current) clearInterval(momoCountdownRef.current)
       setMomoError(momoStatus.reason ?? 'Payment was declined')
       setMomoPhase('failed')
     }
   }, [momoStatus, momoPhase, momoOrderId, navigate])
 
-  // Cleanup timeout on unmount
+  // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       if (momoTimeoutRef.current) clearTimeout(momoTimeoutRef.current)
+      if (momoCountdownRef.current) clearInterval(momoCountdownRef.current)
     }
   }, [])
 
@@ -179,11 +185,17 @@ export default function CheckoutPage() {
         try {
           await initiateMomo.mutateAsync({ orderId, phone: normalized })
           setMomoPhase('polling')
+          setMomoSecondsLeft(MOMO_EXPIRY_SECONDS)
 
-          // 5-minute timeout
+          // Visible countdown
+          momoCountdownRef.current = setInterval(() => {
+            setMomoSecondsLeft((s) => Math.max(0, s - 1))
+          }, 1000)
+
+          // 5-minute hard timeout
           momoTimeoutRef.current = setTimeout(() => {
+            if (momoCountdownRef.current) clearInterval(momoCountdownRef.current)
             setMomoPhase('timeout')
-            setMomoError('Payment timed out after 5 minutes. Please try again or contact support.')
           }, MOMO_POLL_TIMEOUT_MS)
         } catch (momoErr) {
           const message = momoErr instanceof Error ? momoErr.message : 'Failed to initiate payment'
@@ -215,6 +227,11 @@ export default function CheckoutPage() {
     )
   }
 
+  // Format countdown as M:SS
+  const momoMins = Math.floor(momoSecondsLeft / 60)
+  const momoSecs = momoSecondsLeft % 60
+  const momoCountdownLabel = `${String(momoMins)}:${String(momoSecs).padStart(2, '0')} remaining`
+
   // MoMo payment in-progress overlay
   if (momoPhase !== 'idle') {
     return (
@@ -222,49 +239,57 @@ export default function CheckoutPage() {
         <h1 className="mb-6 text-2xl font-bold text-platform-fg">Payment</h1>
 
         {(momoPhase === 'initiating' || momoPhase === 'polling') && (
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-6 text-center">
-            <div className="mx-auto mb-3 inline-block">
-              <IconInteractionClock
-                size="lg"
-                color="default"
-                className="animate-spin text-blue-600"
-                alt=""
-              />
+          <div className="rounded-lg border border-platform-border bg-platform-accent p-6">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <IconInteractionClock size="lg" color="primary" alt="" />
+              <p className="text-base font-semibold text-platform-fg">
+                Check your phone for the MTN MoMo prompt
+              </p>
+              <p className="text-sm text-platform-fg-muted">
+                Approve the payment request. This page updates automatically.
+              </p>
+              {momoPhase === 'polling' && (
+                <p
+                  className="mt-1 tabular-nums text-sm font-medium text-platform-primary"
+                  aria-live="polite"
+                  aria-label={`Payment expires in ${momoCountdownLabel}`}
+                >
+                  {momoCountdownLabel}
+                </p>
+              )}
             </div>
-            <p className="text-base font-semibold text-blue-800">
-              Payment initiated — check your phone for the MoMo prompt
-            </p>
-            <p className="mt-2 text-sm text-blue-600">
-              Approve the payment on your phone. This page will update automatically.
-            </p>
+            <div className="mt-5 rounded-md border border-platform-border bg-platform-surface px-4 py-3">
+              <p className="text-xs font-medium text-platform-fg-muted">
+                Can&apos;t see the prompt?
+              </p>
+              <p className="mt-0.5 text-sm text-platform-fg">
+                Dial <span className="font-mono font-semibold">*165#</span> on your MTN line and
+                follow the prompts to approve.
+              </p>
+            </div>
           </div>
         )}
 
         {momoPhase === 'success' && (
-          <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center">
+          <div className="rounded-lg border border-platform-border bg-platform-accent p-6 text-center">
             <IconAdminApproved size="lg" color="success" className="mx-auto mb-3" alt="" />
-            <p className="text-base font-semibold text-green-800">
-              Payment confirmed! Your order is confirmed.
+            <p className="text-base font-semibold text-platform-fg">
+              Payment confirmed — your order is on its way!
             </p>
-            <p className="mt-2 text-sm text-green-600">Redirecting to your order...</p>
+            <p className="mt-2 text-sm text-platform-fg-muted">Redirecting to your order…</p>
           </div>
         )}
 
-        {(momoPhase === 'failed' || momoPhase === 'timeout') && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+        {momoPhase === 'timeout' && (
+          <div className="rounded-lg border border-platform-border bg-platform-accent p-6">
             <div className="flex items-start gap-3">
               <IconAdminRejected size="md" color="error" className="shrink-0" alt="" />
               <div>
-                <p className="font-semibold text-red-800">
-                  {momoPhase === 'timeout'
-                    ? 'Payment timeout — please try again or contact support'
-                    : `Payment failed — ${momoError ?? 'Unknown error'}`}
+                <p className="font-semibold text-platform-fg">No money has left your account.</p>
+                <p className="mt-1 text-sm text-platform-fg-muted">
+                  The payment window expired. Your order is held for 15 minutes — retry payment from
+                  your order history.
                 </p>
-                {momoPhase === 'timeout' && (
-                  <p className="mt-1 text-sm text-red-600">
-                    Your order has been saved. You can retry payment from your order history.
-                  </p>
-                )}
               </div>
             </div>
             <div className="mt-4 flex gap-3">
@@ -273,6 +298,42 @@ export default function CheckoutPage() {
                 onClick={() => {
                   setMomoPhase('idle')
                   setMomoError(null)
+                  setMomoSecondsLeft(MOMO_EXPIRY_SECONDS)
+                }}
+                className="flex-1"
+              >
+                Try Again
+              </Button>
+              {momoOrderId && (
+                <Button
+                  onClick={() => {
+                    void navigate(`/account/orders/${momoOrderId}`)
+                  }}
+                  className="flex-1"
+                >
+                  View Order
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {momoPhase === 'failed' && (
+          <div className="rounded-lg border border-platform-border bg-platform-accent p-6">
+            <div className="flex items-start gap-3">
+              <IconAdminRejected size="md" color="error" className="shrink-0" alt="" />
+              <div>
+                <p className="font-semibold text-platform-fg">Payment declined</p>
+                {momoError && <p className="mt-1 text-sm text-platform-fg-muted">{momoError}</p>}
+              </div>
+            </div>
+            <div className="mt-4 flex gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setMomoPhase('idle')
+                  setMomoError(null)
+                  setMomoSecondsLeft(MOMO_EXPIRY_SECONDS)
                 }}
                 className="flex-1"
               >
