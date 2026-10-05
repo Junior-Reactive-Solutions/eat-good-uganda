@@ -43,3 +43,4 @@ export {
 } from './queries/users'
 export * from './queries/support'
 export * from './queries/opening_hours'
+export * from './queries/email-log'

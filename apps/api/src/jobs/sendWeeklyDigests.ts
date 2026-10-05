@@ -1,7 +1,7 @@
 import { getBakeryById, listActiveBakeries, query, sql, type Database } from '@eatgood/db'
 
+import { sendEmail } from '../lib/email'
 import { logger } from '../lib/logger'
-import { sendTransactionalEmail } from '../services/email/resend'
 
 /**
  * Summary of weekly digest sending operations.
@@ -34,10 +34,7 @@ export interface WeeklyMetrics {
  * Fetches: total orders, total revenue, and the top-selling product
  * for the past 7 days.
  */
-async function getWeeklyMetrics(
-  db: Database,
-  bakeryId: string,
-): Promise<WeeklyMetrics | null> {
+async function getWeeklyMetrics(db: Database, bakeryId: string): Promise<WeeklyMetrics | null> {
   const bakery = await getBakeryById(db, bakeryId)
   if (!bakery) {
     return null
@@ -110,68 +107,6 @@ function formatCurrency(minorAmount: number, currencyCode: string): string {
 }
 
 /**
- * Generate HTML email content for the weekly digest.
- */
-function generateDigestHtml(metrics: WeeklyMetrics): string {
-  const { displayName, ordersCount, totalRevenueMinor, currencyCode, topProductName, topProductCount } =
-    metrics
-
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Weekly Digest - ${displayName}</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background-color: #f5f5f5; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
-    .metric { margin: 15px 0; }
-    .metric-label { color: #666; font-size: 14px; }
-    .metric-value { font-size: 24px; font-weight: bold; color: #333; }
-    .footer { color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Weekly Digest for ${displayName}</h1>
-      <p>Your sales summary for the past 7 days</p>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">Total Orders</div>
-      <div class="metric-value">${ordersCount}</div>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">Total Revenue</div>
-      <div class="metric-value">${formatCurrency(totalRevenueMinor, currencyCode)}</div>
-    </div>
-
-    ${
-      topProductName
-        ? `
-    <div class="metric">
-      <div class="metric-label">Top Product</div>
-      <div class="metric-value">${topProductName}</div>
-      <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">${topProductCount} order(s)</p>
-    </div>
-    `
-        : ''
-    }
-
-    <div class="footer">
-      <p>This is an automated digest. Do not reply to this email.</p>
-      <p>Next digest: next Sunday at 9:00 AM ${metrics.timezone}</p>
-    </div>
-  </div>
-</body>
-</html>
-  `.trim()
-}
-
-/**
  * Send weekly sales digest emails to all active bakeries.
  *
  * Runs every Sunday at 9:00 AM Africa/Kampala timezone.
@@ -210,12 +145,24 @@ export async function sendWeeklyDigests(db: Database): Promise<WeeklyDigestSumma
         continue
       }
 
-      // Generate HTML and send email
-      const html = generateDigestHtml(metrics)
-      await sendTransactionalEmail({
+      const weekLabel = new Date().toLocaleDateString('en-UG', {
+        weekday: 'long',
+        timeZone: metrics.timezone,
+      })
+      await sendEmail({
         to: metrics.email,
-        subject: `Weekly Digest - ${metrics.displayName}`,
-        html,
+        template: 'bakery-weekly-digest',
+        data: {
+          bakery_name: metrics.displayName,
+          orders_count: String(metrics.ordersCount),
+          total_revenue: formatCurrency(metrics.totalRevenueMinor, metrics.currencyCode),
+          top_product: metrics.topProductName ?? 'N/A',
+          top_product_count: String(metrics.topProductCount),
+          week_label: weekLabel,
+          dashboard_link: `${process.env.PUBLIC_BAKERY_ADMIN_URL ?? 'http://localhost:5174'}/dashboard`,
+        },
+        idempotencyKey: `bakery-weekly-digest:${bakery.id}:${new Date().toISOString().slice(0, 10)}`,
+        bakeryId: bakery.id,
       })
 
       summary.digestsSent += 1

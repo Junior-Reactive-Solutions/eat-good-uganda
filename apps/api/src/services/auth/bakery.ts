@@ -21,9 +21,9 @@ import {
 } from '@eatgood/db'
 import type { Bakery, BakeryUser } from '@eatgood/shared'
 
+import { sendEmail } from '../../lib/email'
 import { hashPassword, verifyPassword } from '../../lib/password'
 import { createRefreshToken, signAccessToken, rotateRefreshToken } from '../../lib/tokens'
-import { sendEmailVerificationEmail, sendPasswordResetEmail } from '../email/verification'
 
 const TOKEN_TTL_HOURS = 24
 const RESET_TOKEN_TTL_MINUTES = 30
@@ -89,7 +89,16 @@ export async function signupBakery(
       expires_at: expiresAt,
     })
 
-    sendEmailVerificationEmail(owner.email, emailToken)
+    void sendEmail({
+      to: owner.email,
+      template: 'bakery-verify-email',
+      data: {
+        owner_name: owner.full_name,
+        bakery_name: bakery.display_name,
+        verification_link: `${process.env.PUBLIC_BAKERY_ADMIN_URL ?? 'http://localhost:5174'}/verify-email?token=${emailToken}`,
+      },
+      idempotencyKey: `bakery-verify-email:${owner.id}:${owner.email}`,
+    })
 
     return { bakery, owner }
   })
@@ -197,7 +206,16 @@ export async function forgotPasswordBakery(db: Database, email: string): Promise
     expires_at: expiresAt,
   })
 
-  sendPasswordResetEmail(email, resetToken)
+  void sendEmail({
+    to: email,
+    template: 'customer-password-reset',
+    data: {
+      first_name: user.full_name.split(' ')[0] ?? user.full_name,
+      reset_link: `${process.env.PUBLIC_BAKERY_ADMIN_URL ?? 'http://localhost:5174'}/reset-password?token=${resetToken}`,
+      expires_minutes: RESET_TOKEN_TTL_MINUTES,
+    },
+    idempotencyKey: `bakery-password-reset:${user.id}:${resetTokenHash}`,
+  })
 }
 
 export async function resetPasswordBakery(

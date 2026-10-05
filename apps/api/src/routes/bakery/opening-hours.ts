@@ -8,11 +8,12 @@ import {
 import { Router } from 'express'
 import { z } from 'zod'
 
-import { requireBakeryAuth } from '../../middleware/bakery-auth'
+import { authenticateToken } from '../../middleware/authenticateToken'
+import { requireBakeryContext } from '../../middleware/requireBakeryContext'
 
 const router = Router()
 
-router.use(requireBakeryAuth)
+router.use(authenticateToken, requireBakeryContext())
 
 const hoursRowSchema = z.object({
   day_of_week: z.number().int().min(0).max(6),
@@ -27,7 +28,11 @@ const upsertSchema = z.object({
 
 /** GET /v1/bakery/opening-hours — return this bakery's schedule + current open status */
 router.get('/', async (req, res) => {
-  const bakeryId = req.bakery.id
+  const bakeryId = req.bakery?.id
+  if (!bakeryId) {
+    res.status(401).json({ error: 'unauthorized' })
+    return
+  }
   try {
     const [bakery, hours] = await Promise.all([
       getBakeryById(pool, bakeryId),
@@ -46,7 +51,11 @@ router.get('/', async (req, res) => {
 
 /** PUT /v1/bakery/opening-hours — upsert 1-7 day rows */
 router.put('/', async (req, res) => {
-  const bakeryId = req.bakery.id
+  const bakeryId = req.bakery?.id
+  if (!bakeryId) {
+    res.status(401).json({ error: 'unauthorized' })
+    return
+  }
   const parsed = upsertSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Validation failed', issues: parsed.error.issues })
