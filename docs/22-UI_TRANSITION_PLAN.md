@@ -173,10 +173,10 @@ Phone first, tablet second, desktop third. Depends on Phases 1-4 for shared comp
 - [x] Bottom tab bar on phone: Home, Orders, Saved, Account. Fixed bottom, 44px, NavLink
       active state; page body padded clear of the bar on `< sm`. (`66861c1`)
 - [ ] Open / closed / opens-at state computed in Africa/Kampala.
-- [ ] Live minimum-order gap in the basket, with switch-to-pickup and top-up escapes.
+- [x] Live minimum-order gap in the basket, with switch-to-pickup escape. (`5822aa3`)
 - [ ] Four-step checkout with a total that never changes at the last step.
-- [ ] Mobile money states: waiting (with `*165#` fallback and visible expiry), timeout
-      (leading with "no money has left your account", order held 15 minutes), success.
+- [x] Mobile money states: waiting (`*165#` fallback, visible M:SS countdown), timeout
+      ("no money has left your account", order held 15 minutes), success. (`5822aa3`)
 - [x] Order tracking timeline mirroring the bakery's pipeline, with ETA card. Vertical
       layout, platform tokens, status-halo CSS animation (2.2s), prefers-reduced-motion
       guard. (`8e8188a`)
