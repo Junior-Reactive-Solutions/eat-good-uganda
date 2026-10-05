@@ -1,15 +1,15 @@
+import { pool } from '@eatgood/db'
+import * as Sentry from '@sentry/node'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
-import * as Sentry from '@sentry/node'
 
-import { pool } from '@eatgood/db'
 
 import { env } from './env'
+import { logger } from './lib/logger'
 import { csrf } from './middleware/csrf'
 import { generalRateLimit } from './middleware/rateLimit'
-import { logger } from './lib/logger'
 import { adminAnalyticsRouter } from './routes/admin/analytics'
 import auditLogsRouter from './routes/admin/audit-logs'
 import { adminAuthRouter } from './routes/admin/auth'
@@ -20,9 +20,11 @@ import { exportsRouter } from './routes/admin/exports'
 import staffRouter from './routes/admin/staff'
 import { supportRouter } from './routes/admin/support'
 import usersRouter from './routes/admin/users'
+import { apiDocsRouter } from './routes/api-docs'
 import { bakeryAuthRouter } from './routes/bakery/auth'
 import { bakeryCategoriesRouter } from './routes/bakery/categories'
 import { bakeryMetricsRouter } from './routes/bakery/metrics'
+import { openingHoursRouter } from './routes/bakery/opening-hours'
 import { bakeryOrdersRouter } from './routes/bakery/orders'
 import { bakeryPaymentCredentialsRouter } from './routes/bakery/payment-credentials'
 import { bakeryPaymentSettingsRouter } from './routes/bakery/payment-settings'
@@ -36,13 +38,12 @@ import { customerNotificationsRouter } from './routes/customer/notifications'
 import { customerOrdersRouter } from './routes/customer/orders'
 import { customerPaymentsRouter } from './routes/customer/payments'
 import { customerProfileRouter } from './routes/customer/profile'
-import { publicBakeriesRouter } from './routes/public/bakeries'
-import publicOrdersRouter from './routes/public/orders'
-import { mtnMomoWebhookRouter } from './routes/webhooks/mtn-momo'
-import airtelMoneyWebhookRouter from './routes/webhooks/airtel-money'
-import { apiDocsRouter } from './routes/api-docs'
 import { internalHealthRouter } from './routes/internal/health'
 import { internalReadyRouter } from './routes/internal/ready'
+import { publicBakeriesRouter } from './routes/public/bakeries'
+import publicOrdersRouter from './routes/public/orders'
+import airtelMoneyWebhookRouter from './routes/webhooks/airtel-money'
+import { mtnMomoWebhookRouter } from './routes/webhooks/mtn-momo'
 
 const corsOrigins = env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
 
@@ -155,6 +156,7 @@ app.use('/v1/bakery/products', bakeryProductsRouter)
 app.use('/v1/bakery/categories', bakeryCategoriesRouter)
 app.use('/v1/bakery/metrics', bakeryMetricsRouter)
 app.use('/v1/bakery/orders', bakeryOrdersRouter)
+app.use('/v1/bakery/opening-hours', openingHoursRouter)
 app.use('/v1/admin/auth', adminAuthRouter)
 app.use('/v1/admin/dashboard', adminDashboardRouter)
 app.use('/v1/admin/analytics', adminAnalyticsRouter)

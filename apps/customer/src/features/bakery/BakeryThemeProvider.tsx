@@ -7,7 +7,8 @@ type Props = { children: React.ReactNode }
 
 export function BakeryThemeProvider({ children }: Props) {
   const { slug } = useParams<{ slug: string }>()
-  const { data: bakery } = usePublicBakery(slug ?? '')
+  const { data } = usePublicBakery(slug ?? '')
+  const bakery = data?.bakery
 
   useEffect(() => {
     const root = document.documentElement

@@ -29,10 +29,7 @@ const mockProductWithVariants = {
   slug: 'coffee-bread',
   base_price_minor: 50000,
   description: 'Delicious coffee bread',
-  image_urls: [
-    'https://example.com/coffee-1.png',
-    'https://example.com/coffee-2.png',
-  ],
+  image_urls: ['https://example.com/coffee-1.png', 'https://example.com/coffee-2.png'],
   category_id: 'cat-1',
   is_published: true,
   is_available: true,
@@ -101,7 +98,11 @@ describe('ProductDetailPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(bakeryApi.usePublicBakery).mockReturnValue({
-      data: mockBakery,
+      data: {
+        bakery: mockBakery,
+        opening_hours: [],
+        open_status: { status: 'open', opens_at_local: null, closes_at_local: null },
+      },
       isLoading: false,
       error: null,
       refetch: vi.fn(),
@@ -211,8 +212,8 @@ describe('ProductDetailPage', () => {
 
     // Check that thumbnail images exist
     const allImages = screen.getAllByRole('img')
-    const thumbnailImages = allImages.filter(
-      (img) => (img as HTMLImageElement).alt.includes('thumbnail'),
+    const thumbnailImages = allImages.filter((img) =>
+      (img as HTMLImageElement).alt.includes('thumbnail'),
     )
     expect(thumbnailImages.length).toBeGreaterThan(0)
   })
@@ -340,9 +341,7 @@ describe('ProductDetailPage', () => {
       </BrowserRouter>,
     )
 
-    const textarea = screen.getByPlaceholderText(
-      /Add any special requests/,
-    )
+    const textarea = screen.getByPlaceholderText(/Add any special requests/)
     expect(textarea).toBeInTheDocument()
   })
 
@@ -364,9 +363,7 @@ describe('ProductDetailPage', () => {
       </BrowserRouter>,
     )
 
-    const textarea = screen.getByPlaceholderText(
-      /Add any special requests/,
-    )
+    const textarea = screen.getByPlaceholderText(/Add any special requests/)
     await user.type(textarea, 'No nuts please')
 
     expect(screen.getByText('14/500')).toBeInTheDocument()

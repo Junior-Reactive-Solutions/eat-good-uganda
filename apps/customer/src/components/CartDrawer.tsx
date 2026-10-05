@@ -38,7 +38,8 @@ export default function CartDrawer({ isOpen, onClose, bakerySlug }: CartDrawerPr
   const removeFromCart = useRemoveFromCart()
   const updateQuantity = useUpdateCartQuantity()
 
-  const { data: bakery } = usePublicBakery(bakerySlug ?? '')
+  const { data: bakeryData } = usePublicBakery(bakerySlug ?? '')
+  const bakery = bakeryData?.bakery
 
   const minOrderMinor = bakery?.min_order_minor ?? null
   const gap = minOrderMinor !== null && total < minOrderMinor ? minOrderMinor - total : 0

@@ -172,7 +172,7 @@ Phone first, tablet second, desktop third. Depends on Phases 1-4 for shared comp
       renders a fact strip. Emoji replaced with Phosphor icons. (`66861c1`)
 - [x] Bottom tab bar on phone: Home, Orders, Saved, Account. Fixed bottom, 44px, NavLink
       active state; page body padded clear of the bar on `< sm`. (`66861c1`)
-- [ ] Open / closed / opens-at state computed in Africa/Kampala.
+- [x] Open / closed / opens-at state computed in Africa/Kampala. (`bakery_opening_hours` table, `computeOpenStatus()`, badge on BakeryPage)
 - [x] Live minimum-order gap in the basket, with switch-to-pickup escape. (`5822aa3`)
 - [x] Four-step checkout with a total that never changes at the last step. (`c7d0fd7`)
 - [x] Mobile money states: waiting (`*165#` fallback, visible M:SS countdown), timeout

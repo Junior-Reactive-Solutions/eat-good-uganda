@@ -11,6 +11,7 @@ import {
   IconProductBreadLoaf,
 } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
+import { OpenStatusBadge } from '../components/OpenStatusBadge'
 import { PageMeta } from '../components/PageMeta'
 import { usePublicBakery, usePublicCategories, usePublicProducts } from '../features/bakery/api'
 import cloudinaryImage from '../lib/cloudinary'
@@ -19,7 +20,9 @@ export default function BakeryPage() {
   const { slug } = useParams<{ slug: string }>()
 
   // Move hooks before early returns
-  const { data: bakery, isLoading: isBakeryLoading } = usePublicBakery(slug ?? '')
+  const { data: bakeryData, isLoading: isBakeryLoading } = usePublicBakery(slug ?? '')
+  const bakery = bakeryData?.bakery
+  const openStatus = bakeryData?.open_status
   const { data: categories } = usePublicCategories(slug ?? '')
   const { data: productsData } = usePublicProducts(slug ?? '', { pageSize: 6 })
 
@@ -102,6 +105,13 @@ export default function BakeryPage() {
                 </p>
               )}
             </div>
+
+            {/* Open / closed badge */}
+            {openStatus && (
+              <div className="mt-3">
+                <OpenStatusBadge status={openStatus} />
+              </div>
+            )}
 
             {/* Fulfilment fact strip */}
             <div className="mt-4 flex flex-wrap gap-2">

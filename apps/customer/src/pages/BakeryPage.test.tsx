@@ -69,7 +69,11 @@ describe('BakeryPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(bakeryApi.usePublicBakery).mockReturnValue({
-      data: mockBakery,
+      data: {
+        bakery: mockBakery,
+        opening_hours: [],
+        open_status: { status: 'open', opens_at_local: null, closes_at_local: null },
+      },
       isLoading: false,
       error: null,
       refetch: vi.fn(),
@@ -225,9 +229,7 @@ describe('BakeryPage', () => {
     )
 
     expect(screen.getByText('No products yet')).toBeInTheDocument()
-    expect(
-      screen.getByText(/This bakery hasn't added any products yet/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/This bakery hasn't added any products yet/)).toBeInTheDocument()
   })
 
   it('renders category links with correct href paths', () => {
@@ -240,14 +242,8 @@ describe('BakeryPage', () => {
     const breadLink = screen.getByRole('link', { name: 'Bread' })
     const cakesLink = screen.getByRole('link', { name: 'Cakes' })
 
-    expect(breadLink).toHaveAttribute(
-      'href',
-      '/b/test-bakery-slug/menu?category=bread',
-    )
-    expect(cakesLink).toHaveAttribute(
-      'href',
-      '/b/test-bakery-slug/menu?category=cakes',
-    )
+    expect(breadLink).toHaveAttribute('href', '/b/test-bakery-slug/menu?category=bread')
+    expect(cakesLink).toHaveAttribute('href', '/b/test-bakery-slug/menu?category=cakes')
   })
 
   it('renders product view buttons with correct href paths', () => {
@@ -258,9 +254,6 @@ describe('BakeryPage', () => {
     )
 
     const sourdoughButton = screen.getAllByRole('link', { name: 'View' })[0]
-    expect(sourdoughButton).toHaveAttribute(
-      'href',
-      '/b/test-bakery-slug/products/sourdough',
-    )
+    expect(sourdoughButton).toHaveAttribute('href', '/b/test-bakery-slug/products/sourdough')
   })
 })

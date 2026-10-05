@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
-import {
-  IconNavigationMenu,
-  IconProductBreadLoaf,
-} from '../components/icons'
+import { IconNavigationMenu, IconProductBreadLoaf } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageMeta } from '../components/PageMeta'
 import { usePublicBakery, usePublicCategories, usePublicProducts } from '../features/bakery/api'
@@ -17,7 +14,8 @@ export default function BakeryMenuPage() {
   const [localPage, setLocalPage] = useState(1)
 
   // Move hooks before any early returns
-  const { data: bakery, isLoading: isBakeryLoading } = usePublicBakery(slug ?? '')
+  const { data: bakeryData, isLoading: isBakeryLoading } = usePublicBakery(slug ?? '')
+  const bakery = bakeryData?.bakery
   const { data: categories } = usePublicCategories(slug ?? '')
   const selectedCategory = searchParams.get('category') ?? undefined
   const pageSize = 20
@@ -66,7 +64,9 @@ export default function BakeryMenuPage() {
       <PageMeta
         title={`${bakery.display_name} — Menu`}
         description={`Browse the full menu from ${bakery.display_name} — fresh bread, cakes, and pastries on Eat Good Uganda.`}
-        {...(bakery.logo_url ? { image: cloudinaryImage(bakery.logo_url, { w: 512, q: 'auto' }) } : {})}
+        {...(bakery.logo_url
+          ? { image: cloudinaryImage(bakery.logo_url, { w: 512, q: 'auto' }) }
+          : {})}
       />
       <Link
         to={`/b/${slug}`}
@@ -225,12 +225,7 @@ export default function BakeryMenuPage() {
             </>
           ) : (
             <div className="rounded-lg border border-platform-border bg-platform-surface p-8 text-center">
-              <IconProductBreadLoaf
-                size="lg"
-                color="default"
-                className="mx-auto mb-4"
-                alt=""
-              />
+              <IconProductBreadLoaf size="lg" color="default" className="mx-auto mb-4" alt="" />
               <h3 className="text-lg font-semibold text-platform-fg">
                 No products in this category
               </h3>
