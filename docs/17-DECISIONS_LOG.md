@@ -207,7 +207,8 @@ All of the following were settled in the planning session that preceded scaffold
 
 **Decision:** Move credential encryption from client to server. Use AES-256-GCM with bakery_id as Additional Authenticated Data (AAD) for integrity verification.
 
-**Implementation:** 
+**Implementation:**
+
 - Encryption module: `apps/api/src/lib/encryption.ts` with `encryptPaymentCredentials()` and `decryptPaymentCredentials()`
 - Nonce stored with encrypted data in `payment_credentials` table
 - Automatic decryption on API retrieval
@@ -222,6 +223,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### HTTP Security Headers: Helmet.js with CSP, HSTS, X-Frame-Options
 
 **Decision:** Use Helmet.js middleware with comprehensive configuration:
+
 - Content Security Policy (CSP) with unsafe-hashes for script integrity
 - HSTS with 1-year max age and preload flag
 - X-Frame-Options: DENY (clickjacking protection)
@@ -235,6 +237,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### JWT Token TTL Validation: Type-safe constraints
 
 **Decision:** Enforce token lifetime constraints at the type system level:
+
 - Access tokens: 300-3600 seconds (5 min to 1 hour), default 300s
 - Refresh tokens: 7-90 days (604800-7776000 seconds), default 7 days
 - Type validation on refresh endpoint to prevent token lifetime inflation
@@ -248,6 +251,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Chart Components: Design token system with CSS custom properties
 
 **Decision:** Replace hardcoded colors in chart components with CSS variables. Create `apps/super-admin/src/styles/platform-theme.css` with:
+
 - 8 chart colors: `--chart-primary` through `--chart-octonary` (rotating through palette)
 - Platform status colors: success, error, warning, info
 - All chart components use `var(--chart-primary)` instead of `#3b82f6`
@@ -261,6 +265,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Chart Accessibility: SVG role="img", aria-label, and <title> elements
 
 **Decision:** All charts include:
+
 - `role="img"` on SVG root element
 - `aria-label` with descriptive text (e.g., "Revenue trend over last 30 days")
 - `<title>` element inside SVG with chart description
@@ -275,6 +280,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Analytics Aggregation: Platform-wide and per-bakery metrics with time series grouping
 
 **Decision:** Implement 4 analytics query functions in `packages/db/src/queries/analytics.ts`:
+
 - `getAdminPlatformMetrics()` — Total bakeries, customers, orders, revenue across platform
 - `getAdminBakeryAnalytics(bakeryId)` — Per-bakery stats with top 5 products
 - `getAdminMetricsTimeSeries(options)` — Revenue/orders/customers grouped by day/week/month
@@ -287,6 +293,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Super Admin Dashboard: Single page with 4 metrics cards, 3 charts, and responsive grid
 
 **Decision:** Create `AdminDashboardPage.tsx` as the entry point with:
+
 - 4 metric cards: total bakeries, active bakeries, total customers, total orders
 - LineChart for 30-day revenue trend
 - BarChart for top 10 bakeries by metric
@@ -300,7 +307,8 @@ All of the following were settled in the planning session that preceded scaffold
 
 ### React Query Cache Strategy: 5-minute and 10-minute staleTime for analytics
 
-**Decision:** 
+**Decision:**
+
 - `usePlatformMetrics()`: 5-minute staleTime (metrics change frequently)
 - `useMetricsTimeSeries()`: 10-minute staleTime (trend data changes less frequently)
 - `useTopBakeries()`: configurable cache with default 10-minute staleTime
@@ -312,6 +320,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### GitHub Actions Workflow: Multi-node testing with coverage tracking
 
 **Decision:** Create `.github/workflows/test-and-coverage.yml` with:
+
 - Test on Node 18.x and 20.x (LTS and latest)
 - TypeScript type check on all files
 - ESLint with 0-error threshold
@@ -325,6 +334,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Dependabot: Weekly npm and GitHub Actions updates with auto-labeling
 
 **Decision:** Configure `.github/dependabot.yml`:
+
 - Weekly npm dependency updates (Monday 03:00 UTC)
 - Weekly GitHub Actions updates (Monday 04:00 UTC)
 - Auto-label with `dependencies`, `npm`, `github-actions` tags
@@ -338,6 +348,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Code Ownership: CODEOWNERS file for team assignments
 
 **Decision:** Create `.github/CODEOWNERS` with:
+
 - Global default: `@Junior-Reactive-Solutions/dev-team`
 - Specific ownership for API, DB, frontend apps
 - PR reviews required before merge (GitHub enforces via branch protection)
@@ -349,6 +360,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Security Scanning: Trivy + npm audit + Trufflehog with weekly schedule
 
 **Decision:** Create `.github/workflows/security.yml`:
+
 - Trivy filesystem scan (FS mode) with SARIF output for GitHub Security tab
 - npm audit to scan dependencies
 - Trufflehog for secret detection
@@ -361,6 +373,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### PR Auto-labeling: Automatic labels based on changed files
 
 **Decision:** Create `.github/workflows/labeler.yml` with file patterns:
+
 - `backend` → `apps/api/` changes
 - `frontend` → `apps/customer/`, `apps/bakery-admin/`, `apps/super-admin/` changes
 - `database` → `packages/db/` changes
@@ -375,6 +388,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Release Management: GitHub releases from semantic version tags
 
 **Decision:** Create `.github/workflows/release.yml`:
+
 - Trigger on tags matching `v*.*.*` (semantic versioning)
 - Auto-generate release notes
 - Publish artifacts
@@ -430,7 +444,7 @@ _Narrative and evidence for everything below: [`23-SESSION_LOG_2026-09.md`](23-S
 
 **Decision:** Every app adds `path: '*'` (nested under the authenticated layout so the sidebar survives, and at top level) alongside `errorElement` on top-level routes, both rendering a per-app `RouteErrorPage` that uses `isRouteErrorResponse` to distinguish a 404 from a runtime error.
 
-**Context:** React Router's default "Unexpected Application Error! 404" screen appears when *no route matches at all*; `errorElement` only handles a matched route that throws.
+**Context:** React Router's default "Unexpected Application Error! 404" screen appears when _no route matches at all_; `errorElement` only handles a matched route that throws.
 
 **Consequences:** An unauthenticated visitor to an unknown admin path is redirected to `/login` before reaching the 404 (by design). Verified in the served bundles; not yet seen visually.
 
@@ -452,7 +466,7 @@ _Narrative and evidence for everything below: [`23-SESSION_LOG_2026-09.md`](23-S
 
 ### Bulk approve is a client-side loop until a bulk endpoint exists
 
-**Decision:** The Bakeries table's "Approve N" calls `POST /v1/admin/bakeries/:bakeryId/approve` once per selected pending row. Bulk *suspend* is deliberately omitted because suspension requires a reason.
+**Decision:** The Bakeries table's "Approve N" calls `POST /v1/admin/bakeries/:bakeryId/approve` once per selected pending row. Bulk _suspend_ is deliberately omitted because suspension requires a reason.
 
 **Context:** No bulk endpoint exists, and the design's headline scenario is approving several applications in one pass.
 
@@ -481,3 +495,11 @@ _Narrative and evidence for everything below: [`23-SESSION_LOG_2026-09.md`](23-S
 **Context:** Earlier work committed two features that had only half-applied (CRLF files defeated multi-line patterns and a "something changed" guard still passed) and reported lint clean from empty background output. See the session log §7.
 
 **Consequences:** Slower, but claims in commit messages now match the diff. Normalise line endings before scripting (there is no `.gitattributes` yet).
+
+### Opening hours: compute open-status in the API using Intl.DateTimeFormat, not a SQL expression
+
+**Decision:** `computeOpenStatus()` runs in Node.js using `Intl.DateTimeFormat` with the bakery's IANA timezone string. The `bakery_opening_hours` table stores plain `TIME` columns (no timezone); open/closed arithmetic is done entirely in application code, not in SQL.
+
+**Context:** The alternative was a single SQL query using `AT TIME ZONE` and `NOW()`, but that ties correctness to the database server's timezone config and makes unit testing harder. A pure TypeScript function with an injectable `now` parameter is trivial to test and keeps all scheduling logic in one place.
+
+**Consequences:** `computeOpenStatus` must be called server-side (it needs `Date` and `Intl`); it is not safe to ship to the browser without a polyfill check. The `opens_soon` threshold (≤ 60 minutes) is a constant in the function; change it there if the product requirement shifts.
