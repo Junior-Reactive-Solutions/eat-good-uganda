@@ -174,7 +174,7 @@ Phone first, tablet second, desktop third. Depends on Phases 1-4 for shared comp
       active state; page body padded clear of the bar on `< sm`. (`66861c1`)
 - [ ] Open / closed / opens-at state computed in Africa/Kampala.
 - [x] Live minimum-order gap in the basket, with switch-to-pickup escape. (`5822aa3`)
-- [ ] Four-step checkout with a total that never changes at the last step.
+- [x] Four-step checkout with a total that never changes at the last step. (`c7d0fd7`)
 - [x] Mobile money states: waiting (`*165#` fallback, visible M:SS countdown), timeout
       ("no money has left your account", order held 15 minutes), success. (`5822aa3`)
 - [x] Order tracking timeline mirroring the bakery's pipeline, with ETA card. Vertical
