@@ -37,7 +37,7 @@ function OrderReviewSectionWithForm() {
 
   return (
     <FormProvider {...methods}>
-      <OrderReviewSection />
+      <OrderReviewSection frozenTotalMinor={100000} onEdit={() => undefined} />
     </FormProvider>
   )
 }
@@ -185,7 +185,7 @@ describe('OrderReviewSection', () => {
 
       return (
         <FormProvider {...methodsWithDelivery}>
-          <OrderReviewSection />
+          <OrderReviewSection frozenTotalMinor={105000} onEdit={() => undefined} />
         </FormProvider>
       )
     }
