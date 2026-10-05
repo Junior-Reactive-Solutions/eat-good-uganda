@@ -12,7 +12,7 @@ export default defineConfig({
       DATABASE_URL: process.env.DATABASE_URL ?? 'postgresql://test:test@localhost:5432/test_db',
     },
     setupFiles: ['./src/test.setup.ts'],
-    include: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
+    include: ['src/**/*.test.ts', 'src/**/*.spec.ts', 'tests/**/*.test.ts'],
     exclude: ['node_modules', 'dist'],
     coverage: {
       provider: 'v8',
