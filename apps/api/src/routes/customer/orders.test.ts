@@ -1,12 +1,17 @@
 import * as ordersDb from '@eatgood/db'
+import type { RequestHandler } from 'express'
 import request from 'supertest'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import { app } from '../../app'
 
-// Mock the database module
+// Mock the database module. `pool.query` is mocked directly because the GET
+// list/detail and cancel handlers in orders.ts call it straight (not through
+// a db-layer helper like the other mocked functions below).
+const mockPoolQuery = vi.fn()
+
 vi.mock('@eatgood/db', () => ({
-  pool: {},
+  pool: { query: (...args: unknown[]) => mockPoolQuery(...args) },
   createOrder: vi.fn(),
   getOrderById: vi.fn(),
   listOrdersForCustomer: vi.fn(),
@@ -15,59 +20,107 @@ vi.mock('@eatgood/db', () => ({
   getProductById: vi.fn(),
 }))
 
+// orders.ts fires confirmation emails (fire-and-forget) on successful creation.
+// Stub it out — email delivery is covered by lib/email's own test suite.
+vi.mock('../../lib/email', () => ({
+  sendEmail: vi.fn(),
+}))
+
 // Mock middleware
 vi.mock('../../middleware/authenticateToken', () => ({
-  authenticateToken: () => (req: any, res: any, next: any) => {
+  authenticateToken: (): RequestHandler => (req, _res, next) => {
     req.auth = { kind: 'customer', sub: 'customer-123' }
     next()
   },
 }))
 
 vi.mock('../../middleware/requireCustomerContext', () => ({
-  requireCustomerContext: (req: any, res: any, next: any) => {
-    // This middleware just validates the kind, doesn't set anything
+  // This middleware just validates the kind, doesn't set anything
+  requireCustomerContext: ((_req, _res, next) => {
     next()
-  },
+  }) as RequestHandler,
 }))
+
+// The global CSRF middleware (app.ts) requires a matching cookie + header on
+// every state-changing method. This helper attaches a valid pair so POST
+// requests reach the route handler instead of being rejected with 403.
+const CSRF_TOKEN = 'test-csrf-token'
+
+function postWithCsrf(path: string) {
+  return request(app)
+    .post(path)
+    .set('Cookie', [`eg_csrf=${CSRF_TOKEN}`])
+    .set('x-csrf-token', CSRF_TOKEN)
+}
+
+// Minimal fixtures cast to the real db-layer return types so tests don't need
+// `as any` to satisfy mockResolvedValue's generic.
+type Bakery = Awaited<ReturnType<typeof ordersDb.getBakeryById>>
+type Product = Awaited<ReturnType<typeof ordersDb.getProductById>>
+type Order = Awaited<ReturnType<typeof ordersDb.createOrder>>
+
+function mockBakery(overrides: Partial<NonNullable<Bakery>> = {}): Bakery {
+  return { id: 'bakery-fixture', status: 'active', ...overrides } as Bakery
+}
+
+function mockProduct(overrides: Partial<NonNullable<Product>> = {}): Product {
+  return {
+    id: '2f94ad92-c6e3-4ddb-8983-79beafd23ab3',
+    name: 'Mandazi',
+    base_price_minor: 50000,
+    ...overrides,
+  } as Product
+}
+
+function mockCreatedOrder(overrides: Partial<NonNullable<Order>> = {}): Order {
+  return {
+    id: 'order-fixture',
+    order_number: 'EGU-20260507-A3F7',
+    total_minor: 100000,
+    status: 'pending_payment',
+    ...overrides,
+  } as Order
+}
 
 describe('Customer Orders API', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Default: no rows found. Individual tests override via mockResolvedValueOnce
+    // or by reassigning mockPoolQuery's implementation for multi-call sequences.
+    mockPoolQuery.mockResolvedValue({ rows: [] })
   })
 
   describe('POST /v1/customer/orders', () => {
+    const VALID_BAKERY_ID = '08fbe1e9-b959-48ad-bc5e-a02e3db855de'
+
     it('creates an order for authenticated customer', async () => {
-      const mockOrder = {
-        id: 'order-123',
-        order_number: 'EGU-20260507-A3F7',
-        total_minor: 100000,
-        status: 'pending_payment',
-      }
+      const mockOrder = mockCreatedOrder({ id: 'order-123' })
 
-      vi.mocked(ordersDb.createOrder).mockResolvedValue(mockOrder as any)
+      vi.mocked(ordersDb.getBakeryById).mockResolvedValue(mockBakery({ id: VALID_BAKERY_ID }))
+      vi.mocked(ordersDb.getProductById).mockResolvedValue(mockProduct())
+      vi.mocked(ordersDb.createOrder).mockResolvedValue(mockOrder)
 
-      const response = await request(app)
-        .post('/v1/customer/orders')
-        .send({
-          items: [
-            {
-              productId: 'prod-1',
-              quantity: 2,
-            },
-          ],
-          customer: {
-            fullName: 'John Doe',
-            email: 'john@example.com',
-            phone: '+256701234567',
-            createAccount: false,
+      const response = await postWithCsrf('/v1/customer/orders').send({
+        bakeryId: VALID_BAKERY_ID,
+        items: [
+          {
+            productId: '2f94ad92-c6e3-4ddb-8983-79beafd23ab3',
+            quantity: 2,
           },
-          fulfillment: {
-            mode: 'pickup',
-          },
-          payment: {
-            method: 'cash_on_delivery',
-          },
-        })
+        ],
+        customer: {
+          fullName: 'John Doe',
+          email: 'john@example.com',
+          phone: '+256701234567',
+          createAccount: false,
+        },
+        fulfillment: {
+          mode: 'pickup',
+        },
+        payment: {
+          method: 'cash_on_delivery',
+        },
+      })
 
       expect(response.status).toBe(201)
       expect(response.body).toEqual({
@@ -81,45 +134,39 @@ describe('Customer Orders API', () => {
     })
 
     it('should validate bakeryId and resolve it from request body', async () => {
-      const bakeryId = 'bakery-kampala-crust-id'
-      const mockBakery = {
-        id: bakeryId,
-        status: 'active',
-      }
-      const mockOrder = {
+      const bakeryId = 'b8341221-4edf-4061-8ea6-49da96812996'
+      const mockOrder = mockCreatedOrder({
         id: 'order-456',
         bakery_id: bakeryId,
         order_number: 'EGU-20260507-B4G8',
         total_minor: 0,
-        status: 'pending_payment',
-      }
+      })
 
-      vi.mocked(ordersDb.getBakeryById).mockResolvedValue(mockBakery as any)
-      vi.mocked(ordersDb.createOrder).mockResolvedValue(mockOrder as any)
+      vi.mocked(ordersDb.getBakeryById).mockResolvedValue(mockBakery({ id: bakeryId }))
+      vi.mocked(ordersDb.getProductById).mockResolvedValue(mockProduct())
+      vi.mocked(ordersDb.createOrder).mockResolvedValue(mockOrder)
 
-      const response = await request(app)
-        .post('/v1/customer/orders')
-        .send({
-          bakeryId, // ← bakery comes from request body
-          items: [
-            {
-              productId: 'prod-1',
-              quantity: 1,
-            },
-          ],
-          customer: {
-            fullName: 'John Doe',
-            email: 'john@example.com',
-            phone: '+256701234567',
-            createAccount: false,
+      const response = await postWithCsrf('/v1/customer/orders').send({
+        bakeryId, // ← bakery comes from request body
+        items: [
+          {
+            productId: '2f94ad92-c6e3-4ddb-8983-79beafd23ab3',
+            quantity: 1,
           },
-          fulfillment: {
-            mode: 'pickup',
-          },
-          payment: {
-            method: 'cash_on_delivery',
-          },
-        })
+        ],
+        customer: {
+          fullName: 'John Doe',
+          email: 'john@example.com',
+          phone: '+256701234567',
+          createAccount: false,
+        },
+        fulfillment: {
+          mode: 'pickup',
+        },
+        payment: {
+          method: 'cash_on_delivery',
+        },
+      })
 
       // Verify bakeryId was validated
       expect(ordersDb.getBakeryById).toHaveBeenCalledWith(expect.anything(), bakeryId)
@@ -138,33 +185,31 @@ describe('Customer Orders API', () => {
     })
 
     it('should reject invalid bakeryId', async () => {
-      const invalidBakeryId = 'nonexistent-bakery'
+      const invalidBakeryId = 'e15fe42c-68f0-4326-89fa-a0f64e3d22bc'
 
       vi.mocked(ordersDb.getBakeryById).mockResolvedValue(null)
 
-      const response = await request(app)
-        .post('/v1/customer/orders')
-        .send({
-          bakeryId: invalidBakeryId,
-          items: [
-            {
-              productId: 'prod-1',
-              quantity: 1,
-            },
-          ],
-          customer: {
-            fullName: 'John Doe',
-            email: 'john@example.com',
-            phone: '+256701234567',
-            createAccount: false,
+      const response = await postWithCsrf('/v1/customer/orders').send({
+        bakeryId: invalidBakeryId,
+        items: [
+          {
+            productId: '2f94ad92-c6e3-4ddb-8983-79beafd23ab3',
+            quantity: 1,
           },
-          fulfillment: {
-            mode: 'pickup',
-          },
-          payment: {
-            method: 'cash_on_delivery',
-          },
-        })
+        ],
+        customer: {
+          fullName: 'John Doe',
+          email: 'john@example.com',
+          phone: '+256701234567',
+          createAccount: false,
+        },
+        fulfillment: {
+          mode: 'pickup',
+        },
+        payment: {
+          method: 'cash_on_delivery',
+        },
+      })
 
       expect(response.status).toBe(400)
       expect(response.body.error).toContain('Bakery')
@@ -172,72 +217,69 @@ describe('Customer Orders API', () => {
     })
 
     it('validates required fields', async () => {
-      const response = await request(app)
-        .post('/v1/customer/orders')
-        .send({
-          items: [],
-          customer: {
-            fullName: '',
-            email: '',
-            phone: '',
-          },
-          fulfillment: {
-            mode: 'pickup',
-          },
-          payment: {
-            method: 'cash_on_delivery',
-          },
-        })
+      const response = await postWithCsrf('/v1/customer/orders').send({
+        items: [],
+        customer: {
+          fullName: '',
+          email: '',
+          phone: '',
+        },
+        fulfillment: {
+          mode: 'pickup',
+        },
+        payment: {
+          method: 'cash_on_delivery',
+        },
+      })
 
       expect(response.status).toBe(400)
     })
 
     it('rejects empty cart', async () => {
-      const response = await request(app)
-        .post('/v1/customer/orders')
-        .send({
-          items: [],
-          customer: {
-            fullName: 'John Doe',
-            email: 'john@example.com',
-            phone: '+256701234567',
-          },
-          fulfillment: {
-            mode: 'pickup',
-          },
-          payment: {
-            method: 'cash_on_delivery',
-          },
-        })
+      const response = await postWithCsrf('/v1/customer/orders').send({
+        items: [],
+        customer: {
+          fullName: 'John Doe',
+          email: 'john@example.com',
+          phone: '+256701234567',
+        },
+        fulfillment: {
+          mode: 'pickup',
+        },
+        payment: {
+          method: 'cash_on_delivery',
+        },
+      })
 
       expect(response.status).toBe(400)
       expect(response.body.error).toContain('empty')
     })
 
     it('handles database errors gracefully', async () => {
+      vi.mocked(ordersDb.getBakeryById).mockResolvedValue(mockBakery({ id: VALID_BAKERY_ID }))
+      vi.mocked(ordersDb.getProductById).mockResolvedValue(mockProduct())
       vi.mocked(ordersDb.createOrder).mockRejectedValue(new Error('Database error'))
 
-      const response = await request(app)
-        .post('/v1/customer/orders')
-        .send({
-          items: [
-            {
-              productId: 'prod-1',
-              quantity: 1,
-            },
-          ],
-          customer: {
-            fullName: 'John Doe',
-            email: 'john@example.com',
-            phone: '+256701234567',
+      const response = await postWithCsrf('/v1/customer/orders').send({
+        bakeryId: VALID_BAKERY_ID,
+        items: [
+          {
+            productId: '2f94ad92-c6e3-4ddb-8983-79beafd23ab3',
+            quantity: 1,
           },
-          fulfillment: {
-            mode: 'pickup',
-          },
-          payment: {
-            method: 'cash_on_delivery',
-          },
-        })
+        ],
+        customer: {
+          fullName: 'John Doe',
+          email: 'john@example.com',
+          phone: '+256701234567',
+        },
+        fulfillment: {
+          mode: 'pickup',
+        },
+        payment: {
+          method: 'cash_on_delivery',
+        },
+      })
 
       expect(response.status).toBe(500)
       expect(response.body.error).toContain('Failed to create order')
@@ -246,32 +288,36 @@ describe('Customer Orders API', () => {
 
   describe('GET /v1/customer/orders', () => {
     it('returns list of customer orders', async () => {
-      const mockOrders = [
-        {
-          id: 'order-1',
-          order_number: 'EGU-20260507-A3F7',
-          status: 'confirmed',
-          total_minor: 100000,
-          created_at: new Date(),
-        },
-      ]
+      const mockOrder = {
+        id: 'order-1',
+        order_number: 'EGU-20260507-A3F7',
+        status: 'confirmed',
+        total_minor: 100000,
+        fulfilment_mode: 'pickup',
+        created_at: new Date(),
+      }
 
-      vi.mocked(ordersDb.listOrdersForCustomer).mockResolvedValue(mockOrders as any)
+      mockPoolQuery.mockResolvedValue({ rows: [{ total: '1' }] })
+      vi.mocked(ordersDb.listOrdersForCustomer).mockResolvedValue([mockOrder] as unknown as Awaited<
+        ReturnType<typeof ordersDb.listOrdersForCustomer>
+      >)
 
       const response = await request(app).get('/v1/customer/orders')
 
       expect(response.status).toBe(200)
-      expect(response.body.orders).toHaveLength(1)
-      expect(response.body.orders[0]).toEqual({
-        id: mockOrders[0]!.id,
-        order_number: mockOrders[0]!.order_number,
-        status: mockOrders[0]!.status,
-        total_minor: mockOrders[0]!.total_minor,
-        created_at: mockOrders[0]!.created_at.toISOString(),
+      expect(response.body.items).toHaveLength(1)
+      expect(response.body.items[0]).toEqual({
+        id: mockOrder.id,
+        order_number: mockOrder.order_number,
+        status: mockOrder.status,
+        total_minor: mockOrder.total_minor,
+        fulfilment_mode: mockOrder.fulfilment_mode,
+        created_at: mockOrder.created_at.toISOString(),
       })
     })
 
     it('supports pagination', async () => {
+      mockPoolQuery.mockResolvedValue({ rows: [{ total: '0' }] })
       vi.mocked(ordersDb.listOrdersForCustomer).mockResolvedValue([])
 
       const response = await request(app)
@@ -288,6 +334,7 @@ describe('Customer Orders API', () => {
     })
 
     it('enforces maximum limit of 100', async () => {
+      mockPoolQuery.mockResolvedValue({ rows: [{ total: '0' }] })
       vi.mocked(ordersDb.listOrdersForCustomer).mockResolvedValue([])
 
       const response = await request(app).get('/v1/customer/orders').query({ limit: 200 })
@@ -306,6 +353,7 @@ describe('Customer Orders API', () => {
     it('returns order details with ownership verification', async () => {
       const mockOrder = {
         id: 'order-123',
+        bakery_id: 'bakery-456',
         order_number: 'EGU-20260507-A3F7',
         status: 'confirmed',
         total_minor: 100000,
@@ -313,10 +361,10 @@ describe('Customer Orders API', () => {
         fulfilment_mode: 'pickup',
         delivery_address: null,
         scheduled_for: null,
-        created_at: new Date(),
+        created_at: new Date().toISOString(),
       }
 
-      vi.mocked(ordersDb.getOrderById).mockResolvedValue(mockOrder as any)
+      mockPoolQuery.mockResolvedValue({ rows: [mockOrder] })
 
       const response = await request(app).get('/v1/customer/orders/order-123')
 
@@ -329,12 +377,12 @@ describe('Customer Orders API', () => {
         fulfilment_mode: mockOrder.fulfilment_mode,
         delivery_address: mockOrder.delivery_address,
         scheduled_for: mockOrder.scheduled_for,
-        created_at: mockOrder.created_at.toISOString(),
+        created_at: mockOrder.created_at,
       })
     })
 
     it('returns 404 when order not found', async () => {
-      vi.mocked(ordersDb.getOrderById).mockResolvedValue(null)
+      mockPoolQuery.mockResolvedValue({ rows: [] })
 
       const response = await request(app).get('/v1/customer/orders/nonexistent')
 
@@ -343,12 +391,12 @@ describe('Customer Orders API', () => {
     })
 
     it('returns 403 when customer does not own the order', async () => {
-      const mockOrder = {
-        id: 'order-123',
-        customer_id: 'different-customer',
-      }
-
-      vi.mocked(ordersDb.getOrderById).mockResolvedValue(mockOrder as any)
+      // The route's SQL already filters by customer_id, so a mismatched row
+      // can't occur with a real database — this exercises the defensive
+      // ownership check in the handler itself.
+      mockPoolQuery.mockResolvedValue({
+        rows: [{ id: 'order-123', customer_id: 'different-customer' }],
+      })
 
       const response = await request(app).get('/v1/customer/orders/order-123')
 
@@ -361,17 +409,17 @@ describe('Customer Orders API', () => {
     it('cancels a pending payment order', async () => {
       const mockOrder = {
         id: 'order-123',
+        bakery_id: 'bakery-456',
         customer_id: 'customer-123',
         status: 'pending_payment',
       }
 
-      vi.mocked(ordersDb.getOrderById).mockResolvedValue(mockOrder as any)
-      vi.mocked(ordersDb.updateOrderStatus).mockResolvedValue({
-        ...mockOrder,
-        status: 'cancelled',
-      } as any)
+      mockPoolQuery.mockResolvedValue({ rows: [mockOrder] })
+      vi.mocked(ordersDb.updateOrderStatus).mockResolvedValue(
+        mockCreatedOrder({ ...mockOrder, status: 'cancelled' }),
+      )
 
-      const response = await request(app).post('/v1/customer/orders/order-123/cancel')
+      const response = await postWithCsrf('/v1/customer/orders/order-123/cancel')
 
       expect(response.status).toBe(200)
       expect(response.body.status).toBe('cancelled')
@@ -386,22 +434,23 @@ describe('Customer Orders API', () => {
     it('returns 422 when order is not pending payment', async () => {
       const mockOrder = {
         id: 'order-123',
+        bakery_id: 'bakery-456',
         customer_id: 'customer-123',
         status: 'confirmed',
       }
 
-      vi.mocked(ordersDb.getOrderById).mockResolvedValue(mockOrder as any)
+      mockPoolQuery.mockResolvedValue({ rows: [mockOrder] })
 
-      const response = await request(app).post('/v1/customer/orders/order-123/cancel')
+      const response = await postWithCsrf('/v1/customer/orders/order-123/cancel')
 
       expect(response.status).toBe(422)
       expect(response.body.error).toContain('Cannot cancel order')
     })
 
     it('returns 404 when order not found', async () => {
-      vi.mocked(ordersDb.getOrderById).mockResolvedValue(null)
+      mockPoolQuery.mockResolvedValue({ rows: [] })
 
-      const response = await request(app).post('/v1/customer/orders/nonexistent/cancel')
+      const response = await postWithCsrf('/v1/customer/orders/nonexistent/cancel')
 
       expect(response.status).toBe(404)
       expect(response.body.error).toContain('not found')

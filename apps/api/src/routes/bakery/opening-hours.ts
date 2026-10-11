@@ -13,7 +13,7 @@ import { requireBakeryContext } from '../../middleware/requireBakeryContext'
 
 const router = Router()
 
-router.use(authenticateToken, requireBakeryContext())
+router.use(authenticateToken('bakery'), requireBakeryContext())
 
 const hoursRowSchema = z.object({
   day_of_week: z.number().int().min(0).max(6),

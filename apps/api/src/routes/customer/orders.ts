@@ -9,6 +9,7 @@ import {
 import { orderCreationSchema } from '@eatgood/shared'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
+import { z } from 'zod'
 
 import { sendEmail } from '../../lib/email'
 import { logger } from '../../lib/logger'
@@ -28,7 +29,7 @@ export const customerOrdersRouter = createRouter() as Router
  */
 customerOrdersRouter.post(
   '/',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
   async (req: Request, res: Response) => {
     if (!req.auth || !('sub' in req.auth) || typeof req.auth.sub !== 'string') {
@@ -182,11 +183,13 @@ customerOrdersRouter.post(
         payment_methods: ['cash_on_delivery', 'bank_transfer', 'mtn_momo', 'airtel_money'], // Would filter by bakery config
       })
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: error.issues[0]?.message ?? 'Validation failed',
+          details: error.issues,
+        })
+      }
       if (error instanceof Error) {
-        // Check if validation error
-        if (error.message.includes('Parse error') || error.message.includes('Invalid')) {
-          return res.status(400).json({ error: error.message })
-        }
         // Check if database error
         if (error.message.includes('violates foreign key')) {
           return res.status(422).json({ error: 'Invalid product or bakery' })
@@ -214,7 +217,7 @@ customerOrdersRouter.post(
  */
 customerOrdersRouter.get(
   '/',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
   async (req: Request, res: Response) => {
     if (!req.auth || !('sub' in req.auth) || typeof req.auth.sub !== 'string') {
@@ -275,7 +278,7 @@ customerOrdersRouter.get(
  */
 customerOrdersRouter.get(
   '/:id',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
   async (req: Request, res: Response) => {
     if (!req.auth || !('sub' in req.auth) || typeof req.auth.sub !== 'string') {
@@ -344,7 +347,7 @@ customerOrdersRouter.get(
  */
 customerOrdersRouter.post(
   '/:id/cancel',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
   async (req: Request, res: Response) => {
     if (!req.auth || !('sub' in req.auth) || typeof req.auth.sub !== 'string') {
