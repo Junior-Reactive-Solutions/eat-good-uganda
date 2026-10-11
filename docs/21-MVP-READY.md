@@ -212,6 +212,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] SEO ≥ 90
 
 **How to test:**
+
 1. Open https://eatgooduganda.com in production
 2. Run Lighthouse audit in Chrome DevTools
 3. Record scores in production monitoring
@@ -223,6 +224,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] Cumulative Layout Shift (CLS) < 0.1
 
 **How to test:**
+
 - Use PageSpeed Insights: https://pagespeed.web.dev
 - Monitor via Vercel Analytics dashboard
 
@@ -234,6 +236,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] GET /v1/internal/health < 100ms
 
 **How to test:**
+
 - Use browser DevTools Network tab
 - Monitor via Render dashboard metrics
 
@@ -245,6 +248,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] No unused dependencies
 
 **How to test:**
+
 - `pnpm --filter @eatgood/customer build` and check dist/ size
 - Use Webpack Bundle Analyzer if needed
 
@@ -260,6 +264,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] Focus indicators visible (3:1 contrast against background)
 
 **How to test:**
+
 - Use axe DevTools browser extension
 - Use WAVE (webaim.org)
 - Run Playwright accessibility checks
@@ -274,6 +279,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] No keyboard traps (can always navigate away)
 
 **How to test (on live site):**
+
 1. Navigate using Tab and Shift+Tab only
 2. Open menus with Enter
 3. Close with Escape
@@ -288,6 +294,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] Page structure is semantic
 
 **How to test:**
+
 - Use NVDA (Windows) or VoiceOver (Mac)
 - Test customer app home page
 - Test checkout flow
@@ -302,6 +309,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] Pinch zoom not disabled
 
 **How to test:**
+
 - Use Chrome DevTools device emulation
 - Test on physical mobile devices
 - Zoom to 200% in browser
@@ -328,6 +336,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] Touch-friendly on mobile
 
 **How to test:**
+
 - Chrome DevTools device emulation
 - Test on iPhone, iPad, Android devices
 - Resize browser window
@@ -342,6 +351,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] Timeout errors have retry options
 
 **How to test:**
+
 - Try invalid form submission
 - Disconnect network mid-request
 - Try accessing non-existent page
@@ -355,6 +365,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] No infinite loaders (have timeout)
 
 **How to test:**
+
 - Use Playwright with artificial delays
 - Throttle network speed (DevTools)
 - Watch UI during slow operations
@@ -368,6 +379,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] No notification spam
 
 **How to test:**
+
 - Place an order on staging
 - Check email (Resend logs)
 - Verify in-app notifications
@@ -385,6 +397,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] No duplicate orders for same cart
 
 **How to test:**
+
 - Run integration tests (isolation tests)
 - Manual SQL queries on staging DB
 - Check audit_logs table for consistency
@@ -398,6 +411,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] Cron job reconciles stuck payments every 15min
 
 **How to test:**
+
 - Place test orders with different payment methods
 - Verify orders in admin dashboard
 - Check payment_intents table
@@ -412,6 +426,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] Bounce rate < 5%
 
 **How to test:**
+
 - Check Resend dashboard
 - Verify email templates rendering
 - Check inbox for received emails
@@ -441,6 +456,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] No dead code
 
 **How to test:**
+
 - `pnpm -w lint` passes
 - `pnpm -w typecheck` passes
 - Manual code review
@@ -455,6 +471,7 @@ This document serves as the final launch checklist for Eat Good Uganda MVP. All 
 - [ ] No API keys in code comments
 
 **How to test:**
+
 - Search codebase for "password", "secret", "key"
 - Check git history for accidental commits
 - Verify CI/CD dashboard has all required secrets
@@ -535,23 +552,25 @@ See `docs/15-ROADMAP.md` for full post-MVP planning.
 **MVP Launch Checklist**
 
 - [ ] All items above verified
-- [ ] Team lead approval: _________________ Date: ___________
-- [ ] Product owner approval: _________________ Date: ___________
-- [ ] Technical lead approval: _________________ Date: ___________
+- [ ] Team lead approval: ********\_******** Date: ****\_\_\_****
+- [ ] Product owner approval: ********\_******** Date: ****\_\_\_****
+- [ ] Technical lead approval: ********\_******** Date: ****\_\_\_****
 
-**Launch Date:** _________________
+**Launch Date:** ********\_********
 
 **Live URLs (After Launch):**
+
 - Customer: https://eatgooduganda.com
 - Bakery Admin: https://bakery.eatgooduganda.com
 - Super Admin: https://admin.eatgooduganda.com
-- API: https://api.eatgooduganda.com (or eatgood-api.onrender.com)
+- API: https://api.eatgooduganda.com (or eatgooduganda-api.onrender.com)
 - API Docs: https://api.eatgooduganda.com/api-docs
 
 **Emergency Contacts:**
-- Technical Lead: _________________ Phone: _________________
-- DevOps: _________________ Phone: _________________
-- Support Lead: _________________ Phone: _________________
+
+- Technical Lead: ********\_******** Phone: ********\_********
+- DevOps: ********\_******** Phone: ********\_********
+- Support Lead: ********\_******** Phone: ********\_********
 
 ---
 

@@ -32,7 +32,7 @@ Branch strategy: feature branches → PR to `staging` → merge; `staging` PR to
 | `www.eatgooduganda.com`            | Redirect 301 → `eatgooduganda.com` | Canonicalisation                                                                       |
 | `bakery.eatgooduganda.com`         | Vercel bakery-admin app            | Bakery staff login and dashboard                                                       |
 | `admin.eatgooduganda.com`          | Vercel super-admin app             | Platform operator console                                                              |
-| `eatgood-api.onrender.com`         | Render API                         | Canonical API URL (can be swapped to `api.eatgooduganda.com` once we want to brand it) |
+| `eatgooduganda-api.onrender.com`   | Render API                         | Canonical API URL (can be swapped to `api.eatgooduganda.com` once we want to brand it) |
 | `staging.eatgooduganda.com`        | Vercel customer staging            | Staging customer app                                                                   |
 | `staging-bakery.eatgooduganda.com` | Vercel bakery staging              | Staging bakery app                                                                     |
 | `staging-admin.eatgooduganda.com`  | Vercel super-admin staging         | Staging super-admin app                                                                |

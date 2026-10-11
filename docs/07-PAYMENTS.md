@@ -85,7 +85,7 @@ If `CREDENTIALS_ENCRYPTION_KEY` is rotated, all credentials must be re-encrypted
    ```
    POST {base}/v1_0/apiuser
    Headers: X-Reference-Id: <uuid>, Ocp-Apim-Subscription-Key: <subKey>
-   Body: { "providerCallbackHost": "eatgood-api.onrender.com" }
+   Body: { "providerCallbackHost": "eatgooduganda-api.onrender.com" }
    ```
 2. **Generate API key:**
    ```

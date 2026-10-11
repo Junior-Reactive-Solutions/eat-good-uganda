@@ -515,3 +515,17 @@ _Narrative and evidence for everything below: [`23-SESSION_LOG_2026-09.md`](23-S
 **Alternatives considered:** `zod-openapi` (similar zod v4 incompatibility), a custom zod-to-openapi transformer (too much maintenance surface). The existing Swagger UI route at `/api-docs` already consumed a plain spec object, making the manual approach a natural fit.
 
 **Consequences:** Schema changes in `packages/shared` are not automatically reflected in the spec — developers must update `openapi.ts` when adding or changing validated endpoints. The contract tests in `apps/api/tests/contract.test.ts` (256 assertions) catch missing paths and broken `$ref`s at CI time.
+
+---
+
+## 2026-10-11 — Fixed local dev bootstrap and stale API hostname in docs
+
+**Decision:** Three fixes made while verifying the stack runs live:
+
+1. `apps/api/src/server.ts` now imports `./env` before `./app` (with a scoped `eslint-disable-next-line import/order`). `app.ts` transitively imports `@eatgood/db`, which reads `process.env.DATABASE_URL` at module-evaluation time — before `env.ts`'s `dotenv.config()` had run, since `./app` sorted alphabetically ahead of `./env`.
+2. `RESEND_API_KEY` in `apps/api/src/env.ts` is now `z.string().default('')` instead of required. The `.env.example` already documented it as "optional for local dev," but the schema didn't match. `apps/api/src/lib/email.ts` now guards both the `Resend` client construction and the two call sites (`sendEmail`, `retryFailedEmails`) behind `env.RESEND_API_KEY` being non-empty, via a `requireResend()` helper (avoids a banned non-null assertion).
+3. `docs/20-DEPLOYMENT_CONFIGURATION.md`, `docs/07-PAYMENTS.md`, `docs/13-DEPLOYMENT.md`, and `docs/21-MVP-READY.md` all referenced the API at `eatgood-api.onrender.com`. The actual deployed Render service (confirmed live in the Render dashboard, matching `apps/api/render.yaml`'s `name: eatgooduganda-api`) is `eatgooduganda-api.onrender.com`. All four docs corrected.
+
+**Context:** Asked to start the app and view it live. Local API failed to boot (`DATABASE_URL or DATABASE_URL_DIRECT must be set`, then after fixing that, `RESEND_API_KEY is required`). Separately, the live bakery-admin frontend on Vercel threw "Network Error" on login — Render dashboard logs confirmed the API itself boots and runs cleanly, ruling out an API-side bug; the stale doc hostname is the leading suspect since deployment docs are the normal source for setting Vercel's `VITE_API_URL`.
+
+**Consequences:** Local `pnpm --filter @eatgood/api dev` now boots cleanly without a real Resend key. If the live bakery-admin/super-admin Vercel projects were in fact configured with `VITE_API_URL=https://eatgood-api.onrender.com`, that still needs fixing directly in Vercel's project settings (not discoverable from this repo — those two Vercel projects are under an account/team not connected to this session) followed by a redeploy, since Vite bakes `VITE_*` vars in at build time.

@@ -14,7 +14,18 @@ import { env } from '../env'
 
 import { logger } from './logger'
 
-const resend = new Resend(env.RESEND_API_KEY)
+// The Resend constructor throws on an empty key, so only construct it when a real
+// key is configured. Local dev runs with RESEND_API_KEY='' and sendEmail()/
+// retryFailedEmails() skip the network call entirely in that case.
+const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null
+
+/** Throws if called without a configured Resend client; callers guard on RESEND_API_KEY first. */
+function requireResend(): Resend {
+  if (!resend) {
+    throw new Error('Resend client not configured (RESEND_API_KEY missing)')
+  }
+  return resend
+}
 
 // Bakery-facing emails use a different From address
 const BAKERY_TEMPLATES = new Set<TemplateName>([
@@ -70,7 +81,13 @@ export async function sendEmail(opts: SendEmailOptions): Promise<void> {
   })
 
   try {
-    const result = await resend.emails.send({
+    if (!env.RESEND_API_KEY) {
+      await markEmailSent(pool, log.id, 'dev-skipped-no-api-key')
+      logger.info({ template, to }, 'RESEND_API_KEY not set — skipping actual send (dev mode)')
+      return
+    }
+
+    const result = await requireResend().emails.send({
       from: fromAddress(template),
       to,
       replyTo: env.RESEND_REPLY_TO,
@@ -98,6 +115,8 @@ export async function sendEmail(opts: SendEmailOptions): Promise<void> {
  * Called every 15 minutes by the keepalive cron.
  */
 export async function retryFailedEmails(): Promise<void> {
+  if (!env.RESEND_API_KEY) return
+
   const rows = await getRetryableEmails(pool)
   if (rows.length === 0) return
 
@@ -107,7 +126,7 @@ export async function retryFailedEmails(): Promise<void> {
     // Re-render is not possible without original data; re-send using stored template_key.
     // We call Resend directly rather than sendEmail() to avoid inserting a second log row.
     try {
-      const result = await resend.emails.send({
+      const result = await requireResend().emails.send({
         from: fromAddress(row.template_key as TemplateName),
         to: row.recipient_email,
         replyTo: env.RESEND_REPLY_TO,

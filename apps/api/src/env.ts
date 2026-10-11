@@ -37,8 +37,10 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
-  // Email / Resend
-  RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required'),
+  // Email / Resend. Empty string is allowed for local dev (see apps/api/.env.example);
+  // sendEmail() skips the actual Resend call when this is unset. Deployment configs
+  // (docs/20-DEPLOYMENT_CONFIGURATION.md) require a real key in staging/production.
+  RESEND_API_KEY: z.string().default(''),
   RESEND_FROM_EMAIL: z.string().default('no-reply@eatgooduganda.com'),
   RESEND_REPLY_TO: z.string().default('support@eatgooduganda.com'),
   // Public-facing app URLs (for links in email templates)
