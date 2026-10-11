@@ -10,10 +10,12 @@ import {
 } from '@eatgood/shared'
 import { Router as createRouter } from 'express'
 import type { Router } from 'express'
+import { z } from 'zod'
 
 import { env } from '../../env'
 import { clearAuthCookies, setAuthCookies } from '../../lib/cookies'
 import { sendEmail } from '../../lib/email'
+import { logger } from '../../lib/logger'
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { authRateLimit } from '../../middleware/rateLimit'
 import { requireBakeryContext } from '../../middleware/requireBakeryContext'
@@ -109,7 +111,21 @@ bakeryAuthRouter.post('/login', authRateLimit, async (req, res) => {
     if (error instanceof Error && error.message === 'email_not_verified') {
       return res.status(403).json({ error: 'email_not_verified' })
     }
-    return res.status(401).json({ error: 'invalid credentials' })
+    if (error instanceof Error && error.message === 'invalid credentials') {
+      return res.status(401).json({ error: 'invalid credentials' })
+    }
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.issues })
+    }
+
+    // Anything else (DB connection failure, unexpected exception, etc.) is a real
+    // server error, not a login failure — surfacing it as 401 would hide the actual
+    // cause from both the client and the logs.
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      'Bakery login failed unexpectedly',
+    )
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
