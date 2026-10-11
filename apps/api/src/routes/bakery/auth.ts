@@ -72,7 +72,15 @@ bakeryAuthRouter.post('/signup', authRateLimit, async (req, res) => {
     ) {
       return res.status(409).json({ error: error.message })
     }
-    return res.status(400).json({ error: (error as Error).message })
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.issues })
+    }
+
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      'Bakery signup failed unexpectedly',
+    )
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -141,7 +149,11 @@ bakeryAuthRouter.post('/logout', async (req, res) => {
 
     return res.status(204).end()
   } catch (error) {
-    return res.status(400).json({ error: (error as Error).message })
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      'Bakery logout failed unexpectedly',
+    )
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -174,7 +186,21 @@ bakeryAuthRouter.post('/refresh', async (req, res) => {
     return res.status(200).json({ success: true })
   } catch (error) {
     clearAuthCookies(res, 'bakery')
-    return res.status(401).json({ error: (error as Error).message })
+
+    const knownMessages = [
+      'refresh token not found or revoked',
+      'refresh token expired',
+      'user not found',
+    ]
+    if (error instanceof Error && knownMessages.includes(error.message)) {
+      return res.status(401).json({ error: error.message })
+    }
+
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      'Bakery session refresh failed unexpectedly',
+    )
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -186,7 +212,15 @@ bakeryAuthRouter.post('/forgot-password', authRateLimit, async (req, res) => {
 
     return res.status(200).json({ success: true })
   } catch (error) {
-    return res.status(400).json({ error: (error as Error).message })
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.issues })
+    }
+
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      'Bakery forgot-password request failed unexpectedly',
+    )
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -198,7 +232,20 @@ bakeryAuthRouter.post('/reset-password', authRateLimit, async (req, res) => {
 
     return res.status(200).json({ success: true })
   } catch (error) {
-    return res.status(400).json({ error: (error as Error).message })
+    if (error instanceof Error && error.message === 'invalid or expired token') {
+      return res.status(400).json({ error: error.message })
+    }
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.issues })
+    }
+
+    // Includes 'user not found', which here means the reset token outlived the
+    // account it belonged to — a data anomaly, not something the client can fix.
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      'Bakery password reset failed unexpectedly',
+    )
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -210,7 +257,20 @@ bakeryAuthRouter.post('/verify-email', async (req, res) => {
 
     return res.status(200).json({ success: true })
   } catch (error) {
-    return res.status(400).json({ error: (error as Error).message })
+    if (error instanceof Error && error.message === 'invalid or expired token') {
+      return res.status(400).json({ error: error.message })
+    }
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.issues })
+    }
+
+    // Includes 'user not found', which here means the verification token outlived
+    // the account it belonged to — a data anomaly, not something the client can fix.
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      'Bakery email verification failed unexpectedly',
+    )
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -242,7 +302,11 @@ bakeryAuthRouter.get(
         },
       })
     } catch (error) {
-      return res.status(500).json({ error: (error as Error).message })
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Fetching bakery user failed unexpectedly',
+      )
+      return res.status(500).json({ error: 'Internal server error' })
     }
   },
 )
