@@ -1,11 +1,9 @@
- 
 import type { CustomerAddress } from '@eatgood/shared'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 
 import { AddressForm } from './AddressForm'
-
 
 describe('AddressForm', () => {
   const mockAddress: CustomerAddress = {
@@ -123,7 +121,7 @@ describe('AddressForm', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText(/String must contain at most 20 character/)).toBeInTheDocument()
+      expect(screen.getByText(/expected string to have <=20 characters/i)).toBeInTheDocument()
     })
   })
 
@@ -150,7 +148,8 @@ describe('AddressForm', () => {
           street_address: '456 Elm St',
           city: 'Nakawa',
           district: 'Nakawa',
-        })
+        }),
+        expect.anything(), // react-hook-form also passes the submit event
       )
     })
   })
@@ -222,7 +221,8 @@ describe('AddressForm', () => {
           is_delivery_address: true,
           is_billing_address: true,
           is_default: true,
-        })
+        }),
+        expect.anything(), // react-hook-form also passes the submit event
       )
     })
   })
@@ -310,7 +310,8 @@ describe('AddressForm', () => {
           city: 'Jinja',
           district: 'Jinja',
           postal_code: '00123',
-        })
+        }),
+        expect.anything(), // react-hook-form also passes the submit event
       )
     })
   })

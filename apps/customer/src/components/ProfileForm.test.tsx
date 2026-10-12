@@ -6,7 +6,6 @@ import { describe, it, expect, vi } from 'vitest'
 
 import { ProfileForm } from './ProfileForm'
 
-
 describe('ProfileForm', () => {
   const mockProfile: CustomerProfile = {
     id: 'prof-1',
@@ -80,7 +79,9 @@ describe('ProfileForm', () => {
 
   it('validates bio max length (500 characters)', async () => {
     const onSubmit = vi.fn()
-    const user = userEvent.setup()
+    // delay: null avoids a real per-keystroke delay — typing 501 characters
+    // with the default delay exceeds the test timeout.
+    const user = userEvent.setup({ delay: null })
     const longBio = 'a'.repeat(501)
 
     render(<ProfileForm profile={mockProfile} onSubmit={onSubmit} />)
@@ -93,7 +94,7 @@ describe('ProfileForm', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText(/String must contain at most 500 character/)).toBeInTheDocument()
+      expect(screen.getByText(/expected string to have <=500 characters/i)).toBeInTheDocument()
     })
   })
 
@@ -121,11 +122,21 @@ describe('ProfileForm', () => {
     render(<ProfileForm profile={mockProfile} onSubmit={onSubmit} />)
 
     const bioField = screen.getByDisplayValue('Test bio')
-    expect(screen.getByText('8/500 characters')).toBeInTheDocument()
+    // The count and the literal "/500 characters" render as separate text
+    // nodes inside the same <p>, so match on the element's combined text.
+    expect(
+      screen.getByText(
+        (_content, el) => el?.tagName === 'P' && el.textContent === '8/500 characters',
+      ),
+    ).toBeInTheDocument()
 
     await user.clear(bioField)
     await user.type(bioField, 'New bio text')
-    expect(screen.getByText('12/500 characters')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        (_content, el) => el?.tagName === 'P' && el.textContent === '12/500 characters',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('submits form with valid data', async () => {
@@ -144,13 +155,16 @@ describe('ProfileForm', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith({
-        first_name: 'Jane',
-        last_name: 'Smith',
-        date_of_birth: '',
-        bio: '',
-        avatar_url: null,
-      })
+      expect(onSubmit).toHaveBeenCalledWith(
+        {
+          first_name: 'Jane',
+          last_name: 'Smith',
+          date_of_birth: '',
+          bio: '',
+          avatar_url: null,
+        },
+        expect.anything(), // react-hook-form also passes the submit event
+      )
     })
   })
 
@@ -182,28 +196,33 @@ describe('ProfileForm', () => {
 
     const bioField = screen.getByPlaceholderText('Tell us about yourself...')
 
-    expect(screen.getByText('0/500 characters')).toBeInTheDocument()
+    const countText = (expected: string) =>
+      screen.getByText((_content, el) => el?.tagName === 'P' && el.textContent === expected)
+
+    expect(countText('0/500 characters')).toBeInTheDocument()
 
     await user.type(bioField, 'Hello')
-    expect(screen.getByText('5/500 characters')).toBeInTheDocument()
+    expect(countText('5/500 characters')).toBeInTheDocument()
 
     await user.type(bioField, ' World')
-    expect(screen.getByText('11/500 characters')).toBeInTheDocument()
+    expect(countText('11/500 characters')).toBeInTheDocument()
   })
 
   it('handles form submission with all optional fields', async () => {
     const onSubmit = vi.fn()
     const user = userEvent.setup()
 
-    render(<ProfileForm profile={null} onSubmit={onSubmit} />)
+    const { container } = render(<ProfileForm profile={null} onSubmit={onSubmit} />)
 
     const firstNameField = screen.getByPlaceholderText('John')
     const lastNameField = screen.getByPlaceholderText('Doe')
-    const dobField = screen.getByDisplayValue('')
+    // Both date_of_birth and bio start empty, so getByDisplayValue('') is
+    // ambiguous between the two — select date_of_birth by its field name.
+    const dobField = container.querySelector('input[name="date_of_birth"]') as HTMLInputElement
     const avatarField = screen.getByPlaceholderText('https://example.com/avatar.jpg')
     const bioField = screen.getByPlaceholderText('Tell us about yourself...')
 
-    dobField.setAttribute('type', 'date')
+    expect(dobField).toBeInTheDocument()
 
     await user.type(firstNameField, 'John')
     await user.type(lastNameField, 'Doe')
@@ -227,10 +246,13 @@ describe('ProfileForm', () => {
     }
 
     const onSubmit = vi.fn()
-    render(<ProfileForm profile={profileWithNulls} onSubmit={onSubmit} />)
+    const { container } = render(<ProfileForm profile={profileWithNulls} onSubmit={onSubmit} />)
 
     expect(screen.getByPlaceholderText('John')).toHaveValue('John')
-    expect(screen.getByDisplayValue('')).toBeInTheDocument()
+    // date_of_birth, bio, and avatar_url all render empty, so
+    // getByDisplayValue('') is ambiguous between them.
+    expect(screen.getAllByDisplayValue('')).toHaveLength(3)
+    expect(container.querySelector('input[name="date_of_birth"]')).toHaveValue('')
   })
 
   it('has proper aria labels for accessibility', () => {

@@ -40,8 +40,10 @@ describe('FulfillmentSection', () => {
   it('renders fulfillment mode selection', () => {
     render(<FulfillmentSectionWithForm />)
 
-    expect(screen.getByLabelText(/pickup/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/delivery/i)).toBeInTheDocument()
+    // getByLabelText(/pickup/i) is ambiguous with the "Pickup Date & Time"
+    // field label, so target the mode radios by role instead.
+    expect(screen.getByRole('radio', { name: /^pickup$/i })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /^delivery$/i })).toBeInTheDocument()
   })
 
   it('shows pickup section by default', () => {
@@ -67,14 +69,17 @@ describe('FulfillmentSection', () => {
     const user = userEvent.setup()
     render(<FulfillmentSectionWithForm />)
 
-    const deliveryRadio = screen.getByLabelText(/delivery/i)
+    // getByLabelText(/delivery/i) is ambiguous with the "Delivery
+    // Instructions" / "Delivery Date & Time" field labels.
+    const deliveryRadio = screen.getByRole('radio', { name: /^delivery$/i })
     await user.click(deliveryRadio)
 
     expect(screen.getByLabelText(/street address/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/apartment, suite/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/city/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/delivery instructions/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/use my location/i)).toBeInTheDocument()
+    // "Use My Location" is a button, not a labelled form control.
+    expect(screen.getByRole('button', { name: /use my location/i })).toBeInTheDocument()
   })
 
   it('allows entering delivery address', async () => {

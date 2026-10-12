@@ -1,8 +1,12 @@
 import type { BakeryProfile } from '@eatgood/db'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { useState } from 'react'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 
+import { ShortcutProvider } from '../components/ShortcutProvider'
+import { ToastProvider } from '../components/Toast'
 import * as settingsApi from '../features/settings/api'
 
 import BakerySettingsPage from './BakerySettingsPage'
@@ -38,13 +42,43 @@ const mockProfile: BakeryProfile = {
   updated_at: '2026-01-01T00:00:00Z',
 }
 
+/**
+ * BakerySettingsPage uses useBlocker (requires a data router, not just
+ * <BrowserRouter>), useShortcutPrefs (requires ShortcutProvider), and
+ * useToast (requires ToastProvider, which also renders the actual toast
+ * text into the DOM — so toast assertions read real rendered content
+ * rather than a mock).
+ */
+function renderPage() {
+  // ShortcutProvider calls useNavigate() internally, so it (and ToastProvider,
+  // for consistency) must render inside the router tree, not wrap it.
+  const router = createMemoryRouter([
+    {
+      path: '/',
+      element: (
+        <ShortcutProvider>
+          <ToastProvider>
+            <BakerySettingsPage />
+          </ToastProvider>
+        </ShortcutProvider>
+      ),
+    },
+  ])
+  return render(<RouterProvider router={router} />)
+}
+
 describe('BakerySettingsPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('Loading States', () => {
     it('shows loading spinner while fetching profile', () => {
       vi.mocked(settingsApi.useBakeryProfile).mockReturnValue({
         data: null,
         isLoading: true,
         error: null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
       vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
@@ -52,9 +86,10 @@ describe('BakerySettingsPage', () => {
         isPending: false,
         isError: false,
         isSuccess: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
-      render(<BakerySettingsPage />)
+      renderPage()
 
       expect(screen.getByRole('status')).toBeInTheDocument()
     })
@@ -67,6 +102,7 @@ describe('BakerySettingsPage', () => {
         data: null,
         isLoading: false,
         error,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
       vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
@@ -74,9 +110,10 @@ describe('BakerySettingsPage', () => {
         isPending: false,
         isError: false,
         isSuccess: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
-      render(<BakerySettingsPage />)
+      renderPage()
 
       expect(screen.getByText('Failed to fetch profile')).toBeInTheDocument()
     })
@@ -86,6 +123,7 @@ describe('BakerySettingsPage', () => {
         data: null,
         isLoading: false,
         error: {},
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
       vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
@@ -93,19 +131,21 @@ describe('BakerySettingsPage', () => {
         isPending: false,
         isError: false,
         isSuccess: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
-      render(<BakerySettingsPage />)
+      renderPage()
 
       expect(screen.getByText('Failed to load settings')).toBeInTheDocument()
     })
 
-    it('displays error message when profile update fails', () => {
+    it('shows a toast when the profile update fails', () => {
       const error = new Error('Failed to update profile')
       vi.mocked(settingsApi.useBakeryProfile).mockReturnValue({
         data: mockProfile,
         isLoading: false,
         error: null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
       vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
@@ -114,20 +154,22 @@ describe('BakerySettingsPage', () => {
         isError: true,
         isSuccess: false,
         error,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
-      render(<BakerySettingsPage />)
+      renderPage()
 
       expect(screen.getByText('Failed to update profile')).toBeInTheDocument()
     })
   })
 
   describe('Success States', () => {
-    it('displays success message after successful update', () => {
+    it('shows a success toast after a successful update', () => {
       vi.mocked(settingsApi.useBakeryProfile).mockReturnValue({
         data: mockProfile,
         isLoading: false,
         error: null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
       vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
@@ -135,20 +177,22 @@ describe('BakerySettingsPage', () => {
         isPending: false,
         isError: false,
         isSuccess: true,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
-      render(<BakerySettingsPage />)
+      renderPage()
 
-      expect(screen.getByText('Settings saved successfully!')).toBeInTheDocument()
+      expect(screen.getByText('Settings saved successfully.')).toBeInTheDocument()
     })
 
-    it('clears success message after 3 seconds', async () => {
+    it('clears the success toast after its duration elapses', () => {
       vi.useFakeTimers()
 
       vi.mocked(settingsApi.useBakeryProfile).mockReturnValue({
         data: mockProfile,
         isLoading: false,
         error: null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
       vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
@@ -156,23 +200,17 @@ describe('BakerySettingsPage', () => {
         isPending: false,
         isError: false,
         isSuccess: true,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
-      const { rerender } = render(<BakerySettingsPage />)
-      expect(screen.getByText('Settings saved successfully!')).toBeInTheDocument()
+      renderPage()
+      expect(screen.getByText('Settings saved successfully.')).toBeInTheDocument()
 
-      vi.advanceTimersByTime(3000)
+      act(() => {
+        vi.advanceTimersByTime(3000)
+      })
 
-      vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
-        mutate: vi.fn(),
-        isPending: false,
-        isError: false,
-        isSuccess: false,
-      } as any)
-
-      rerender(<BakerySettingsPage />)
-
-      expect(screen.queryByText('Settings saved successfully!')).not.toBeInTheDocument()
+      expect(screen.queryByText('Settings saved successfully.')).not.toBeInTheDocument()
 
       vi.useRealTimers()
     })
@@ -184,6 +222,7 @@ describe('BakerySettingsPage', () => {
         data: mockProfile,
         isLoading: false,
         error: null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
       vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
@@ -191,26 +230,33 @@ describe('BakerySettingsPage', () => {
         isPending: false,
         isError: false,
         isSuccess: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
     })
 
     it('displays page header with correct title and subtitle', () => {
-      render(<BakerySettingsPage />)
+      renderPage()
 
       expect(screen.getByText('Bakery Settings')).toBeInTheDocument()
       expect(screen.getByText('Manage your bakery profile and branding')).toBeInTheDocument()
     })
 
     it('renders form with profile data', () => {
-      render(<BakerySettingsPage />)
+      renderPage()
 
       expect(screen.getByDisplayValue(mockProfile.legal_name)).toBeInTheDocument()
       expect(screen.getByDisplayValue(mockProfile.email)).toBeInTheDocument()
     })
+
+    it('does not show the sticky save bar until the form is dirtied', () => {
+      renderPage()
+
+      expect(screen.queryByText('Save changes')).not.toBeInTheDocument()
+    })
   })
 
   describe('Form Submission', () => {
-    it('calls mutate with form data on submission', async () => {
+    it('calls mutate with form data after dirtying a field and saving', async () => {
       const user = userEvent.setup()
       const mockMutate = vi.fn()
 
@@ -218,6 +264,7 @@ describe('BakerySettingsPage', () => {
         data: mockProfile,
         isLoading: false,
         error: null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
       vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
@@ -225,36 +272,60 @@ describe('BakerySettingsPage', () => {
         isPending: false,
         isError: false,
         isSuccess: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
-      render(<BakerySettingsPage />)
+      renderPage()
 
-      const submitButton = screen.getByText('Save Changes')
-      await user.click(submitButton)
+      const legalNameInput = screen.getByLabelText('Legal Name *')
+      await user.clear(legalNameInput)
+      await user.type(legalNameInput, 'New Legal Name')
+
+      const saveButton = await screen.findByText('Save changes')
+      await user.click(saveButton)
 
       await waitFor(() => {
         expect(mockMutate).toHaveBeenCalled()
       })
     })
 
-    it('disables form during submission', () => {
+    it('disables the save button while the update is pending', async () => {
+      const user = userEvent.setup()
+
       vi.mocked(settingsApi.useBakeryProfile).mockReturnValue({
         data: mockProfile,
         isLoading: false,
         error: null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
-      vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
-        mutate: vi.fn(),
-        isPending: true,
-        isError: false,
-        isSuccess: false,
-      } as any)
+      // A stateful mock: mutate() flips isPending to true, triggering a real
+      // re-render — a plain mockReturnValue can't simulate the mutation
+      // transitioning into a pending state after it's triggered.
+      vi.mocked(settingsApi.useUpdateBakeryProfile).mockImplementation(() => {
+        const [isPending, setIsPending] = useState(false)
+        return {
+          mutate: () => {
+            setIsPending(true)
+          },
+          isPending,
+          isError: false,
+          isSuccess: false,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any
+      })
 
-      render(<BakerySettingsPage />)
+      renderPage()
 
-      const submitButton = screen.getByText('Saving...')
-      expect(submitButton).toBeDisabled()
+      const legalNameInput = screen.getByLabelText('Legal Name *')
+      await user.clear(legalNameInput)
+      await user.type(legalNameInput, 'New Legal Name')
+
+      const saveButton = await screen.findByText('Save changes')
+      await user.click(saveButton)
+
+      const savingButton = await screen.findByText('Saving…')
+      expect(savingButton).toBeDisabled()
     })
   })
 
@@ -264,6 +335,7 @@ describe('BakerySettingsPage', () => {
         data: mockProfile,
         isLoading: false,
         error: null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
       vi.mocked(settingsApi.useUpdateBakeryProfile).mockReturnValue({
@@ -271,9 +343,10 @@ describe('BakerySettingsPage', () => {
         isPending: false,
         isError: false,
         isSuccess: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
 
-      const { container } = render(<BakerySettingsPage />)
+      const { container } = renderPage()
 
       const title = screen.getByText('Bakery Settings')
       expect(title).toBeInTheDocument()

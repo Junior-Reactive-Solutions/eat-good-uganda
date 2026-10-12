@@ -40,7 +40,10 @@ describe('OrderCard', () => {
   })
 
   it('displays order date', () => {
-    render(<OrderCard order={mockOrder} />)
+    // timeAgo() only renders "X ago" within the last 7 days; the shared
+    // mockOrder has a fixed past date, so use a recent one here instead.
+    const recentOrder = { ...mockOrder, created_at: new Date(Date.now() - 2 * 60 * 60 * 1000) }
+    render(<OrderCard order={recentOrder} />)
     expect(screen.getByText(/ago/i)).toBeInTheDocument()
   })
 

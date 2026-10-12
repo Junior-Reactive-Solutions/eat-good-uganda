@@ -5,8 +5,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import * as apiModule from '../../lib/api'
 
-import { useOrderDetail, useOrders, useCustomerOrders, useOrderTracking, useCancelOrder, orderQueryKeys } from './api'
-
+import {
+  useOrderDetail,
+  useOrders,
+  useCustomerOrders,
+  useOrderTracking,
+  useCancelOrder,
+  orderQueryKeys,
+} from './api'
 
 const mockOrder: Order = {
   id: 'order-1',
@@ -35,11 +41,14 @@ const mockOrder: Order = {
 }
 
 const createWrapper = () => {
-  const queryClient = new QueryClient()
+  // Without retry: false, a rejected query retries with backoff delays before
+  // settling into its error state, so isLoading never flips to false within
+  // a test's waitFor timeout.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
   return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 }
 
@@ -85,7 +94,9 @@ describe('useOrderDetail', () => {
   it('fetches order detail for guest with claim token', async () => {
     const mockGet = vi.spyOn(apiModule.api, 'get').mockResolvedValue({ data: mockOrder })
 
-    const { result } = renderHook(() => useOrderDetail('order-1', 'claim-token'), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useOrderDetail('order-1', 'claim-token'), {
+      wrapper: createWrapper(),
+    })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -133,9 +144,12 @@ describe('useOrders', () => {
     })
 
     expect(result.current.data).toEqual(mockResponse)
-    expect(mockGet).toHaveBeenCalledWith('/v1/customer/orders', expect.objectContaining({
-      params: expect.objectContaining({ limit: 20, offset: 0 })
-    }))
+    expect(mockGet).toHaveBeenCalledWith(
+      '/v1/customer/orders',
+      expect.objectContaining({
+        params: expect.objectContaining({ limit: 20, offset: 0 }),
+      }),
+    )
   })
 
   it('fetches orders with custom pagination', async () => {
@@ -148,9 +162,12 @@ describe('useOrders', () => {
       expect(result.current.isLoading).toBe(false)
     })
 
-    expect(mockGet).toHaveBeenCalledWith('/v1/customer/orders', expect.objectContaining({
-      params: expect.objectContaining({ limit: 10, offset: 10 })
-    }))
+    expect(mockGet).toHaveBeenCalledWith(
+      '/v1/customer/orders',
+      expect.objectContaining({
+        params: expect.objectContaining({ limit: 10, offset: 10 }),
+      }),
+    )
   })
 
   it('includes filters in query parameters', async () => {
@@ -164,12 +181,15 @@ describe('useOrders', () => {
       expect(result.current.isLoading).toBe(false)
     })
 
-    expect(mockGet).toHaveBeenCalledWith('/v1/customer/orders', expect.objectContaining({
-      params: expect.objectContaining({
-        status: 'delivered',
-        dateFrom: '2026-05-01',
-      })
-    }))
+    expect(mockGet).toHaveBeenCalledWith(
+      '/v1/customer/orders',
+      expect.objectContaining({
+        params: expect.objectContaining({
+          status: 'delivered',
+          dateFrom: '2026-05-01',
+        }),
+      }),
+    )
   })
 })
 
@@ -186,7 +206,7 @@ describe('useCustomerOrders', () => {
       pageSize: 10,
       totalPages: 1,
     }
-    const mockGet = vi.spyOn(apiModule.api, 'get').mockResolvedValue({ data: mockResponse })
+    vi.spyOn(apiModule.api, 'get').mockResolvedValue({ data: mockResponse })
 
     const { result } = renderHook(() => useCustomerOrders(), { wrapper: createWrapper() })
 
@@ -207,30 +227,40 @@ describe('useCustomerOrders', () => {
     }
     const mockGet = vi.spyOn(apiModule.api, 'get').mockResolvedValue({ data: mockResponse })
 
-    const { result } = renderHook(() => useCustomerOrders({ page: 2, pageSize: 20 }), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useCustomerOrders({ page: 2, pageSize: 20 }), {
+      wrapper: createWrapper(),
+    })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
     })
 
-    expect(mockGet).toHaveBeenCalledWith('/v1/customer/orders', expect.objectContaining({
-      params: expect.objectContaining({ limit: 20, offset: 20 })
-    }))
+    expect(mockGet).toHaveBeenCalledWith(
+      '/v1/customer/orders',
+      expect.objectContaining({
+        params: expect.objectContaining({ limit: 20, offset: 20 }),
+      }),
+    )
   })
 
   it('includes status filter when provided', async () => {
     const mockResponse = { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 }
     const mockGet = vi.spyOn(apiModule.api, 'get').mockResolvedValue({ data: mockResponse })
 
-    const { result } = renderHook(() => useCustomerOrders({ status: 'delivered' }), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useCustomerOrders({ status: 'delivered' }), {
+      wrapper: createWrapper(),
+    })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
     })
 
-    expect(mockGet).toHaveBeenCalledWith('/v1/customer/orders', expect.objectContaining({
-      params: expect.objectContaining({ status: 'delivered' })
-    }))
+    expect(mockGet).toHaveBeenCalledWith(
+      '/v1/customer/orders',
+      expect.objectContaining({
+        params: expect.objectContaining({ status: 'delivered' }),
+      }),
+    )
   })
 
   it('includes date filters when provided', async () => {
@@ -244,27 +274,35 @@ describe('useCustomerOrders', () => {
       expect(result.current.isLoading).toBe(false)
     })
 
-    expect(mockGet).toHaveBeenCalledWith('/v1/customer/orders', expect.objectContaining({
-      params: expect.objectContaining({
-        date_from: '2026-05-01',
-        date_to: '2026-05-31',
-      })
-    }))
+    expect(mockGet).toHaveBeenCalledWith(
+      '/v1/customer/orders',
+      expect.objectContaining({
+        params: expect.objectContaining({
+          date_from: '2026-05-01',
+          date_to: '2026-05-31',
+        }),
+      }),
+    )
   })
 
   it('includes search filter when provided', async () => {
     const mockResponse = { items: [mockOrder], total: 1, page: 1, pageSize: 10, totalPages: 1 }
     const mockGet = vi.spyOn(apiModule.api, 'get').mockResolvedValue({ data: mockResponse })
 
-    const { result } = renderHook(() => useCustomerOrders({ search: 'ORD-00001' }), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useCustomerOrders({ search: 'ORD-00001' }), {
+      wrapper: createWrapper(),
+    })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
     })
 
-    expect(mockGet).toHaveBeenCalledWith('/v1/customer/orders', expect.objectContaining({
-      params: expect.objectContaining({ search: 'ORD-00001' })
-    }))
+    expect(mockGet).toHaveBeenCalledWith(
+      '/v1/customer/orders',
+      expect.objectContaining({
+        params: expect.objectContaining({ search: 'ORD-00001' }),
+      }),
+    )
   })
 })
 
@@ -276,7 +314,9 @@ describe('useOrderTracking', () => {
   it('does not fetch when enabled is false', () => {
     const mockGet = vi.spyOn(apiModule.api, 'get')
 
-    const { result } = renderHook(() => useOrderTracking('order-1', false), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useOrderTracking('order-1', false), {
+      wrapper: createWrapper(),
+    })
 
     expect(result.current.isLoading).toBe(false)
     expect(mockGet).not.toHaveBeenCalled()
@@ -286,7 +326,9 @@ describe('useOrderTracking', () => {
     const mockTrackingData = { status: 'in_transit', eta: '2026-05-02T10:00:00Z' }
     const mockGet = vi.spyOn(apiModule.api, 'get').mockResolvedValue({ data: mockTrackingData })
 
-    const { result } = renderHook(() => useOrderTracking('order-1', true), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useOrderTracking('order-1', true), {
+      wrapper: createWrapper(),
+    })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -327,7 +369,7 @@ describe('useCancelOrder', () => {
 
   it('handles cancel error', async () => {
     const error = new Error('Cannot cancel order')
-    const mockPost = vi.spyOn(apiModule.api, 'post').mockRejectedValue(error)
+    vi.spyOn(apiModule.api, 'post').mockRejectedValue(error)
 
     const { result } = renderHook(() => useCancelOrder(), { wrapper: createWrapper() })
 

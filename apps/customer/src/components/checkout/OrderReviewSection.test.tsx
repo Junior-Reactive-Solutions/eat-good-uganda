@@ -80,9 +80,9 @@ describe('OrderReviewSection', () => {
     })
   })
 
-  it('renders section header', () => {
+  it('renders the items section header', () => {
     render(<OrderReviewSectionWithForm />)
-    expect(screen.getByText(/order review/i)).toBeInTheDocument()
+    expect(screen.getByText('Items')).toBeInTheDocument()
   })
 
   it('displays all cart items', () => {
@@ -95,8 +95,9 @@ describe('OrderReviewSection', () => {
   it('shows item quantities', () => {
     render(<OrderReviewSectionWithForm />)
 
-    expect(screen.getByText(/2x/)).toBeInTheDocument()
-    expect(screen.getByText(/1x/)).toBeInTheDocument()
+    // The component renders the multiplication sign (×), not a letter "x"
+    expect(screen.getByText(/×2/)).toBeInTheDocument()
+    expect(screen.getByText(/×1/)).toBeInTheDocument()
   })
 
   it('displays customer contact information', () => {
@@ -143,8 +144,9 @@ describe('OrderReviewSection', () => {
   it('displays fulfillment section title', () => {
     render(<OrderReviewSectionWithForm />)
 
-    // Check for "Pickup" or "Delivery" section title in the fulfillment area
-    expect(screen.getByText(/pickup|delivery/i)).toBeInTheDocument()
+    // Exact match: a loose /pickup|delivery/i also matches the payment
+    // section's "Cash on delivery" label.
+    expect(screen.getByText(/^(pickup|delivery)$/i)).toBeInTheDocument()
   })
 
   it('displays contact section title', () => {
@@ -185,14 +187,18 @@ describe('OrderReviewSection', () => {
 
       return (
         <FormProvider {...methodsWithDelivery}>
-          <OrderReviewSection frozenTotalMinor={105000} onEdit={() => undefined} />
+          {/* Cart subtotal (mocked items) is 105000; a frozen total above
+              that is required for deliveryFeeMinor to be > 0 and the row
+              to render at all. */}
+          <OrderReviewSection frozenTotalMinor={115000} onEdit={() => undefined} />
         </FormProvider>
       )
     }
 
     render(<TestComponent />)
 
-    // When delivery is selected, delivery fee section should appear
-    expect(screen.getByText(/delivery/i)).toBeInTheDocument()
+    // When delivery is selected, delivery fee section should appear. A loose
+    // /delivery/i also matches the payment section's "Cash on delivery" label.
+    expect(screen.getByText('Delivery fee')).toBeInTheDocument()
   })
 })

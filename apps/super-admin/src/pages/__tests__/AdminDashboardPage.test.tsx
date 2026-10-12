@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PlatformMetrics, TimeSeriesPoint, TopBakery } from '@eatgood/db'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
@@ -64,6 +64,14 @@ const mockTopBakeries: TopBakery[] = [
 describe('AdminDashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // The page also reads the platform action-queue hook; default it to "no
+    // action items" so tests that only care about the other hooks don't have
+    // to repeat this everywhere.
+    vi.mocked(adminApi.usePlatformActionQueue).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null,
+    } as any)
   })
 
   describe('Loading States', () => {
@@ -185,8 +193,38 @@ describe('AdminDashboardPage', () => {
     })
 
     it('should display pending approval alert when count is greater than 0', () => {
+      // The "pending approvals" alert moved into the ActionQueue component,
+      // which reads from usePlatformActionQueue (not platform metrics).
+      vi.mocked(adminApi.usePlatformActionQueue).mockReturnValue({
+        data: {
+          pendingApprovals: [
+            {
+              id: '1',
+              displayName: 'Sweet Cravings',
+              slug: 'sweet-cravings',
+              city: 'Kampala',
+              submittedAt: '2026-05-01',
+              waitDays: 2,
+            },
+            {
+              id: '2',
+              displayName: 'The Bread House',
+              slug: 'the-bread-house',
+              city: 'Entebbe',
+              submittedAt: '2026-05-02',
+              waitDays: 1,
+            },
+          ],
+          slaBreachingTickets: [],
+          bakeriesMissingPayment: [],
+          stalledOnboarding: [],
+        },
+        isLoading: false,
+        error: null,
+      } as any)
+
       renderWithProviders(<AdminDashboardPage />)
-      expect(screen.getByText(/2 bakeries pending approval/i)).toBeInTheDocument()
+      expect(screen.getByText(/2 bakeries awaiting approval/i)).toBeInTheDocument()
       expect(screen.getByText('Review')).toBeInTheDocument()
     })
 
@@ -316,7 +354,7 @@ describe('AdminDashboardPage', () => {
 
       renderWithProviders(<AdminDashboardPage />)
       expect(analyticsApi.useMetricsTimeSeries).toHaveBeenCalledWith(
-        expect.objectContaining({ metric: expect.stringMatching(/revenue|orders/) })
+        expect.objectContaining({ metric: expect.stringMatching(/revenue|orders/) }),
       )
     })
 

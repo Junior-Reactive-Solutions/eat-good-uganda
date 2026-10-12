@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 import type { Product } from '@eatgood/shared'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
@@ -11,9 +10,16 @@ vi.mock('../features/menu/api', () => ({
   useProducts: vi.fn(),
   useDeleteProduct: vi.fn(),
   useUpdateProduct: vi.fn(),
+  useToggleAvailability: vi.fn(),
 }))
 
-import { useDeleteProduct, useProducts, useUpdateProduct } from '../features/menu/api'
+import { ToastProvider } from '../components/Toast'
+import {
+  useDeleteProduct,
+  useProducts,
+  useToggleAvailability,
+  useUpdateProduct,
+} from '../features/menu/api'
 
 import MenuPage from './MenuPage'
 
@@ -82,7 +88,9 @@ function renderWithProviders(component: React.ReactElement) {
   const queryClient = new QueryClient()
   return render(
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{component}</BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>{component}</BrowserRouter>
+      </ToastProvider>
     </QueryClientProvider>,
   )
 }
@@ -100,18 +108,26 @@ describe('MenuPage', () => {
     isPending: false,
   }
 
+  const defaultToggleAvailabilityMock = {
+    mutate: vi.fn(),
+    isPending: false,
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockUseProducts = useProducts as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockUseDeleteProduct = useDeleteProduct as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockUseUpdateProduct = useUpdateProduct as any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mockUseToggleAvailability = useToggleAvailability as any
 
   beforeEach(() => {
     vi.clearAllMocks()
     // Set default mocks
     mockUseUpdateProduct.mockReturnValue(defaultUpdateProductMock)
     mockUseDeleteProduct.mockReturnValue(defaultDeleteProductMock)
+    mockUseToggleAvailability.mockReturnValue(defaultToggleAvailabilityMock)
   })
 
   it('renders page header "Menu Management"', () => {

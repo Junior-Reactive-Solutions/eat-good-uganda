@@ -111,10 +111,14 @@ export default function FulfillmentSection() {
               name="fulfillment.scheduledFor"
               render={({ field }) => (
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-platform-fg">
+                  <label
+                    htmlFor="pickup-scheduled-for"
+                    className="text-sm font-medium text-platform-fg"
+                  >
                     Pickup Date & Time (Optional)
                   </label>
                   <input
+                    id="pickup-scheduled-for"
                     type="datetime-local"
                     placeholder="2026-05-07T14:30"
                     className="w-full rounded-lg border border-platform-border bg-platform-surface px-3 py-2 text-sm text-platform-fg placeholder:text-platform-fg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-platform-primary focus:ring-offset-1"
@@ -199,10 +203,14 @@ export default function FulfillmentSection() {
               name="fulfillment.deliveryAddress.notes"
               render={({ field }) => (
                 <div>
-                  <label className="block text-sm font-medium text-platform-fg mb-2">
+                  <label
+                    htmlFor="delivery-instructions"
+                    className="block text-sm font-medium text-platform-fg mb-2"
+                  >
                     Delivery Instructions (Optional)
                   </label>
                   <textarea
+                    id="delivery-instructions"
                     placeholder="e.g., Gate code 1234, knock on red door"
                     className="w-full rounded-lg border border-platform-border bg-platform-surface px-3 py-2 text-sm text-platform-fg placeholder-platform-fg-muted focus:border-platform-primary focus:outline-none focus:ring-2 focus:ring-platform-primary/20"
                     rows={3}
@@ -230,10 +238,14 @@ export default function FulfillmentSection() {
               name="fulfillment.scheduledFor"
               render={({ field }) => (
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-platform-fg">
+                  <label
+                    htmlFor="delivery-scheduled-for"
+                    className="text-sm font-medium text-platform-fg"
+                  >
                     Delivery Date & Time (Optional)
                   </label>
                   <input
+                    id="delivery-scheduled-for"
                     type="datetime-local"
                     placeholder="2026-05-07T14:30"
                     className="w-full rounded-lg border border-platform-border bg-platform-surface px-3 py-2 text-sm text-platform-fg placeholder:text-platform-fg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-platform-primary focus:ring-offset-1"

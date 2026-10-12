@@ -48,7 +48,7 @@ function createMockOrder(
   id: string,
   orderNumber: string,
   status: 'confirmed' | 'delivered' | 'preparing' = 'confirmed',
-  overrides: Partial<MockOrderItem> = {}
+  overrides: Partial<MockOrderItem> = {},
 ): MockOrderItem {
   return {
     id,
@@ -66,8 +66,8 @@ function createManyMockOrders(count: number): MockOrderItem[] {
     createMockOrder(
       `order-${String(i)}`,
       `EGU-20260507-${String(i).padStart(4, '0')}`,
-      'confirmed'
-    )
+      'confirmed',
+    ),
   )
 }
 
@@ -209,9 +209,12 @@ describe('OrdersPage', () => {
     expect(previousButton).toBeDisabled()
   })
 
-  it('next button is disabled on last page', () => {
+  it('next button is disabled on last page', async () => {
+    const user = userEvent.setup()
+    const manyOrders = createManyMockOrders(25)
+
     vi.mocked(ordersApi.useOrders).mockReturnValue({
-      data: { items: mockOrders, total: 2 },
+      data: { items: manyOrders.slice(0, 20), total: 25 },
       isLoading: false,
       isError: false,
       error: null,
@@ -220,7 +223,11 @@ describe('OrdersPage', () => {
 
     render(<OrdersPageWrapper />)
     const nextButton = screen.getByRole('button', { name: /next/i })
-    expect(nextButton).toBeDisabled()
+    await user.click(nextButton)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /next/i })).toBeDisabled()
+    })
   })
 
   it('retry button calls refetch on error', async () => {

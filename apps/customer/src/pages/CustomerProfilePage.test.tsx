@@ -9,7 +9,6 @@ import * as api from '../features/profile/api'
 
 import CustomerProfilePage from './CustomerProfilePage'
 
-
 vi.mock('../features/profile/api', () => ({
   useCustomerProfile: vi.fn(),
   useUpdateProfile: vi.fn(),
@@ -67,7 +66,7 @@ describe('CustomerProfilePage', () => {
 
     render(<CustomerProfilePage />, { wrapper: createWrapper() })
 
-    expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toBeInTheDocument()
   })
 
   it('displays error message on failed fetch', () => {

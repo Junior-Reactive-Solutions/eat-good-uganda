@@ -125,7 +125,7 @@ describe('ProductCard', () => {
       />,
     )
 
-    expect(screen.getByText('Available')).toBeInTheDocument()
+    expect(screen.getByText('Available now')).toBeInTheDocument()
   })
 
   it('displays unavailable status when not available', () => {
@@ -150,7 +150,7 @@ describe('ProductCard', () => {
       />,
     )
 
-    expect(screen.getByText(/Category: Cakes/)).toBeInTheDocument()
+    expect(screen.getByText('Cakes')).toBeInTheDocument()
   })
 
   it('displays "Uncategorized" when category_id is null and no categoryName provided', () => {
@@ -346,7 +346,7 @@ describe('ProductCard', () => {
     expect(card).toBeInTheDocument()
   })
 
-  it('shows unlock emoji when product is unpublished', () => {
+  it('shows a default-colored icon on the publish toggle when product is unpublished', () => {
     renderWithRouter(
       <ProductCard
         product={mockProductUnpublished}
@@ -355,12 +355,11 @@ describe('ProductCard', () => {
       />,
     )
 
-    // Check for unlock emoji (🔓) in unpublished state
     const button = screen.getByRole('button', { name: /Publish Vanilla Cake/i })
-    expect(button).toHaveTextContent('🔓')
+    expect(button.querySelector('svg')).toHaveClass('icon-color-default')
   })
 
-  it('shows lock emoji when product is published', () => {
+  it('shows a success-colored icon on the publish toggle when product is published', () => {
     renderWithRouter(
       <ProductCard
         product={mockProduct}
@@ -369,9 +368,8 @@ describe('ProductCard', () => {
       />,
     )
 
-    // Check for lock emoji (🔒) in published state
     const button = screen.getByRole('button', { name: /Unpublish Chocolate Cake/i })
-    expect(button).toHaveTextContent('🔒')
+    expect(button.querySelector('svg')).toHaveClass('icon-color-success')
   })
 
   it('renders all three action buttons', () => {

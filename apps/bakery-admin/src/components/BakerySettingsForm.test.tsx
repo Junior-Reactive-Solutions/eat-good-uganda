@@ -1,5 +1,5 @@
 import type { BakeryProfile } from '@eatgood/db'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -123,30 +123,27 @@ describe('BakerySettingsForm', () => {
 
   describe('Form Submission', () => {
     it('calls onSubmit with form data on valid submission', async () => {
-      const user = userEvent.setup()
       const mockSubmit = vi.fn()
-      render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />)
+      const { container } = render(
+        <BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />,
+      )
 
-      const submitButton = screen.getByText('Save Changes')
-      await user.click(submitButton)
+      // The submit button lives outside this component (in the page's sticky
+      // save bar, linked via the form's `id` attribute), so this unit test
+      // submits the form directly rather than clicking a button.
+      const form = container.querySelector('form')
+      expect(form).toBeInTheDocument()
+      fireEvent.submit(form as HTMLFormElement)
 
       await waitFor(() => {
         expect(mockSubmit).toHaveBeenCalled()
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
         const submittedData = mockSubmit.mock.calls[0]?.[0]
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
         expect(submittedData?.legal_name).toBe(mockProfile.legal_name)
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
         expect(submittedData?.email).toBe(mockProfile.email)
       })
-    })
-
-    it('shows loading state when isLoading is true', () => {
-      const mockSubmit = vi.fn()
-      render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} isLoading={true} />)
-
-      const submitButton = screen.getByText('Saving...')
-      expect(submitButton).toBeDisabled()
     })
 
     it('disables form inputs when isLoading is true', () => {
@@ -180,12 +177,14 @@ describe('BakerySettingsForm', () => {
     })
 
     it('form submits with valid data when all fields complete', async () => {
-      const user = userEvent.setup({ delay: null })
       const mockSubmit = vi.fn()
-      render(<BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />)
+      const { container } = render(
+        <BakerySettingsForm profile={mockProfile} onSubmit={mockSubmit} />,
+      )
 
-      const submitButton = screen.getByText('Save Changes')
-      await user.click(submitButton)
+      const form = container.querySelector('form')
+      expect(form).toBeInTheDocument()
+      fireEvent.submit(form as HTMLFormElement)
 
       await waitFor(
         () => {
@@ -283,7 +282,6 @@ describe('BakerySettingsForm', () => {
         (input) => input instanceof HTMLInputElement && input.type === 'color',
       ) as HTMLInputElement
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (colorPickerInput) {
         await user.clear(colorPickerInput)
         await user.type(colorPickerInput, '#FF0000')
@@ -293,7 +291,7 @@ describe('BakerySettingsForm', () => {
             (input) => input instanceof HTMLInputElement && input.type === 'text',
           ) as HTMLInputElement
           // Condition is always truthy after find() returns element matching the type guard
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
           if (textColorInput) {
             expect(textColorInput.value).toContain('FF0000')
           }

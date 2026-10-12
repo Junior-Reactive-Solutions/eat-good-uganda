@@ -95,8 +95,14 @@ export function OrderFilters({ onFiltersChange, isLoading = false }: OrderFilter
 
         {/* Date From */}
         <div>
-          <label className="block text-sm font-medium text-platform-fg mb-1">From Date</label>
+          <label
+            htmlFor="order-filter-date-from"
+            className="block text-sm font-medium text-platform-fg mb-1"
+          >
+            From Date
+          </label>
           <input
+            id="order-filter-date-from"
             type="date"
             value={dateFromFilter}
             onChange={handleDateFromChange}
@@ -107,8 +113,14 @@ export function OrderFilters({ onFiltersChange, isLoading = false }: OrderFilter
 
         {/* Date To */}
         <div>
-          <label className="block text-sm font-medium text-platform-fg mb-1">To Date</label>
+          <label
+            htmlFor="order-filter-date-to"
+            className="block text-sm font-medium text-platform-fg mb-1"
+          >
+            To Date
+          </label>
           <input
+            id="order-filter-date-to"
             type="date"
             value={dateToFilter}
             onChange={handleDateToChange}
