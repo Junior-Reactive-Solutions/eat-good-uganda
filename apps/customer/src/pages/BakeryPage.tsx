@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
+import { EmptyState } from '../components/EmptyState'
 import {
   IconDeliveryBoda,
   IconDeliveryLocation,
@@ -8,7 +9,6 @@ import {
   IconInteractionClock,
   IconInteractionPhone,
   IconNavigationMenu,
-  IconProductBreadLoaf,
 } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { OpenStatusBadge } from '../components/OpenStatusBadge'
@@ -218,13 +218,10 @@ export default function BakeryPage() {
         {/* Empty State */}
         {!productsData ||
           (productsData.products.length === 0 && (
-            <div className="rounded-lg border border-platform-border bg-platform-surface p-8 text-center">
-              <IconProductBreadLoaf size="lg" color="default" className="mx-auto mb-4" alt="" />
-              <h3 className="text-lg font-semibold text-platform-fg">No products yet</h3>
-              <p className="mt-1 text-platform-fg-muted">
-                This bakery hasn't added any products yet. Check back soon!
-              </p>
-            </div>
+            <EmptyState
+              heading="No products yet"
+              body="This bakery hasn't added any products yet. Check back soon!"
+            />
           ))}
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { BakeryCard } from '../components/BakeryCard'
 import { Button } from '../components/Button'
+import { EmptyState } from '../components/EmptyState'
 import {
   IconNavigationSearch,
   IconDeliveryLocation,
@@ -177,25 +178,26 @@ export default function HomePage() {
         )}
 
         {!isLoading && !isError && bakeries?.length === 0 && (
-          <div className="flex flex-col items-center gap-3 py-24 text-center">
-            <IconNavigationSearch size="lg" color="default" alt="" />
-            <p className="text-lg font-medium text-platform-fg">No bakeries found</p>
-            <p className="text-sm text-platform-fg-muted">
-              {search
+          <EmptyState
+            heading="No bakeries found"
+            body={
+              search
                 ? `No results for "${search}". Try a different search.`
-                : 'No active bakeries yet. Check back soon!'}
-            </p>
-            {search && (
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setSearchInput('')
-                }}
-              >
-                Clear search
-              </Button>
-            )}
-          </div>
+                : 'No active bakeries yet. Check back soon!'
+            }
+            action={
+              search && (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setSearchInput('')
+                  }}
+                >
+                  Clear search
+                </Button>
+              )
+            }
+          />
         )}
 
         {!isLoading && !isError && bakeries && bakeries.length > 0 && (

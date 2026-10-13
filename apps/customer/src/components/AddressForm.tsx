@@ -16,7 +16,7 @@ const addressFormSchema = z.object({
   is_default: z.boolean().optional(),
 })
 
-type AddressFormData = z.infer<typeof addressFormSchema>
+export type AddressFormData = z.infer<typeof addressFormSchema>
 
 interface AddressFormProps {
   address?: CustomerAddress | null
@@ -27,14 +27,9 @@ interface AddressFormProps {
 const inputBase =
   'w-full rounded-lg border bg-platform-surface px-3 py-2 text-sm text-platform-fg placeholder:text-platform-fg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-platform-primary focus:ring-offset-1 disabled:opacity-50'
 
-const inputBorder = (error?: string) =>
-  error ? 'border-platform-error' : 'border-platform-border'
+const inputBorder = (error?: string) => (error ? 'border-platform-error' : 'border-platform-border')
 
-export function AddressForm({
-  address,
-  isLoading = false,
-  onSubmit,
-}: AddressFormProps) {
+export function AddressForm({ address, isLoading = false, onSubmit }: AddressFormProps) {
   const {
     register,
     handleSubmit,
@@ -63,7 +58,12 @@ export function AddressForm({
   })
 
   return (
-    <form onSubmit={(e) => { void handleSubmit(onSubmit)(e) }} className="space-y-4">
+    <form
+      onSubmit={(e) => {
+        void handleSubmit(onSubmit)(e)
+      }}
+      className="space-y-4"
+    >
       <div>
         <label className="block text-sm font-medium text-platform-fg mb-1">
           Street Address <span className="text-platform-error">*</span>
@@ -94,9 +94,7 @@ export function AddressForm({
             aria-invalid={errors.city ? 'true' : 'false'}
             className={[inputBase, inputBorder(errors.city?.message)].join(' ')}
           />
-          {errors.city && (
-            <p className="mt-1 text-xs text-platform-error">{errors.city.message}</p>
-          )}
+          {errors.city && <p className="mt-1 text-xs text-platform-error">{errors.city.message}</p>}
         </div>
 
         <div>
@@ -118,9 +116,7 @@ export function AddressForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-platform-fg mb-1">
-          Postal Code
-        </label>
+        <label className="block text-sm font-medium text-platform-fg mb-1">Postal Code</label>
         <input
           {...register('postal_code')}
           type="text"
@@ -137,11 +133,7 @@ export function AddressForm({
       {/* Address Type Checkboxes */}
       <div className="space-y-2 border-t border-platform-border pt-4">
         <div className="flex items-center gap-2">
-          <Checkbox
-            {...register('is_delivery_address')}
-            id="is_delivery"
-            disabled={isLoading}
-          />
+          <Checkbox {...register('is_delivery_address')} id="is_delivery" disabled={isLoading} />
           <label
             htmlFor="is_delivery"
             className="text-sm font-medium text-platform-fg cursor-pointer"
@@ -151,11 +143,7 @@ export function AddressForm({
         </div>
 
         <div className="flex items-center gap-2">
-          <Checkbox
-            {...register('is_billing_address')}
-            id="is_billing"
-            disabled={isLoading}
-          />
+          <Checkbox {...register('is_billing_address')} id="is_billing" disabled={isLoading} />
           <label
             htmlFor="is_billing"
             className="text-sm font-medium text-platform-fg cursor-pointer"
@@ -165,11 +153,7 @@ export function AddressForm({
         </div>
 
         <div className="flex items-center gap-2">
-          <Checkbox
-            {...register('is_default')}
-            id="is_default"
-            disabled={isLoading}
-          />
+          <Checkbox {...register('is_default')} id="is_default" disabled={isLoading} />
           <label
             htmlFor="is_default"
             className="text-sm font-medium text-platform-fg cursor-pointer"

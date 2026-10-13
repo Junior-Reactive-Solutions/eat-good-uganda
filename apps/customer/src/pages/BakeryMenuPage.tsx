@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
-import { IconNavigationMenu, IconProductBreadLoaf } from '../components/icons'
+import { EmptyState } from '../components/EmptyState'
+import { IconNavigationMenu } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageMeta } from '../components/PageMeta'
 import { usePublicBakery, usePublicCategories, usePublicProducts } from '../features/bakery/api'
@@ -224,15 +225,10 @@ export default function BakeryMenuPage() {
               )}
             </>
           ) : (
-            <div className="rounded-lg border border-platform-border bg-platform-surface p-8 text-center">
-              <IconProductBreadLoaf size="lg" color="default" className="mx-auto mb-4" alt="" />
-              <h3 className="text-lg font-semibold text-platform-fg">
-                No products in this category
-              </h3>
-              <p className="mt-1 text-platform-fg-muted">
-                Try selecting a different category or come back later.
-              </p>
-            </div>
+            <EmptyState
+              heading="No products in this category"
+              body="Try selecting a different category or come back later."
+            />
           )}
         </div>
       </div>
