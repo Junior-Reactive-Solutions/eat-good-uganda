@@ -17,7 +17,7 @@
     "format": "prettier --write .",
     "migrate": "pnpm --filter @eatgood/db migrate",
     "migrate:create": "pnpm --filter @eatgood/db migrate:create",
-    "prepare": "husky"
+    "prepare": "node -e \"process.exit(process.env.NODE_ENV === 'production' ? 0 : 1)\" || husky"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,md,yml,yaml}": [
