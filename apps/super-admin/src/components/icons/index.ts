@@ -54,3 +54,4 @@ export { IconInteractionBellNotification } from './interaction/IconInteractionBe
 export { IconInteractionClock } from './interaction/IconInteractionClock'
 export { IconInteractionPhone } from './interaction/IconInteractionPhone'
 export { IconInteractionHelp } from './interaction/IconInteractionHelp'
+export { IconInteractionWarning } from './interaction/IconInteractionWarning'

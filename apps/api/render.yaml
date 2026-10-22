@@ -5,7 +5,9 @@ services:
     region: frankfurt
     plan: free
     buildCommand: |
-      cd ../.. && pnpm install --frozen-lockfile && \
+      cd ../.. && pnpm install --frozen-lockfile --prod=false && \
+      pnpm --filter @eatgood/shared build && \
+      pnpm --filter @eatgood/db build && \
       pnpm --filter @eatgood/api build
     startCommand: pnpm --filter @eatgood/api start
     healthCheckPath: /v1/internal/health
@@ -35,7 +37,7 @@ services:
       - key: CREDENTIALS_ENCRYPTION_KEY
         sync: false
       - key: SUPERADMIN_IP_ALLOWLIST
-        value: ""
+        value: ''
       # NOTE: custom domain DNS is not yet live — these are the actual
       # deployed Vercel URLs. Add the eatgooduganda.com origins alongside
       # these (don't replace them) once Cloudflare DNS is cut over, so
