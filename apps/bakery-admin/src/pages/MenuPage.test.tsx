@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock the API hooks
 vi.mock('../features/menu/api', () => ({
   useProducts: vi.fn(),
+  useCategories: vi.fn(),
   useDeleteProduct: vi.fn(),
   useUpdateProduct: vi.fn(),
   useToggleAvailability: vi.fn(),
@@ -15,6 +16,7 @@ vi.mock('../features/menu/api', () => ({
 
 import { ToastProvider } from '../components/Toast'
 import {
+  useCategories,
   useDeleteProduct,
   useProducts,
   useToggleAvailability,
@@ -116,6 +118,8 @@ describe('MenuPage', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockUseProducts = useProducts as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mockUseCategories = useCategories as any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockUseDeleteProduct = useDeleteProduct as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockUseUpdateProduct = useUpdateProduct as any
@@ -128,6 +132,11 @@ describe('MenuPage', () => {
     mockUseUpdateProduct.mockReturnValue(defaultUpdateProductMock)
     mockUseDeleteProduct.mockReturnValue(defaultDeleteProductMock)
     mockUseToggleAvailability.mockReturnValue(defaultToggleAvailabilityMock)
+    mockUseCategories.mockReturnValue({
+      data: { items: [], total: 0 },
+      isLoading: false,
+      error: null,
+    })
   })
 
   it('renders page header "Menu Management"', () => {
@@ -214,6 +223,40 @@ describe('MenuPage', () => {
       expect(screen.getByText('Vanilla Cake')).toBeInTheDocument()
       expect(screen.getByText('Strawberry Cake')).toBeInTheDocument()
     })
+  })
+
+  it('resolves each product\'s real category name instead of "Uncategorized"', async () => {
+    mockUseProducts.mockReturnValue({
+      data: {
+        items: mockProducts,
+        total: 3,
+        page: 1,
+        pageSize: 20,
+        totalPages: 1,
+      },
+      isLoading: false,
+      error: null,
+    })
+
+    mockUseCategories.mockReturnValue({
+      data: {
+        items: [
+          { id: 'cat-1', name: 'Cakes' },
+          { id: 'cat-2', name: 'Pastries' },
+        ],
+        total: 2,
+      },
+      isLoading: false,
+      error: null,
+    })
+
+    renderWithProviders(<MenuPage />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Cakes').length).toBeGreaterThan(0)
+      expect(screen.getByText('Pastries')).toBeInTheDocument()
+    })
+    expect(screen.queryByText('Uncategorized')).not.toBeInTheDocument()
   })
 
   it('shows error message on fetch error with retry button', () => {

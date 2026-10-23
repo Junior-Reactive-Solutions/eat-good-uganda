@@ -9,6 +9,7 @@ import { PageHeader } from '../components/PageHeader'
 import { ProductCard } from '../components/ProductCard'
 import { useToast } from '../components/Toast'
 import {
+  useCategories,
   useDeleteProduct,
   useProducts,
   useToggleAvailability,
@@ -22,6 +23,10 @@ export default function MenuPage() {
   )
 
   const { data, isLoading, error } = useProducts(page, 20)
+  const { data: categoriesData } = useCategories()
+  const categoryNameById = new Map(
+    (categoriesData?.items ?? []).map((category) => [category.id, category.name]),
+  )
   const deleteProduct = useDeleteProduct()
   const toggleAvailability = useToggleAvailability()
   const { show } = useToast()
@@ -133,15 +138,21 @@ export default function MenuPage() {
       {!isLoading && data && data.items.length > 0 && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.items.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onDelete={handleDeleteProduct}
-                onTogglePublish={handlePublishConfirm}
-                onToggleAvailable={handleToggleAvailable}
-              />
-            ))}
+            {data.items.map((product) => {
+              const categoryName = product.category_id
+                ? categoryNameById.get(product.category_id)
+                : undefined
+              return (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  {...(categoryName ? { categoryName } : {})}
+                  onDelete={handleDeleteProduct}
+                  onTogglePublish={handlePublishConfirm}
+                  onToggleAvailable={handleToggleAvailable}
+                />
+              )
+            })}
           </div>
 
           {/* Pagination */}
