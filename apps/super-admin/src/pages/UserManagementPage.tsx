@@ -2,7 +2,7 @@ import type { CustomerDetail } from '@eatgood/db'
 import { useState } from 'react'
 
 import { Button } from '@/components/Button'
-import { IconNavigationMenu, IconAdminRejected } from '@/components/icons'
+import { IconAdminRejected } from '@/components/icons'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { UserBanModal } from '@/components/modals/UserBanModal'
 import { useCustomers } from '@/features/users/api'
