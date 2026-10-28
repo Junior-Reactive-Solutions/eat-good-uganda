@@ -71,15 +71,11 @@ supportRouter.get(
 
       const { bakery_id, status, priority, limit = 20, offset = 0 } = validation.data
 
-      if (!bakery_id) {
-        return res.status(400).json({ error: 'bakery_id is required' })
-      }
-
       const filterObj: GetTicketsFilters = {
-        bakeryId: bakery_id,
         limit,
         offset,
       }
+      if (bakery_id) filterObj.bakeryId = bakery_id
       if (status) filterObj.status = status
       if (priority) filterObj.priority = priority
 
@@ -89,7 +85,7 @@ supportRouter.get(
       logger.info(
         {
           ticketCount,
-          bakeryId: bakery_id,
+          bakeryId: bakery_id ?? 'all',
         },
         'Admin listed support tickets',
       )
@@ -271,9 +267,7 @@ supportRouter.patch(
         return res.status(404).json({ error: 'Ticket not found' })
       }
 
-      logger.info(
-        `Admin updated support ticket ${ticketId} status to ${validation.data.status}`,
-      )
+      logger.info(`Admin updated support ticket ${ticketId} status to ${validation.data.status}`)
 
       return res.status(200).json({ data: ticket })
     } catch (error) {

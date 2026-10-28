@@ -122,6 +122,63 @@ describe('Support Tickets Queries', () => {
       expect(result.total).toBe(5)
     })
 
+    it('lists tickets across all bakeries when bakeryId is omitted (super-admin view)', async () => {
+      const bakeryIdA = await seedBakery('bakery-a')
+      const bakeryIdB = await seedBakery('bakery-b')
+
+      await createTicket(pool, {
+        bakery_id: bakeryIdA,
+        subject: 'Ticket from bakery A',
+        description: 'Description',
+      })
+      await createTicket(pool, {
+        bakery_id: bakeryIdB,
+        subject: 'Ticket from bakery B',
+        description: 'Description',
+      })
+
+      const result = await getTickets(pool, {})
+
+      const subjects = result.tickets.map((t) => t.subject)
+      expect(subjects).toContain('Ticket from bakery A')
+      expect(subjects).toContain('Ticket from bakery B')
+    })
+
+    it('includes a real message_count per ticket', async () => {
+      const bakeryId = await seedBakery('test-bakery')
+
+      const ticketWithMessages = await createTicket(pool, {
+        bakery_id: bakeryId,
+        subject: 'Has messages',
+        description: 'Description',
+      })
+      await createTicket(pool, {
+        bakery_id: bakeryId,
+        subject: 'No messages',
+        description: 'Description',
+      })
+
+      await addMessage(pool, {
+        ticket_id: ticketWithMessages.id,
+        sender_id: bakeryId,
+        sender_type: 'bakery_user',
+        message: 'First message',
+      })
+      await addMessage(pool, {
+        ticket_id: ticketWithMessages.id,
+        sender_id: bakeryId,
+        sender_type: 'bakery_user',
+        message: 'Second message',
+      })
+
+      const result = await getTickets(pool, { bakeryId })
+
+      const withMessages = result.tickets.find((t) => t.subject === 'Has messages')
+      const withoutMessages = result.tickets.find((t) => t.subject === 'No messages')
+      expect(withMessages?.message_count).toBe(2)
+      expect(withoutMessages?.message_count).toBe(0)
+    })
+
     it('filters tickets by status', async () => {
       const bakeryId = await seedBakery('test-bakery')
 

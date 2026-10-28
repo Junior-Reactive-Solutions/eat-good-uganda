@@ -1,14 +1,14 @@
-import type { SupportTicket, TicketDetail } from '@eatgood/db'
+import type { SupportTicketListItem, TicketDetail } from '@eatgood/db'
 import { useState } from 'react'
 
 import { Button } from '@/components/Button'
-import { LoadingSpinner } from '@/components/LoadingSpinner'
 import {
   IconNavigationMenu,
   IconAdminAuditLog,
   IconInteractionPhone,
   IconInteractionDelete,
 } from '@/components/icons'
+import { LoadingSpinner } from '@/components/LoadingSpinner'
 import {
   useSendMessage,
   useTicketDetail,
@@ -272,7 +272,7 @@ export default function SupportPage() {
     'all' | 'open' | 'in_progress' | 'resolved' | 'closed'
   >('all')
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all')
-  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | undefined>(undefined)
+  const [selectedTicket, setSelectedTicket] = useState<SupportTicketListItem | undefined>(undefined)
   const [modalOpen, setModalOpen] = useState(false)
 
   // Debounce filters
@@ -293,7 +293,7 @@ export default function SupportPage() {
   const tickets = data?.tickets ?? []
   const pagination = data?.pagination ?? { page: 1, pageSize, totalCount: 0, totalPages: 0 }
 
-  const handleOpenModal = (ticket: SupportTicket) => {
+  const handleOpenModal = (ticket: SupportTicketListItem) => {
     setSelectedTicket(ticket)
     setModalOpen(true)
   }
@@ -437,7 +437,7 @@ export default function SupportPage() {
                       <td className="px-4 py-3 text-platform-fg-muted hidden lg:table-cell text-xs">
                         {formatDate(ticket.created_at)}
                       </td>
-                      <td className="px-4 py-3 text-platform-fg-muted">-</td>
+                      <td className="px-4 py-3 text-platform-fg-muted">{ticket.message_count}</td>
                     </tr>
                   ))}
                 </tbody>
