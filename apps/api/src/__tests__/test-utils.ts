@@ -176,7 +176,7 @@ export async function runInTransaction<T>(callback: (db: typeof pool) => Promise
 
   try {
     await client.query('BEGIN')
-    const result = await callback(client as typeof pool)
+    const result = await callback(client as unknown as typeof pool)
     await client.query('ROLLBACK')
     return result
   } catch (error) {
