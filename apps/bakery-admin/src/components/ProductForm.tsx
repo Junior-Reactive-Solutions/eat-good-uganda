@@ -226,7 +226,7 @@ export function ProductForm({
               <input
                 type="url"
                 placeholder="https://example.com/image.jpg"
-                {...register(`image_urls.${String(index)}`)}
+                {...register(`image_urls.${String(index)}` as `image_urls.${number}`)}
                 className="flex-1 px-3 py-2 border border-platform-border rounded-md bg-platform-surface text-platform-fg placeholder-platform-fg-muted focus:outline-none focus:ring-2 focus:ring-bakery-primary"
               />
               <Button
@@ -262,7 +262,7 @@ export function ProductForm({
               <input
                 type="text"
                 placeholder="e.g., vegan, gluten-free"
-                {...register(`tags.${String(index)}`)}
+                {...register(`tags.${String(index)}` as `tags.${number}`)}
                 className="flex-1 px-3 py-2 border border-platform-border rounded-md bg-platform-surface text-platform-fg placeholder-platform-fg-muted focus:outline-none focus:ring-2 focus:ring-bakery-primary"
               />
               <Button
