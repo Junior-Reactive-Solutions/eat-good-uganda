@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import * as metricsApi from '../features/metrics/api'
+
 import DashboardPage from './DashboardPage'
 
 // Mock the metrics API
 vi.mock('../features/metrics/api')
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockBakeryMetrics: any = {
   totalSalesMinor: 5000000, // 50,000 UGX
   totalOrdersCount: 25,
@@ -48,6 +49,17 @@ const mockBakeryMetrics: any = {
 }
 
 describe('DashboardPage', () => {
+  beforeEach(() => {
+    // The page also reads the action-queue hook; default it to "no action
+    // items" so tests that only care about useBakeryMetrics don't have to
+    // repeat this everywhere.
+    vi.mocked(metricsApi.useBakeryActionQueue).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null,
+    } as any)
+  })
+
   afterEach(() => {
     vi.clearAllMocks()
   })
@@ -62,9 +74,7 @@ describe('DashboardPage', () => {
     render(<DashboardPage />)
 
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
-    expect(
-      screen.getByText('View your bakery metrics and performance')
-    ).toBeInTheDocument()
+    expect(screen.getByText('View your bakery metrics and performance')).toBeInTheDocument()
   })
 
   it('shows loading spinner while fetching', () => {
@@ -236,7 +246,7 @@ describe('DashboardPage', () => {
     render(<DashboardPage />)
 
     // Check the entire page content contains the unit values
-    const pageContent = screen.getByText('Dashboard').closest('div')?.parentElement?.textContent || ''
+    const pageContent = document.body.textContent || ''
     expect(pageContent).toContain('45') // Chocolate Cake units
     expect(pageContent).toContain('32') // Vanilla Cake units
     expect(pageContent).toContain('28') // Strawberry Cake units

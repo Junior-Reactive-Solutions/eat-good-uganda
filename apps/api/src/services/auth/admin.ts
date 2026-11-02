@@ -32,17 +32,6 @@ export async function loginAdmin(
     throw new Error('totp not configured')
   }
 
-  // Debug logging for TOTP verification
-  // eslint-disable-next-line no-console
-  console.log('[AUTH] TOTP Verification Debug:', {
-    email: input.email,
-    totpCodeLength: input.totp_code.length,
-    totpCodeValue: input.totp_code,
-    secretLength: admin.totp_secret.length,
-    secretValue: admin.totp_secret,
-    timestamp: new Date().toISOString(),
-  })
-
   // Verify TOTP code using otplib's verifySync function
   let totpOk = false
   try {
@@ -50,19 +39,11 @@ export async function loginAdmin(
       token: input.totp_code,
       secret: admin.totp_secret,
     })
-    // verifySync returns null if verification fails, or a delta number if successful
-    totpOk = result !== null
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('[AUTH] TOTP verification error:', err instanceof Error ? err.message : err)
+    // verifySync returns an object ({ valid: boolean, ... }), never null
+    totpOk = result.valid
+  } catch {
     throw new Error('totp verification failed')
   }
-
-  // eslint-disable-next-line no-console
-  console.log('[AUTH] TOTP Verification Result:', {
-    email: input.email,
-    verified: totpOk,
-  })
 
   if (!totpOk) {
     throw new Error('invalid totp code')

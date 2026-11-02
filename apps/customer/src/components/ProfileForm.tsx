@@ -10,7 +10,7 @@ const profileFormSchema = z.object({
   last_name: z.string().min(1, 'Last name is required').max(255),
   date_of_birth: z.string().optional().nullable(),
   bio: z.string().max(500).optional().nullable(),
-  avatar_url: z.string().url('Invalid avatar URL').or(z.literal('')).optional().nullable(),
+  avatar_url: z.url('Invalid avatar URL').or(z.literal('')).optional().nullable(),
 })
 
 type ProfileFormData = z.infer<typeof profileFormSchema>
@@ -24,14 +24,9 @@ interface ProfileFormProps {
 const inputBase =
   'w-full rounded-lg border bg-platform-surface px-3 py-2 text-sm text-platform-fg placeholder:text-platform-fg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-platform-primary focus:ring-offset-1 disabled:opacity-50'
 
-const inputBorder = (error?: string) =>
-  error ? 'border-platform-error' : 'border-platform-border'
+const inputBorder = (error?: string) => (error ? 'border-platform-error' : 'border-platform-border')
 
-export function ProfileForm({
-  profile,
-  isLoading = false,
-  onSubmit,
-}: ProfileFormProps) {
+export function ProfileForm({ profile, isLoading = false, onSubmit }: ProfileFormProps) {
   const {
     register,
     handleSubmit,
@@ -59,7 +54,13 @@ export function ProfileForm({
   const avatarUrl = watch('avatar_url')
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form
+      onSubmit={(e) => {
+        void handleSubmit(onSubmit)(e)
+      }}
+      noValidate
+      className="space-y-6"
+    >
       {/* Name Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -99,9 +100,7 @@ export function ProfileForm({
 
       {/* Date of Birth */}
       <div>
-        <label className="block text-sm font-medium text-platform-fg mb-1">
-          Date of Birth
-        </label>
+        <label className="block text-sm font-medium text-platform-fg mb-1">Date of Birth</label>
         <input
           {...register('date_of_birth')}
           type="date"
@@ -116,9 +115,7 @@ export function ProfileForm({
 
       {/* Avatar */}
       <div>
-        <label className="block text-sm font-medium text-platform-fg mb-1">
-          Avatar URL
-        </label>
+        <label className="block text-sm font-medium text-platform-fg mb-1">Avatar URL</label>
         <input
           {...register('avatar_url')}
           type="url"
@@ -147,24 +144,18 @@ export function ProfileForm({
 
       {/* Bio */}
       <div>
-        <label className="block text-sm font-medium text-platform-fg mb-1">
-          Bio
-        </label>
+        <label className="block text-sm font-medium text-platform-fg mb-1">Bio</label>
         <textarea
           {...register('bio')}
           placeholder="Tell us about yourself..."
           rows={4}
           disabled={isLoading}
           aria-invalid={errors.bio ? 'true' : 'false'}
-          className={[
-            inputBase,
-            inputBorder(errors.bio?.message),
-            'min-h-[100px] resize-y',
-          ].join(' ')}
+          className={[inputBase, inputBorder(errors.bio?.message), 'min-h-[100px] resize-y'].join(
+            ' ',
+          )}
         />
-        {errors.bio && (
-          <p className="mt-1 text-xs text-platform-error">{errors.bio.message}</p>
-        )}
+        {errors.bio && <p className="mt-1 text-xs text-platform-error">{errors.bio.message}</p>}
         <p className="mt-1 text-xs text-platform-fg-muted">
           {watch('bio')?.length || 0}/500 characters
         </p>

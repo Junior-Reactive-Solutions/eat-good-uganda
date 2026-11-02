@@ -1,4 +1,4 @@
-import { Users } from '@phosphor-icons/react'
+import { UsersIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconAdminCustomers size="md" />
  * <IconAdminCustomers size="lg" color="accent" />
  */
-export const IconAdminCustomers = adaptIcon(Users, 'customers')
+export const IconAdminCustomers = adaptIcon(UsersIcon, 'customers')
 
 IconAdminCustomers.displayName = 'IconAdminCustomers'

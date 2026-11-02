@@ -7,7 +7,14 @@ import { IconNavigationCart } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
 import { ProductCard } from '../components/ProductCard'
-import { useProducts, useDeleteProduct, useUpdateProduct } from '../features/menu/api'
+import { useToast } from '../components/Toast'
+import {
+  useCategories,
+  useDeleteProduct,
+  useProducts,
+  useToggleAvailability,
+  useUpdateProduct,
+} from '../features/menu/api'
 
 export default function MenuPage() {
   const [page, setPage] = useState(1)
@@ -16,12 +23,40 @@ export default function MenuPage() {
   )
 
   const { data, isLoading, error } = useProducts(page, 20)
+  const { data: categoriesData } = useCategories()
+  const categoryNameById = new Map(
+    (categoriesData?.items ?? []).map((category) => [category.id, category.name]),
+  )
   const deleteProduct = useDeleteProduct()
+  const toggleAvailability = useToggleAvailability()
+  const { show } = useToast()
   // Use a dummy ID if publishConfirm is not set to avoid hook issues
   const updateProduct = useUpdateProduct(publishConfirm?.id ?? 'placeholder-id')
 
   const handleDeleteProduct = (productId: string) => {
     deleteProduct.mutate(productId)
+  }
+
+  const handleToggleAvailable = (productId: string, nextAvailable: boolean) => {
+    const previousAvailable = !nextAvailable
+    toggleAvailability.mutate(
+      { id: productId, isAvailable: nextAvailable },
+      {
+        onSuccess: () => {
+          show({
+            message: nextAvailable ? 'Marked as available.' : 'Marked as unavailable.',
+            variant: 'success',
+            undoLabel: 'Undo',
+            onUndo: () => {
+              toggleAvailability.mutate({ id: productId, isAvailable: previousAvailable })
+            },
+          })
+        },
+        onError: () => {
+          show({ message: 'Failed to update availability. Please try again.', variant: 'error' })
+        },
+      },
+    )
   }
 
   const handlePublishConfirm = (productId: string, isPublished: boolean) => {
@@ -49,16 +84,18 @@ export default function MenuPage() {
 
   return (
     <div className="space-y-6 p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <PageHeader title="Menu Management" subtitle="Create and edit your bakery products" />
-        <Link to="/menu/create">
-          <Button className="gap-2">
-            <IconNavigationCart size="sm" color="default" alt="" />
-            Create Product
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Menu Management"
+        subtitle="Create and edit your bakery products"
+        primaryAction={
+          <Link to="/menu/create">
+            <Button className="gap-2">
+              <IconNavigationCart size="sm" color="default" alt="" />
+              Create Product
+            </Button>
+          </Link>
+        }
+      />
 
       {/* Loading State */}
       {isLoading && <LoadingSpinner label="Loading products..." />}
@@ -101,14 +138,21 @@ export default function MenuPage() {
       {!isLoading && data && data.items.length > 0 && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.items.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onDelete={handleDeleteProduct}
-                onTogglePublish={handlePublishConfirm}
-              />
-            ))}
+            {data.items.map((product) => {
+              const categoryName = product.category_id
+                ? categoryNameById.get(product.category_id)
+                : undefined
+              return (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  {...(categoryName ? { categoryName } : {})}
+                  onDelete={handleDeleteProduct}
+                  onTogglePublish={handlePublishConfirm}
+                  onToggleAvailable={handleToggleAvailable}
+                />
+              )
+            })}
           </div>
 
           {/* Pagination */}

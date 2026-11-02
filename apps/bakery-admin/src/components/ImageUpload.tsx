@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react'
 import { useMutation } from '@tanstack/react-query'
+import { useState, useRef } from 'react'
 
 import { api } from '../lib/api'
 
@@ -53,7 +53,7 @@ export function ImageUpload({
     },
     onError: (error) => {
       setPreview(null)
-      onUploadError?.(error as Error)
+      onUploadError?.(error instanceof Error ? error : new Error(String(error)))
     },
   })
 
@@ -67,9 +67,7 @@ export function ImageUpload({
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
     if (!allowedTypes.includes(file.type)) {
-      onUploadError?.(
-        new Error('File must be JPEG, PNG, WebP, or GIF'),
-      )
+      onUploadError?.(new Error('File must be JPEG, PNG, WebP, or GIF'))
       return
     }
 
@@ -107,7 +105,7 @@ export function ImageUpload({
     setDragActive(false)
 
     const files = e.dataTransfer.files
-    if (files && files.length > 0 && files[0]) {
+    if (files.length > 0 && files[0]) {
       handleFileSelect(files[0])
     }
   }
@@ -160,13 +158,9 @@ export function ImageUpload({
                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            <p className="mt-2 text-sm font-medium text-gray-900">
-              Drag and drop your image here
-            </p>
+            <p className="mt-2 text-sm font-medium text-gray-900">Drag and drop your image here</p>
             <p className="text-sm text-gray-500">or click to select a file</p>
-            <p className="mt-2 text-xs text-gray-400">
-              JPEG, PNG, WebP, or GIF up to 5MB
-            </p>
+            <p className="mt-2 text-xs text-gray-400">JPEG, PNG, WebP, or GIF up to 5MB</p>
           </div>
         )}
       </div>
@@ -175,11 +169,7 @@ export function ImageUpload({
       {preview && (
         <div className="space-y-2">
           <p className="text-sm font-medium text-gray-900">Preview</p>
-          <img
-            src={preview}
-            alt="Preview"
-            className="h-48 w-48 rounded-lg object-cover"
-          />
+          <img src={preview} alt="Preview" className="h-48 w-48 rounded-lg object-cover" />
           {uploadMutation.isSuccess && (
             <p className="text-sm text-green-600">✓ Image uploaded successfully</p>
           )}

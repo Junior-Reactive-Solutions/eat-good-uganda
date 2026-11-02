@@ -1,4 +1,4 @@
-import { MapPin } from '@phosphor-icons/react'
+import { MapPinIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconDeliveryLocation size="md" />
  * <IconDeliveryLocation size="lg" color="accent" />
  */
-export const IconDeliveryLocation = adaptIcon(MapPin, 'location')
+export const IconDeliveryLocation = adaptIcon(MapPinIcon, 'location')
 
 IconDeliveryLocation.displayName = 'IconDeliveryLocation'

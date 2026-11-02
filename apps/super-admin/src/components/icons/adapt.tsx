@@ -17,15 +17,12 @@ import { ICON_SIZES } from '@/types/icon'
  * `role="img"` with a default label of "icon".
  *
  * @example
- * export const IconNavigationHome = adaptIcon(House, 'home')
+ * export const IconNavigationHome = adaptIcon(HouseIcon, 'home')
  */
 /** Icon props without `children`: the glyph is supplied by the adapter, never by callers. */
 type AdaptedIconProps = Omit<IconProps, 'children'>
 
-export function adaptIcon(
-  Glyph: PhosphorGlyph,
-  defaultAlt: string,
-): React.FC<AdaptedIconProps> {
+export function adaptIcon(Glyph: PhosphorGlyph, defaultAlt: string): React.FC<AdaptedIconProps> {
   const Adapted: React.FC<AdaptedIconProps> = ({
     size = 'md',
     color = 'default',

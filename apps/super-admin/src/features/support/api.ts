@@ -1,4 +1,4 @@
-import type { SupportTicket, TicketDetail, TicketMessage } from '@eatgood/db'
+import type { SupportTicket, SupportTicketListItem, TicketDetail, TicketMessage } from '@eatgood/db'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { api } from '@/lib/api'
@@ -26,7 +26,7 @@ export const useTickets = (params: TicketsListParams = {}) => {
     queryKey: supportQueryKeys.list(params),
     queryFn: async () => {
       const { data } = await api.get<{
-        data: SupportTicket[]
+        data: SupportTicketListItem[]
         pagination: {
           total: number
           limit: number

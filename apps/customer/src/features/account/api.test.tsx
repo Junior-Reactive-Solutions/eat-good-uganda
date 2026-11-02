@@ -34,11 +34,14 @@ const mockSettings: AccountSettings = {
 }
 
 const createWrapper = () => {
-  const queryClient = new QueryClient()
+  // Without retry: false, a rejected query retries with backoff delays before
+  // settling into its error state, so isLoading never flips to false within
+  // a test's waitFor timeout.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
   return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 }
 
@@ -91,7 +94,9 @@ describe('useUpdateNotificationPreferences', () => {
   it('updates notification preferences', async () => {
     const mockPatch = vi.spyOn(apiModule.api, 'patch').mockResolvedValue({ data: mockSettings })
 
-    const { result } = renderHook(() => useUpdateNotificationPreferences(), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useUpdateNotificationPreferences(), {
+      wrapper: createWrapper(),
+    })
 
     result.current.mutate({
       email_orders: false,
@@ -132,10 +137,7 @@ describe('useUpdateLanguagePreference', () => {
       expect(result.current.isPending).toBe(false)
     })
 
-    expect(mockPatch).toHaveBeenCalledWith(
-      '/v1/customer/account-settings',
-      { language: 'sw' },
-    )
+    expect(mockPatch).toHaveBeenCalledWith('/v1/customer/account-settings', { language: 'sw' })
   })
 })
 
@@ -157,10 +159,7 @@ describe('useUpdatePrivacyMode', () => {
       expect(result.current.isPending).toBe(false)
     })
 
-    expect(mockPatch).toHaveBeenCalledWith(
-      '/v1/customer/account-settings',
-      { privacy_mode: true },
-    )
+    expect(mockPatch).toHaveBeenCalledWith('/v1/customer/account-settings', { privacy_mode: true })
   })
 })
 

@@ -118,6 +118,41 @@ export function useUpdateProduct(productId: string) {
   })
 }
 
+export function useToggleAvailability() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, isAvailable }: { id: string; isAvailable: boolean }) => {
+      const { data } = await api.patch<Product>(`/v1/bakery/products/${id}`, {
+        is_available: isAvailable,
+      })
+      return data
+    },
+    onMutate: async ({ id, isAvailable }) => {
+      await queryClient.cancelQueries({ queryKey: menuQueryKeys.products })
+      const snapshot = queryClient.getQueriesData<PaginatedProducts>({
+        queryKey: menuQueryKeys.products,
+      })
+      queryClient.setQueriesData<PaginatedProducts>({ queryKey: menuQueryKeys.products }, (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          items: old.items.map((p) => (p.id === id ? { ...p, is_available: isAvailable } : p)),
+        }
+      })
+      return { snapshot }
+    },
+    onError: (_err, _vars, ctx) => {
+      ctx?.snapshot.forEach(([key, val]) => {
+        queryClient.setQueryData(key, val)
+      })
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: menuQueryKeys.products })
+    },
+  })
+}
+
 export function useDeleteProduct() {
   const queryClient = useQueryClient()
 

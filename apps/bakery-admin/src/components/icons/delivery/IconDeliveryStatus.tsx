@@ -1,4 +1,4 @@
-import { Truck } from '@phosphor-icons/react'
+import { TruckIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconDeliveryStatus size="md" />
  * <IconDeliveryStatus size="lg" color="accent" />
  */
-export const IconDeliveryStatus = adaptIcon(Truck, 'delivery status')
+export const IconDeliveryStatus = adaptIcon(TruckIcon, 'delivery status')
 
 IconDeliveryStatus.displayName = 'IconDeliveryStatus'

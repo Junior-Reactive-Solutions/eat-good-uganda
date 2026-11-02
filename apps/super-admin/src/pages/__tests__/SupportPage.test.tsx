@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return */
-import type { SupportTicket } from '@eatgood/db'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { SupportTicketListItem } from '@eatgood/db'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -24,7 +24,7 @@ const mockQueryClient = new QueryClient({
   },
 })
 
-const mockTickets: SupportTicket[] = [
+const mockTickets: SupportTicketListItem[] = [
   {
     id: '1',
     bakery_id: 'bakery-1',
@@ -36,6 +36,7 @@ const mockTickets: SupportTicket[] = [
     created_at: new Date('2026-01-01'),
     updated_at: new Date('2026-01-01'),
     deleted_at: null,
+    message_count: 3,
   },
   {
     id: '2',
@@ -48,6 +49,7 @@ const mockTickets: SupportTicket[] = [
     created_at: new Date('2026-01-02'),
     updated_at: new Date('2026-01-02'),
     deleted_at: null,
+    message_count: 0,
   },
 ]
 
@@ -177,6 +179,26 @@ describe('SupportPage', () => {
 
     const highPriority = screen.getAllByText('High')
     expect(highPriority.length).toBeGreaterThan(0)
+  })
+
+  it("displays each ticket's real message count instead of a placeholder", () => {
+    vi.mocked(supportApi.useTickets).mockReturnValue({
+      data: {
+        tickets: mockTickets,
+        pagination: { page: 1, pageSize: 20, totalCount: 2, totalPages: 1 },
+      },
+      isLoading: false,
+      error: null,
+      isError: false,
+      isSuccess: true,
+      isPending: false,
+      status: 'success',
+    } as any)
+
+    renderWithQueryClient(<SupportPage />)
+
+    expect(screen.getByText('3')).toBeInTheDocument()
+    expect(screen.getByText('0')).toBeInTheDocument()
   })
 
   it('shows empty state when no tickets found', () => {

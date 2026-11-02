@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 import type { Product } from '@eatgood/shared'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
@@ -9,11 +8,20 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock the API hooks
 vi.mock('../features/menu/api', () => ({
   useProducts: vi.fn(),
+  useCategories: vi.fn(),
   useDeleteProduct: vi.fn(),
   useUpdateProduct: vi.fn(),
+  useToggleAvailability: vi.fn(),
 }))
 
-import { useDeleteProduct, useProducts, useUpdateProduct } from '../features/menu/api'
+import { ToastProvider } from '../components/Toast'
+import {
+  useCategories,
+  useDeleteProduct,
+  useProducts,
+  useToggleAvailability,
+  useUpdateProduct,
+} from '../features/menu/api'
 
 import MenuPage from './MenuPage'
 
@@ -82,7 +90,9 @@ function renderWithProviders(component: React.ReactElement) {
   const queryClient = new QueryClient()
   return render(
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{component}</BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>{component}</BrowserRouter>
+      </ToastProvider>
     </QueryClientProvider>,
   )
 }
@@ -100,18 +110,33 @@ describe('MenuPage', () => {
     isPending: false,
   }
 
+  const defaultToggleAvailabilityMock = {
+    mutate: vi.fn(),
+    isPending: false,
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockUseProducts = useProducts as any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mockUseCategories = useCategories as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockUseDeleteProduct = useDeleteProduct as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockUseUpdateProduct = useUpdateProduct as any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mockUseToggleAvailability = useToggleAvailability as any
 
   beforeEach(() => {
     vi.clearAllMocks()
     // Set default mocks
     mockUseUpdateProduct.mockReturnValue(defaultUpdateProductMock)
     mockUseDeleteProduct.mockReturnValue(defaultDeleteProductMock)
+    mockUseToggleAvailability.mockReturnValue(defaultToggleAvailabilityMock)
+    mockUseCategories.mockReturnValue({
+      data: { items: [], total: 0 },
+      isLoading: false,
+      error: null,
+    })
   })
 
   it('renders page header "Menu Management"', () => {
@@ -198,6 +223,40 @@ describe('MenuPage', () => {
       expect(screen.getByText('Vanilla Cake')).toBeInTheDocument()
       expect(screen.getByText('Strawberry Cake')).toBeInTheDocument()
     })
+  })
+
+  it('resolves each product\'s real category name instead of "Uncategorized"', async () => {
+    mockUseProducts.mockReturnValue({
+      data: {
+        items: mockProducts,
+        total: 3,
+        page: 1,
+        pageSize: 20,
+        totalPages: 1,
+      },
+      isLoading: false,
+      error: null,
+    })
+
+    mockUseCategories.mockReturnValue({
+      data: {
+        items: [
+          { id: 'cat-1', name: 'Cakes' },
+          { id: 'cat-2', name: 'Pastries' },
+        ],
+        total: 2,
+      },
+      isLoading: false,
+      error: null,
+    })
+
+    renderWithProviders(<MenuPage />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Cakes').length).toBeGreaterThan(0)
+      expect(screen.getByText('Pastries')).toBeInTheDocument()
+    })
+    expect(screen.queryByText('Uncategorized')).not.toBeInTheDocument()
   })
 
   it('shows error message on fetch error with retry button', () => {

@@ -18,6 +18,7 @@ vi.mock('../features/analytics/api', () => ({
 // Mock the admin hooks
 vi.mock('../features/admin/api', () => ({
   useAdminDashboard: vi.fn(),
+  usePlatformActionQueue: vi.fn(),
 }))
 
 // Mock the navigation
@@ -49,10 +50,19 @@ const renderWithProviders = (component: React.ReactElement): any => {
 describe('AdminDashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // The page also reads the platform action-queue hook; default it to "no
+    // action items" so tests that only care about the other hooks don't have
+    // to repeat this everywhere.
+
+    vi.mocked(adminApi.usePlatformActionQueue).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)
   })
 
   it('should render loading spinner when metrics are loading', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: undefined,
       isLoading: true,
@@ -61,7 +71,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -70,7 +79,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useTopBakeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -79,7 +87,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(adminApi.useAdminDashboard).mockReturnValue({
       data: undefined,
       isLoading: true,
@@ -93,7 +100,6 @@ describe('AdminDashboardPage', () => {
   })
 
   it('should render error message when metrics fail to load', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -102,7 +108,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -111,7 +116,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useTopBakeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -120,7 +124,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(adminApi.useAdminDashboard).mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -143,7 +146,6 @@ describe('AdminDashboardPage', () => {
       pendingApprovalCount: 3,
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: mockMetrics,
       isLoading: false,
@@ -152,7 +154,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [
         { date: '2026-05-18', value: 1000000 },
@@ -164,7 +165,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useTopBakeries).mockReturnValue({
       data: [
         { id: '1', name: 'Bakery A', value: 5000000 },
@@ -176,7 +176,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(adminApi.useAdminDashboard).mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -204,7 +203,6 @@ describe('AdminDashboardPage', () => {
       pendingApprovalCount: 3,
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: mockMetrics,
       isLoading: false,
@@ -213,7 +211,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -222,7 +219,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useTopBakeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -231,7 +227,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(adminApi.useAdminDashboard).mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -240,10 +235,50 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
+    // The "pending approvals" alert moved into the ActionQueue component,
+    // which reads from usePlatformActionQueue (not platform metrics).
+
+    vi.mocked(adminApi.usePlatformActionQueue).mockReturnValue({
+      data: {
+        pendingApprovals: [
+          {
+            id: '1',
+            displayName: 'Sweet Dreams',
+            slug: 'sweet-dreams',
+            city: 'Kampala',
+            submittedAt: '2026-05-01',
+            waitDays: 2,
+          },
+          {
+            id: '2',
+            displayName: 'Bread House',
+            slug: 'bread-house',
+            city: 'Entebbe',
+            submittedAt: '2026-05-02',
+            waitDays: 1,
+          },
+          {
+            id: '3',
+            displayName: 'Cake Paradise',
+            slug: 'cake-paradise',
+            city: 'Jinja',
+            submittedAt: '2026-05-03',
+            waitDays: 0,
+          },
+        ],
+        slaBreachingTickets: [],
+        bakeriesMissingPayment: [],
+        stalledOnboarding: [],
+      },
+      isLoading: false,
+      error: null,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)
+
     renderWithProviders(<AdminDashboardPage />)
 
     await waitFor(() => {
-      expect(screen.getByText(/3 bakeries pending approval/i)).toBeInTheDocument()
+      expect(screen.getByText(/3 bakeries awaiting approval/i)).toBeInTheDocument()
       expect(screen.getByText('Review')).toBeInTheDocument()
     })
   })
@@ -258,7 +293,6 @@ describe('AdminDashboardPage', () => {
       pendingApprovalCount: 0,
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: mockMetrics,
       isLoading: false,
@@ -267,7 +301,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -276,7 +309,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useTopBakeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -285,7 +317,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(adminApi.useAdminDashboard).mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -320,7 +351,6 @@ describe('AdminDashboardPage', () => {
       pendingApprovalCount: 0,
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: mockMetrics,
       isLoading: false,
@@ -329,7 +359,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -338,7 +367,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useTopBakeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -347,7 +375,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(adminApi.useAdminDashboard).mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -382,7 +409,6 @@ describe('AdminDashboardPage', () => {
       pendingApprovalCount: 0,
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.usePlatformMetrics).mockReturnValue({
       data: mockMetrics,
       isLoading: false,
@@ -391,7 +417,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useMetricsTimeSeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -400,7 +425,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(analyticsApi.useTopBakeries).mockReturnValue({
       data: [],
       isLoading: false,
@@ -409,7 +433,6 @@ describe('AdminDashboardPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     vi.mocked(adminApi.useAdminDashboard).mockReturnValue({
       data: undefined,
       isLoading: false,

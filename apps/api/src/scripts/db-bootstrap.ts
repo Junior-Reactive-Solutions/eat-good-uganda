@@ -17,8 +17,8 @@ import { readFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
-import { Pool } from 'pg'
 import * as argon2 from 'argon2'
+import { Pool } from 'pg'
 
 // RFC 4648 base32 (no padding) — the format otplib's authenticator.verify expects.
 const B32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
@@ -103,7 +103,9 @@ async function main() {
     console.log(`Password:     ${SUPER_ADMIN.password}`)
     console.log(`TOTP secret:  ${totpSecret}`)
     console.log(`otpauth URL:  ${otpauthUrl}`)
-    console.log('Add the otpauth URL (or TOTP secret) to Google Authenticator / Authy to get codes.')
+    console.log(
+      'Add the otpauth URL (or TOTP secret) to Google Authenticator / Authy to get codes.',
+    )
     console.log('==========================================================\n')
 
     console.log('Bootstrap complete.')

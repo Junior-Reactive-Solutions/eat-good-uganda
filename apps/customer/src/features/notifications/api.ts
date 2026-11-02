@@ -63,7 +63,7 @@ export const useMarkNotificationAsRead = () => {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all })
+      void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all })
     },
   })
 }
@@ -82,7 +82,7 @@ export const useMarkAllNotificationsAsRead = () => {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all })
+      void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all })
     },
   })
 }
@@ -98,7 +98,7 @@ export const useDeleteNotification = () => {
       await api.delete(`/v1/customer/notifications/${notificationId}`)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all })
+      void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all })
     },
   })
 }

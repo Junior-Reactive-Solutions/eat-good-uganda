@@ -1,5 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-deprecated */
-import { getBakeryProfile, pool, updateBakeryProfile, type UpdateBakeryProfileInput } from '@eatgood/db'
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-deprecated, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return */
+import {
+  getBakeryProfile,
+  pool,
+  updateBakeryProfile,
+  type UpdateBakeryProfileInput,
+} from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 import { z } from 'zod'

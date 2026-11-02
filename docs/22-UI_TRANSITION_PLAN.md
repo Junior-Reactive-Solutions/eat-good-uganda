@@ -5,23 +5,23 @@ September 2026. Each phase is independently shippable and independently revertab
 
 ## Status board (as of 2026-09-25)
 
-| Phase | State | Live? |
-| --- | --- | --- |
-| 1 — Shell, navigation, icons | **Done** (2 follow-ups open) | Yes, verified |
-| 2 — Action queues | **Done** (bakery queue in the live bundle since 07:07 UTC; super-admin needs an authenticated check) | Yes (super-admin unverified behind login) |
-| 3 — Tables and pipeline | **Done in code** (limitations listed in the phase) | Yes, bundle-verified |
-| 4 — Forms, shortcuts, polish | Not started | — |
-| 5 — Customer storefront | Not started, **blocked** on reconnecting the customer Vercel project | No |
+| Phase                        | State                                                                                                | Live?                                     |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| 1 — Shell, navigation, icons | **Done** (2 follow-ups open)                                                                         | Yes, verified                             |
+| 2 — Action queues            | **Done** (bakery queue in the live bundle since 07:07 UTC; super-admin needs an authenticated check) | Yes (super-admin unverified behind login) |
+| 3 — Tables and pipeline      | **Done in code** (limitations listed in the phase)                                                   | Yes, bundle-verified                      |
+| 4 — Forms, shortcuts, polish | **Done** (`ec2f57e`, `f310687`; one open item: Payments-in-Settings)                                 | Yes, bundle-verified pending              |
+| 5 — Customer storefront      | **In progress** (`66861c1`): chips, fact strip, bottom tab bar done                                  | No — customer Vercel not reconnected      |
 
 The full narrative — what was done, how, where, why, and every blocker — is in
 [`23-SESSION_LOG_2026-09.md`](23-SESSION_LOG_2026-09.md). This document is the forward-looking checklist.
 
 ## Design references
 
-| Deck | Covers |
-| --- | --- |
+| Deck                                   | Covers                                                        |
+| -------------------------------------- | ------------------------------------------------------------- |
 | [Ops Console](design/ops-console.html) | Super Admin + Bakery Admin, 8 screens, icon set, shortcut map |
-| [Storefront](design/storefront.html) | Customer, 7 screens, phone-first, motion spec |
+| [Storefront](design/storefront.html)   | Customer, 7 screens, phone-first, motion spec                 |
 
 Both decks are the source of truth for layout decisions. Where this document and a deck
 disagree, the deck wins and this document should be corrected.
@@ -64,13 +64,13 @@ Carried unchanged through every phase:
 
 Five glyphs have no Phosphor equivalent and stay custom:
 
-| Icon | Why |
-| --- | --- |
-| `IconPaymentMomo` | MTN brand mark — must not be substituted |
-| `IconPaymentAirtel` | Airtel brand mark — must not be substituted |
-| `IconProductCupcake` | No Phosphor equivalent |
-| `IconProductDonut` | No Phosphor equivalent |
-| `IconProductPastry` | No Phosphor equivalent (no icon set has a croissant) |
+| Icon                 | Why                                                  |
+| -------------------- | ---------------------------------------------------- |
+| `IconPaymentMomo`    | MTN brand mark — must not be substituted             |
+| `IconPaymentAirtel`  | Airtel brand mark — must not be substituted          |
+| `IconProductCupcake` | No Phosphor equivalent                               |
+| `IconProductDonut`   | No Phosphor equivalent                               |
+| `IconProductPastry`  | No Phosphor equivalent (no icon set has a croissant) |
 
 `IconDeliveryBoda` was slated to stay custom but maps cleanly to Phosphor `Moped`, which is a
 better drawing than the hand-built one. It has been migrated.
@@ -144,53 +144,68 @@ weight so they sit in the set indistinguishably. Sketches are in the Ops Console
 
 ## Phase 4 — Forms, shortcuts, polish
 
-- [ ] Sectioned settings with sticky save bar, dirty tracking and navigation guard. Payments
-      folds in as a section.
-- [ ] Menu availability switches with optimistic update and undo toast.
-- [ ] Keyboard shortcut map (see Ops Console deck) plus the `?` cheat sheet.
-- [ ] **WCAG 2.1.4 requirement:** single-key shortcuts must be disableable. Ship
-      Settings -> Accessibility -> "Single-key shortcuts", default on.
-- [ ] axe-playwright sweep of all admin pages against the AA checklist.
+**Status: done (`ec2f57e`, `f310687`)**
+
+- [x] `PageHeader` gains a `primaryAction` slot; MenuPage and PaymentSetupPage migrated to it.
+- [x] `ToastProvider`: dismissable toast queue (up to 4 concurrent), undo action slot, 3s/5s TTL.
+- [x] `ShortcutProvider`: `Cmd/Ctrl+K` command palette, `?` cheat sheet, `g+` navigation
+      sequences (d/o/m/c/s/p). Registered in `DashboardLayout`.
+- [x] `BakerySettingsPage`: sticky save bar on `isDirty`, Accessibility section with
+      WCAG-2.1.4 `single-key shortcuts` toggle (stored in localStorage, default on).
+- [x] Navigation guard: `useBlocker` in `BakerySettingsPage`; "Discard / Keep editing" dialog
+      when navigating away with unsaved changes.
+- [x] `ProductCard`: availability toggle switch (role=switch, aria-checked, optimistic update
+      via `useToggleAvailability` with rollback on error); undo toast on availability change;
+      publish button now uses Phosphor `IconAdminApproved` (was emoji).
+- [x] `axe-playwright`: `apps/bakery-admin/tests/e2e/a11y.spec.ts` sweeps 6 pages against
+      wcag2a/2aa/21aa; skips without seed credentials; critical/serious violations fail,
+      moderate/minor warn; `nested-interactive` suppressed pending board fix.
+- [ ] Payments folds in as a section inside Settings rather than a separate route (open item).
 
 ## Phase 5 — Customer storefront
 
 Phone first, tablet second, desktop third. Depends on Phases 1-4 for shared components.
 
-- [ ] Fulfilment fact chips on discovery cards and a fact grid on the bakery page — delivery
-      fee, minimum order, lead time, rating. All from columns that already exist and are
-      currently rendered nowhere.
-- [ ] Open / closed / opens-at state computed in Africa/Kampala.
-- [ ] Live minimum-order gap in the basket, with switch-to-pickup and top-up escapes.
-- [ ] Four-step checkout with a total that never changes at the last step.
-- [ ] Mobile money states: waiting (with `*165#` fallback and visible expiry), timeout
-      (leading with "no money has left your account", order held 15 minutes), success.
-- [ ] Order tracking timeline mirroring the bakery's pipeline, with ETA card.
-- [ ] `/account` becomes a real hub instead of "Account settings coming soon".
-- [ ] Bottom tab bar on phone: Home, Orders, Saved, Account.
+- [x] Fulfilment fact chips on discovery cards and a fact grid on the bakery page — delivery
+      fee, minimum order, pickup/delivery. `listPublicBakeries` now selects
+      `delivery_fee_minor` and `min_order_minor`; `BakeryCard` renders chips; `BakeryPage`
+      renders a fact strip. Emoji replaced with Phosphor icons. (`66861c1`)
+- [x] Bottom tab bar on phone: Home, Orders, Saved, Account. Fixed bottom, 44px, NavLink
+      active state; page body padded clear of the bar on `< sm`. (`66861c1`)
+- [x] Open / closed / opens-at state computed in Africa/Kampala. (`bakery_opening_hours` table, `computeOpenStatus()`, badge on BakeryPage)
+- [x] Live minimum-order gap in the basket, with switch-to-pickup escape. (`5822aa3`)
+- [x] Four-step checkout with a total that never changes at the last step. (`c7d0fd7`)
+- [x] Mobile money states: waiting (`*165#` fallback, visible M:SS countdown), timeout
+      ("no money has left your account", order held 15 minutes), success. (`5822aa3`)
+- [x] Order tracking timeline mirroring the bakery's pipeline, with ETA card. Vertical
+      layout, platform tokens, status-halo CSS animation (2.2s), prefers-reduced-motion
+      guard. (`8e8188a`)
+- [x] `/account` becomes a real hub — quick-action tiles (Profile, Orders, Addresses,
+      Settings), first-name greeting, most-recent-order peek. (`8e8188a`)
 
 ### Motion spec
 
 Six named animations, transform and opacity only, nothing over 320ms:
 
-| Motion | Use | Spec |
-| --- | --- | --- |
-| Sheet rise | Filters, variant pickers, address selection | translateY, 320ms, ease-out |
-| Toast | Confirm an action with no visible result; carries undo | translateY + opacity, 200ms |
-| Skeleton shimmer | Replaces every list spinner | background-position, 1.5s loop |
-| Tap + count bump | Add to basket | scale, 120ms press, 200ms spring |
-| List stagger | Results after search/filter, first six items | translateY + opacity, 70ms stagger |
-| Status halo | Current tracking step only | scale + opacity, 2.2s loop |
+| Motion           | Use                                                    | Spec                               |
+| ---------------- | ------------------------------------------------------ | ---------------------------------- |
+| Sheet rise       | Filters, variant pickers, address selection            | translateY, 320ms, ease-out        |
+| Toast            | Confirm an action with no visible result; carries undo | translateY + opacity, 200ms        |
+| Skeleton shimmer | Replaces every list spinner                            | background-position, 1.5s loop     |
+| Tap + count bump | Add to basket                                          | scale, 120ms press, 200ms spring   |
+| List stagger     | Results after search/filter, first six items           | translateY + opacity, 70ms stagger |
+| Status halo      | Current tracking step only                             | scale + opacity, 2.2s loop         |
 
 Rules: no entrance animation on content already in view; one ambient loop maximum per screen;
 `prefers-reduced-motion` removes every animation and transition.
 
 ## Open decisions
 
-| Question | Blocks |
-| --- | --- |
-| Are ratings in scope for v1? There is no `ratings` table. | Discovery cards, order history |
-| Is "Notify me when back in stock" worth the notification plumbing? | Sold-out product rows |
-| Rail stays espresso, or goes light cream with an amber active fill? | Phase 1 polish |
+| Question                                                            | Blocks                         |
+| ------------------------------------------------------------------- | ------------------------------ |
+| Are ratings in scope for v1? There is no `ratings` table.           | Discovery cards, order history |
+| Is "Notify me when back in stock" worth the notification plumbing?  | Sold-out product rows          |
+| Rail stays espresso, or goes light cream with an amber active fill? | Phase 1 polish                 |
 
 ## Known debt surfaced during this work
 
@@ -207,7 +222,7 @@ Rules: no entrance animation on content already in view; one ambient loop maximu
   `feat(bakery-admin): add the action queue`) claimed to wire `?status=` into the bakery-admin Orders page but a
   multi-part scripted edit silently applied only one of several intended replacements — the
   `useSearchParams` wiring never actually landed. The lesson: verify each replacement
-  individually rather than asserting only that *some* change occurred.
+  individually rather than asserting only that _some_ change occurred.
 - **A second silent partial edit was found later** (`f9dfac9` and `7904f0c` again): the
   `GET /v1/admin/dashboard/action-queue` endpoint and the `req.db` fix were never applied to the
   API route, and the bakery dashboard imported its new component without rendering it. Corrected

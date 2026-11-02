@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Order } from '@eatgood/shared'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
@@ -66,9 +67,7 @@ function renderWithProviders(component: React.ReactNode) {
   const queryClient = new QueryClient()
   return render(
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        {component}
-      </BrowserRouter>
+      <BrowserRouter>{component}</BrowserRouter>
     </QueryClientProvider>,
   )
 }
@@ -145,8 +144,8 @@ describe('OrderHistoryPage', () => {
 
     renderWithProviders(<OrderHistoryPage />)
 
-    expect(screen.getByText('ORD-00001')).toBeInTheDocument()
-    expect(screen.getByText('ORD-00002')).toBeInTheDocument()
+    expect(screen.getByText(/ORD-00001/)).toBeInTheDocument()
+    expect(screen.getByText(/ORD-00002/)).toBeInTheDocument()
   })
 
   it('renders pagination controls', () => {
@@ -170,7 +169,11 @@ describe('OrderHistoryPage', () => {
 
     renderWithProviders(<OrderHistoryPage />)
 
-    expect(screen.getByText('Page 1 of 3')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        (_, el) => el?.tagName === 'P' && el.textContent === 'Page 1 of 3 (25 total orders)',
+      ),
+    ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Next/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Previous/i })).toBeDisabled()
   })
@@ -207,7 +210,7 @@ describe('OrderHistoryPage', () => {
         total: 2,
         page: 1,
         pageSize: 10,
-        totalPages: 1,
+        totalPages: 2,
       },
       isLoading: false,
       error: null,
@@ -215,7 +218,11 @@ describe('OrderHistoryPage', () => {
 
     renderWithProviders(<OrderHistoryPage />)
 
-    expect(screen.getByText('Page 1 of 1 (2 total orders)')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        (_, el) => el?.tagName === 'P' && el.textContent === 'Page 1 of 2 (2 total orders)',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('shows singular form for single order', () => {
@@ -225,7 +232,7 @@ describe('OrderHistoryPage', () => {
         total: 1,
         page: 1,
         pageSize: 10,
-        totalPages: 1,
+        totalPages: 2,
       },
       isLoading: false,
       error: null,
@@ -233,7 +240,11 @@ describe('OrderHistoryPage', () => {
 
     renderWithProviders(<OrderHistoryPage />)
 
-    expect(screen.getByText('Page 1 of 1 (1 total order)')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        (_, el) => el?.tagName === 'P' && el.textContent === 'Page 1 of 2 (1 total order)',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('renders all visible page numbers in pagination', () => {
@@ -266,6 +277,13 @@ describe('OrderHistoryPage', () => {
     renderWithProviders(<OrderHistoryPage />)
 
     const browseButton = screen.getByText('Browse Bakeries')
-    expect(browseButton).toHaveAttribute('href', '/')
+    expect(browseButton.tagName).toBe('BUTTON')
+
+    const user = userEvent.setup()
+    await user.click(browseButton)
+
+    await waitFor(() => {
+      expect(window.location.pathname).toBe('/')
+    })
   })
 })

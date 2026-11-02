@@ -1,7 +1,7 @@
-import { pool } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 
+import { logger } from '../../lib/logger'
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { requireCustomerContext } from '../../middleware/requireCustomerContext'
 
@@ -13,12 +13,12 @@ export const customerNotificationsRouter = createRouter() as Router
  */
 customerNotificationsRouter.get(
   '/',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     const customerId = req.customer?.id
-    const limitParam = Array.isArray(req.query.limit) ? String(req.query.limit[0]) : typeof req.query.limit === 'string' ? req.query.limit : ''
-    const offsetParam = Array.isArray(req.query.offset) ? String(req.query.offset[0]) : typeof req.query.offset === 'string' ? req.query.offset : ''
+    const limitParam = typeof req.query.limit === 'string' ? req.query.limit : ''
+    const offsetParam = typeof req.query.offset === 'string' ? req.query.offset : ''
 
     if (!customerId) {
       return res.status(401).json({ error: 'Unauthorized' })
@@ -30,7 +30,7 @@ customerNotificationsRouter.get(
 
       // TODO: Implement notification_log table query when database is updated
       // For MVP, return empty notifications array
-      const notifications: any[] = []
+      const notifications: unknown[] = []
 
       return res.json({
         items: notifications,
@@ -40,7 +40,10 @@ customerNotificationsRouter.get(
         totalPages: 0,
       })
     } catch (error) {
-      console.error('Error fetching notifications:', error)
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Error fetching notifications',
+      )
       return res.status(500).json({ error: 'Failed to fetch notifications' })
     }
   },
@@ -52,9 +55,9 @@ customerNotificationsRouter.get(
  */
 customerNotificationsRouter.patch(
   '/:id/read',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     const customerId = req.customer?.id
     const notificationId = req.params.id
 
@@ -72,7 +75,10 @@ customerNotificationsRouter.patch(
         message: 'Notification marked as read',
       })
     } catch (error) {
-      console.error('Error marking notification as read:', error)
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Error marking notification as read',
+      )
       return res.status(500).json({ error: 'Failed to mark notification as read' })
     }
   },
@@ -84,9 +90,9 @@ customerNotificationsRouter.patch(
  */
 customerNotificationsRouter.delete(
   '/:id',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     const customerId = req.customer?.id
     const notificationId = req.params.id
 
@@ -103,7 +109,10 @@ customerNotificationsRouter.delete(
         message: 'Notification deleted',
       })
     } catch (error) {
-      console.error('Error deleting notification:', error)
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Error deleting notification',
+      )
       return res.status(500).json({ error: 'Failed to delete notification' })
     }
   },
@@ -115,9 +124,9 @@ customerNotificationsRouter.delete(
  */
 customerNotificationsRouter.patch(
   '/mark-all-read',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     const customerId = req.customer?.id
 
     if (!customerId) {
@@ -132,7 +141,10 @@ customerNotificationsRouter.patch(
         message: 'All notifications marked as read',
       })
     } catch (error) {
-      console.error('Error marking all notifications as read:', error)
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Error marking all notifications as read',
+      )
       return res.status(500).json({ error: 'Failed to mark all notifications as read' })
     }
   },

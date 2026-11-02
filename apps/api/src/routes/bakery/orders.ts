@@ -3,6 +3,8 @@ import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 import { z } from 'zod/v4'
 
+import { env } from '../../env'
+import { sendEmail } from '../../lib/email'
 import { logger } from '../../lib/logger'
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { requireBakeryContext } from '../../middleware/requireBakeryContext'
@@ -243,6 +245,120 @@ bakeryOrdersRouter.patch(
     try {
       const updated = await updateOrderStatus(pool, bakeryId, orderId, parsed.data.status)
       if (!updated) return res.status(404).json({ error: 'Order not found' })
+
+      // Notify customer of status change (fire-and-forget)
+      const newStatus = parsed.data.status
+      const notifyStatuses = new Set([
+        'confirmed',
+        'preparing',
+        'ready',
+        'out_for_delivery',
+        'delivered',
+        'cancelled',
+      ])
+      if (notifyStatuses.has(newStatus)) {
+        void (async () => {
+          try {
+            const order = await getOrderById(pool, bakeryId, orderId)
+            if (!order) return
+
+            let firstName = order.guest_name?.split(' ')[0] ?? order.guest_name ?? 'Customer'
+            let customerEmail = order.guest_email ?? ''
+            if (order.customer_id) {
+              const cResult = await pool.query<{ full_name: string; email: string }>(
+                'SELECT full_name, email FROM customers WHERE id = $1',
+                [order.customer_id],
+              )
+              if (cResult.rows[0]) {
+                firstName = cResult.rows[0].full_name.split(' ')[0] ?? cResult.rows[0].full_name
+                customerEmail = cResult.rows[0].email
+              }
+            }
+            if (!customerEmail) return
+
+            const bResult = await pool.query<{ display_name: string }>(
+              'SELECT display_name FROM bakeries WHERE id = $1',
+              [bakeryId],
+            )
+            const bakeryName = bResult.rows[0]?.display_name ?? 'Your Bakery'
+            const orderLink = `${env.PUBLIC_CUSTOMER_URL}/account/orders/${orderId}`
+            const totalFormatted = `UGX ${(order.total_minor / 100).toLocaleString()}`
+
+            if (newStatus === 'confirmed') {
+              void sendEmail({
+                to: customerEmail,
+                template: 'customer-order-confirmed',
+                data: {
+                  first_name: firstName,
+                  order_number: order.order_number,
+                  order_link: orderLink,
+                  bakery_name: bakeryName,
+                  eta: '30–45 minutes',
+                },
+                idempotencyKey: `customer-order-confirmed:${orderId}:${customerEmail}`,
+                bakeryId,
+              })
+            } else if (newStatus === 'preparing' || newStatus === 'ready') {
+              const statusLabel = newStatus === 'preparing' ? 'Being prepared' : 'Ready for pickup'
+              void sendEmail({
+                to: customerEmail,
+                template: 'customer-order-status',
+                data: {
+                  first_name: firstName,
+                  order_number: order.order_number,
+                  order_link: orderLink,
+                  bakery_name: bakeryName,
+                  status_label: statusLabel,
+                },
+                idempotencyKey: `customer-order-status-${newStatus}:${orderId}:${customerEmail}`,
+                bakeryId,
+              })
+            } else if (newStatus === 'out_for_delivery') {
+              void sendEmail({
+                to: customerEmail,
+                template: 'customer-order-out-for-delivery',
+                data: {
+                  first_name: firstName,
+                  order_number: order.order_number,
+                  order_link: orderLink,
+                  bakery_name: bakeryName,
+                },
+                idempotencyKey: `customer-order-out-for-delivery:${orderId}:${customerEmail}`,
+                bakeryId,
+              })
+            } else if (newStatus === 'delivered') {
+              void sendEmail({
+                to: customerEmail,
+                template: 'customer-order-delivered',
+                data: {
+                  first_name: firstName,
+                  order_number: order.order_number,
+                  order_link: orderLink,
+                  bakery_name: bakeryName,
+                  total_formatted: totalFormatted,
+                },
+                idempotencyKey: `customer-order-delivered:${orderId}:${customerEmail}`,
+                bakeryId,
+              })
+            } else if (newStatus === 'cancelled') {
+              void sendEmail({
+                to: customerEmail,
+                template: 'customer-order-cancelled',
+                data: {
+                  first_name: firstName,
+                  order_number: order.order_number,
+                  order_link: orderLink,
+                  bakery_name: bakeryName,
+                },
+                idempotencyKey: `customer-order-cancelled:${orderId}:${customerEmail}`,
+                bakeryId,
+              })
+            }
+          } catch (err) {
+            logger.error({ err }, 'Failed to send order status email')
+          }
+        })()
+      }
 
       res.json({ id: updated.id, status: updated.status, updated_at: updated.updated_at })
     } catch (error) {

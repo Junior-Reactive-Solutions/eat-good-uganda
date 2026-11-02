@@ -9,6 +9,7 @@ import { Router as createRouter } from 'express'
 import type { Router } from 'express'
 import { z } from 'zod'
 
+import { sendEmail } from '../../lib/email'
 import { logger } from '../../lib/logger'
 import { authenticateToken } from '../../middleware/authenticateToken'
 import { requireSuperAdminContext } from '../../middleware/requireSuperAdminContext'
@@ -166,7 +167,10 @@ adminBakeriesRouter.get(
         return res.status(404).json({ error: 'Bakery not found' })
       }
 
-      const bakery = bakeryRows[0]!
+      const bakery = bakeryRows[0]
+      if (!bakery) {
+        return res.status(404).json({ error: 'Bakery not found' })
+      }
 
       // Get staff for bakery
       const staff = await listBakeryUsersForBakery(pool, bakeryId)
@@ -253,7 +257,7 @@ adminBakeriesRouter.post(
         return res.status(404).json({ error: 'Bakery not found' })
       }
 
-      if (bakeryRows[0]!.status === 'active') {
+      if (bakeryRows[0]?.status === 'active') {
         return res.status(400).json({ error: 'Bakery is already active' })
       }
 
@@ -265,6 +269,28 @@ adminBakeriesRouter.post(
       })
 
       logger.info({}, 'Admin approved bakery')
+
+      // Notify bakery owner
+      const { rows: ownerRows } = await pool.query<{ email: string; full_name: string }>(
+        `SELECT email, full_name FROM bakery_users
+         WHERE bakery_id = $1 AND role = 'owner' AND deleted_at IS NULL
+         ORDER BY created_at ASC LIMIT 1`,
+        [bakeryId],
+      )
+      if (ownerRows[0]) {
+        const owner = ownerRows[0]
+        void sendEmail({
+          to: owner.email,
+          template: 'bakery-approved',
+          data: {
+            owner_name: owner.full_name.split(' ')[0] ?? owner.full_name,
+            bakery_name: updatedBakery?.display_name ?? '',
+            dashboard_link: `${process.env.PUBLIC_BAKERY_ADMIN_URL ?? 'http://localhost:5174'}/dashboard`,
+          },
+          idempotencyKey: `bakery-approved:${bakeryId}:${owner.email}`,
+          bakeryId,
+        })
+      }
 
       return res.status(200).json({
         id: updatedBakery?.id,
@@ -307,7 +333,7 @@ adminBakeriesRouter.post(
         return res.status(404).json({ error: 'Bakery not found' })
       }
 
-      if (bakeryRows[0]!.status === 'suspended') {
+      if (bakeryRows[0]?.status === 'suspended') {
         return res.status(400).json({ error: 'Bakery is already suspended' })
       }
 
@@ -357,7 +383,7 @@ adminBakeriesRouter.post(
         return res.status(404).json({ error: 'Bakery not found' })
       }
 
-      if (bakeryRows[0]!.status !== 'suspended') {
+      if (bakeryRows[0]?.status !== 'suspended') {
         return res.status(400).json({ error: 'Bakery is not suspended' })
       }
 

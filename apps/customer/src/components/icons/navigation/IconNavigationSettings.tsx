@@ -1,4 +1,4 @@
-import { Gear } from '@phosphor-icons/react'
+import { GearIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconNavigationSettings size="md" />
  * <IconNavigationSettings size="lg" color="accent" />
  */
-export const IconNavigationSettings = adaptIcon(Gear, 'settings')
+export const IconNavigationSettings = adaptIcon(GearIcon, 'settings')
 
 IconNavigationSettings.displayName = 'IconNavigationSettings'

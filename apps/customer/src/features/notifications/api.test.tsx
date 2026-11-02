@@ -27,11 +27,14 @@ const mockNotification: Notification = {
 }
 
 const createWrapper = () => {
-  const queryClient = new QueryClient()
+  // Without retry: false, a rejected query retries with backoff delays before
+  // settling into its error state, so isLoading never flips to false within
+  // a test's waitFor timeout.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
   return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 }
 
@@ -150,7 +153,9 @@ describe('useMarkAllNotificationsAsRead', () => {
       data: { message: 'All notifications marked as read' },
     })
 
-    const { result } = renderHook(() => useMarkAllNotificationsAsRead(), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useMarkAllNotificationsAsRead(), {
+      wrapper: createWrapper(),
+    })
 
     result.current.mutate()
 

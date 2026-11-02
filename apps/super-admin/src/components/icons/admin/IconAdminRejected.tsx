@@ -1,4 +1,4 @@
-import { XCircle } from '@phosphor-icons/react'
+import { XCircleIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconAdminRejected size="md" />
  * <IconAdminRejected size="lg" color="accent" />
  */
-export const IconAdminRejected = adaptIcon(XCircle, 'rejected')
+export const IconAdminRejected = adaptIcon(XCircleIcon, 'rejected')
 
 IconAdminRejected.displayName = 'IconAdminRejected'

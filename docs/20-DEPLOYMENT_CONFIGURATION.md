@@ -4,28 +4,28 @@ This document covers the production deployment setup for Eat Good Uganda across 
 
 ## Architecture Overview
 
-| Component | Host | Plan | Status |
-|-----------|------|------|--------|
-| Customer storefront (`apps/customer`) | Vercel | Hobby (free) | ✅ Configured |
-| Bakery admin (`apps/bakery-admin`) | Vercel | Hobby (free) | ✅ Configured |
-| Super admin (`apps/super-admin`) | Vercel | Hobby (free) | ✅ Configured |
-| API (`apps/api`) | Render | Free tier | ✅ Configured |
-| Postgres database | Neon | Free tier | Pre-existing |
-| Images | Cloudinary | Free tier | Pre-existing |
-| Email | Resend | Free (100/day) | Pre-existing |
-| DNS | Cloudflare | Free tier | Manual setup |
+| Component                             | Host       | Plan           | Status        |
+| ------------------------------------- | ---------- | -------------- | ------------- |
+| Customer storefront (`apps/customer`) | Vercel     | Hobby (free)   | ✅ Configured |
+| Bakery admin (`apps/bakery-admin`)    | Vercel     | Hobby (free)   | ✅ Configured |
+| Super admin (`apps/super-admin`)      | Vercel     | Hobby (free)   | ✅ Configured |
+| API (`apps/api`)                      | Render     | Free tier      | ✅ Configured |
+| Postgres database                     | Neon       | Free tier      | Pre-existing  |
+| Images                                | Cloudinary | Free tier      | Pre-existing  |
+| Email                                 | Resend     | Free (100/day) | Pre-existing  |
+| DNS                                   | Cloudflare | Free tier      | Manual setup  |
 
 ## Live URLs (current)
 
 Custom domain DNS (`eatgooduganda.com` etc.) is **not yet configured**. Until Cloudflare is set up, these are the actual production URLs — `render.yaml`, `CORS_ORIGINS`, and the `PUBLIC_*` env vars all point here:
 
-| App | Live URL |
-|-----|----------|
-| Customer | https://eat-good-uganda-customer-tau.vercel.app |
-| Bakery Admin | https://eat-good-uganda-bakery-admin.vercel.app |
-| Super Admin | https://eat-good-uganda-super-admin.vercel.app |
-| API | https://eatgooduganda-api.onrender.com |
-| API Health | https://eatgooduganda-api.onrender.com/v1/internal/health |
+| App          | Live URL                                                  |
+| ------------ | --------------------------------------------------------- |
+| Customer     | https://eat-good-uganda-customer-tau.vercel.app           |
+| Bakery Admin | https://eat-good-uganda-bakery-admin.vercel.app           |
+| Super Admin  | https://eat-good-uganda-super-admin.vercel.app            |
+| API          | https://eatgooduganda-api.onrender.com                    |
+| API Health   | https://eatgooduganda-api.onrender.com/v1/internal/health |
 
 When Cloudflare DNS is cut over to the `eatgooduganda.com` domains described below, **add** the new origins to `CORS_ORIGINS` alongside these Vercel URLs rather than replacing them, until Vercel project domains are confirmed working — then remove the `.vercel.app` origins.
 
@@ -48,7 +48,10 @@ When Cloudflare DNS is cut over to the `eatgooduganda.com` domains described bel
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
@@ -64,6 +67,7 @@ When Cloudflare DNS is cut over to the `eatgooduganda.com` domains described bel
 ```
 
 **Key features:**
+
 - `/admin` and `/admin/*` routes return 403 (prevent customer users from accessing admin)
 - All other routes serve `index.html` (SPA routing)
 - HSTS enforced (2 years, preload list)
@@ -81,24 +85,27 @@ Both `apps/bakery-admin/vercel.json` and `apps/super-admin/vercel.json` use the 
 Set these via the Vercel dashboard for each project:
 
 **Customer app:**
+
 ```
-VITE_API_URL=https://eatgood-api.onrender.com
+VITE_API_URL=https://eatgooduganda-api.onrender.com
 VITE_CLOUDINARY_CLOUD_NAME=<your-cloudinary-cloud>
 VITE_SENTRY_DSN=<optional-sentry-dsn>
 ```
 
 **Bakery Admin:**
+
 ```
-VITE_API_URL=https://eatgood-api.onrender.com
+VITE_API_URL=https://eatgooduganda-api.onrender.com
 VITE_CLOUDINARY_CLOUD_NAME=<your-cloudinary-cloud>
 VITE_POLL_INTERVAL_MS=5000
 VITE_SENTRY_DSN=<optional-sentry-dsn>
 ```
 
 **Super Admin:**
+
 ```
-VITE_API_URL=https://eatgood-api.onrender.com
-VITE_SUPERADMIN_API_URL=https://eatgood-api.onrender.com
+VITE_API_URL=https://eatgooduganda-api.onrender.com
+VITE_SUPERADMIN_API_URL=https://eatgooduganda-api.onrender.com
 VITE_SENTRY_DSN=<optional-sentry-dsn>
 ```
 
@@ -111,7 +118,7 @@ The `render.yaml` file in `apps/api/` defines the Render deployment:
 ```yaml
 services:
   - type: web
-    name: eatgood-api
+    name: eatgooduganda-api
     env: node
     region: frankfurt
     plan: free
@@ -122,6 +129,7 @@ services:
 ```
 
 **Key points:**
+
 - Health check hits `/v1/internal/health` (lightweight, no DB access)
 - Build runs dependency install + API build
 - Start command uses pnpm workspace filter
@@ -132,6 +140,7 @@ services:
 Set these via the Render dashboard under "Environment":
 
 **Required (secrets):**
+
 ```
 DATABASE_URL=postgresql://user:pass@ep-XXXX-pooler.region.aws.neon.tech/eatgood?sslmode=require
 DATABASE_URL_DIRECT=postgresql://user:pass@ep-XXXX.region.aws.neon.tech/eatgood?sslmode=require
@@ -154,6 +163,7 @@ SENTRY_DSN=<optional>
 ```
 
 **Pre-configured (in render.yaml):**
+
 ```
 NODE_ENV=production
 PORT=4000
@@ -162,13 +172,13 @@ CORS_ORIGINS=https://eatgooduganda.com,https://bakery.eatgooduganda.com,https://
 PUBLIC_CUSTOMER_URL=https://eatgooduganda.com
 PUBLIC_BAKERY_ADMIN_URL=https://bakery.eatgooduganda.com
 PUBLIC_SUPERADMIN_URL=https://admin.eatgooduganda.com
-PUBLIC_API_URL=https://eatgood-api.onrender.com
-MTN_MOMO_CALLBACK_HOST=https://eatgood-api.onrender.com
+PUBLIC_API_URL=https://eatgooduganda-api.onrender.com
+MTN_MOMO_CALLBACK_HOST=https://eatgooduganda-api.onrender.com
 MTN_MOMO_TARGET_ENV=production
 AIRTEL_TARGET_ENV=production
 AIRTEL_COUNTRY=UG
 AIRTEL_CURRENCY=UGX
-KEEPALIVE_PING_URL=https://eatgood-api.onrender.com/v1/internal/health
+KEEPALIVE_PING_URL=https://eatgooduganda-api.onrender.com/v1/internal/health
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=300
 RATE_LIMIT_AUTH_MAX=10
@@ -196,18 +206,19 @@ Use **pooled connection strings** for the API (`*-pooler`). Use **direct connect
 
 Configure the following DNS records in Cloudflare (all proxied through Cloudflare):
 
-| Subdomain | Type | Target | Purpose |
-|-----------|------|--------|---------|
-| `eatgooduganda.com` | CNAME | `cname.vercel-dns.com` | Production customer |
-| `www` | 301 redirect | `eatgooduganda.com` | Canonicalization |
-| `bakery` | CNAME | `cname.vercel-dns.com` | Production bakery admin |
-| `admin` | CNAME | `cname.vercel-dns.com` | Production super admin |
-| `api` | CNAME | `eatgood-api.onrender.com` | Production API |
-| `staging` | CNAME | `cname.vercel-dns.com` | Staging customer |
-| `staging-bakery` | CNAME | `cname.vercel-dns.com` | Staging bakery admin |
-| `staging-admin` | CNAME | `cname.vercel-dns.com` | Staging super admin |
+| Subdomain           | Type         | Target                           | Purpose                 |
+| ------------------- | ------------ | -------------------------------- | ----------------------- |
+| `eatgooduganda.com` | CNAME        | `cname.vercel-dns.com`           | Production customer     |
+| `www`               | 301 redirect | `eatgooduganda.com`              | Canonicalization        |
+| `bakery`            | CNAME        | `cname.vercel-dns.com`           | Production bakery admin |
+| `admin`             | CNAME        | `cname.vercel-dns.com`           | Production super admin  |
+| `api`               | CNAME        | `eatgooduganda-api.onrender.com` | Production API          |
+| `staging`           | CNAME        | `cname.vercel-dns.com`           | Staging customer        |
+| `staging-bakery`    | CNAME        | `cname.vercel-dns.com`           | Staging bakery admin    |
+| `staging-admin`     | CNAME        | `cname.vercel-dns.com`           | Staging super admin     |
 
 **Cloudflare settings:**
+
 - Universal SSL (free tier)
 - Minimum TLS version: 1.2
 - Always use HTTPS: on
@@ -269,10 +280,12 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 ### Backend (`apps/api`)
 
 **Database:**
+
 - `DATABASE_URL` — Neon pooled connection string
 - `DATABASE_URL_DIRECT` — Neon direct connection (migrations only)
 
 **Authentication:**
+
 - `JWT_CUSTOMER_SECRET` — min 32 chars, generated with `openssl rand -hex 32`
 - `JWT_BAKERY_SECRET` — min 32 chars
 - `JWT_SUPERADMIN_SECRET` — min 32 chars
@@ -281,10 +294,12 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 - `REFRESH_TOKEN_TTL_DAYS` — default 30, range 7-90
 
 **Encryption:**
+
 - `CREDENTIALS_ENCRYPTION_KEY` — base64-encoded 32 random bytes (AES-256-GCM)
   - Generate with: `openssl rand -base64 32`
 
 **External Services:**
+
 - `CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET`
@@ -294,6 +309,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 - `RESEND_REPLY_TO`
 
 **Payment Providers:**
+
 - `MTN_MOMO_SANDBOX_SUBSCRIPTION_KEY`
 - `MTN_MOMO_SANDBOX_USER_ID`
 - `MTN_MOMO_SANDBOX_API_KEY`
@@ -305,22 +321,26 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 - `WEBHOOK_HMAC_SECRET` — for webhook signature verification
 
 **URLs:**
+
 - `PUBLIC_CUSTOMER_URL` — customer app base URL
 - `PUBLIC_BAKERY_ADMIN_URL` — bakery admin base URL
 - `PUBLIC_SUPERADMIN_URL` — super admin base URL
 - `PUBLIC_API_URL` — API base URL (for clients)
 
 **Deployment:**
+
 - `NODE_ENV` — `development`, `staging`, or `production`
 - `PORT` — server port (default 4000)
 - `LOG_LEVEL` — `debug`, `info`, `warn`, `error`
 - `CORS_ORIGINS` — comma-separated list of allowed origins
 
 **Security:**
+
 - `SUPERADMIN_IP_ALLOWLIST` — comma-separated CIDR blocks or IPs (empty = disabled)
 - `SWAGGER_BASIC_AUTH` — `username:password` format
 
 **Observability:**
+
 - `SENTRY_DSN` — Sentry error tracking DSN
 
 ### Frontend (`apps/customer`, `apps/bakery-admin`, `apps/super-admin`)
@@ -328,17 +348,21 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 All frontend variables must be prefixed with `VITE_` to be exposed to the browser.
 
 **API:**
+
 - `VITE_API_URL` — backend API base URL
 - `VITE_SUPERADMIN_API_URL` — (super-admin only)
 
 **External Services:**
+
 - `VITE_CLOUDINARY_CLOUD_NAME`
 - `VITE_GOOGLE_MAPS_KEY` — (optional, if using Google Maps)
 
 **Observability:**
+
 - `VITE_SENTRY_DSN` — Sentry DSN
 
 **Polling (bakery-admin only):**
+
 - `VITE_POLL_INTERVAL_MS` — order polling interval (default 5000)
 
 ## Deployment Workflow
@@ -388,7 +412,7 @@ Plan upgrades when:
 - [ ] Vercel environment variables set per project
 - [ ] Render service created with `render.yaml`
 - [ ] Render environment variables set in dashboard
-- [ ] Neon branches configured (main, staging, dev-*)
+- [ ] Neon branches configured (main, staging, dev-\*)
 - [ ] Database connection strings working
 - [ ] DNS records configured in Cloudflare
 - [ ] SSL certificate active (Cloudflare Universal SSL)
@@ -397,7 +421,7 @@ Plan upgrades when:
 - [ ] Customer app accessible at `eatgooduganda.com`
 - [ ] Bakery app accessible at `bakery.eatgooduganda.com`
 - [ ] Admin app accessible at `admin.eatgooduganda.com`
-- [ ] API accessible at `api.eatgooduganda.com` or `eatgood-api.onrender.com`
+- [ ] API accessible at `api.eatgooduganda.com` or `eatgooduganda-api.onrender.com`
 - [ ] HTTPS enforced (check Cloudflare settings)
 - [ ] Security headers present (check Vercel headers configuration)
 - [ ] Keepalive pings succeed every 14 minutes

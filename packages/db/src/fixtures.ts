@@ -5,33 +5,34 @@
  */
 
 import { randomUUID } from 'node:crypto'
+
 import { query, pool, type Database } from './client'
 import { sql } from './sql'
 
 let seedCounter = 0
 
-/**
- * Bakery test fixture
- * Creates a fresh bakery with deterministic data
- */
 export async function seedBakery(
   db: Database = pool,
-  overrides: Partial<any> = {},
-): Promise<any> {
+  overrides: Record<string, unknown> = {},
+): Promise<unknown> {
   seedCounter++
 
-  const id = overrides.id ?? randomUUID()
-  const slug = overrides.slug ?? `test-bakery-${seedCounter}`
-  const legalName = overrides.legal_name ?? `Test Bakery ${seedCounter}`
-  const displayName = overrides.display_name ?? `Test Bakery ${seedCounter}`
-  const phone = overrides.phone ?? '+256700000000'
-  const email = overrides.email ?? `bakery${seedCounter}@test.com`
-  const addressLine1 = overrides.address_line1 ?? `${seedCounter} Test Street`
-  const city = overrides.city ?? 'Kampala'
-  const latitude = overrides.latitude ?? 0.3476 + seedCounter * 0.001
-  const longitude = overrides.longitude ?? 32.5825 + seedCounter * 0.001
-  const primaryColor = overrides.primary_color ?? '#8B4513'
-  const status = overrides.status ?? 'active'
+  const id = (overrides['id'] as string | undefined) ?? randomUUID()
+  const slug = (overrides['slug'] as string | undefined) ?? `test-bakery-${String(seedCounter)}`
+  const legalName =
+    (overrides['legal_name'] as string | undefined) ?? `Test Bakery ${String(seedCounter)}`
+  const displayName =
+    (overrides['display_name'] as string | undefined) ?? `Test Bakery ${String(seedCounter)}`
+  const phone = (overrides['phone'] as string | undefined) ?? '+256700000000'
+  const email =
+    (overrides['email'] as string | undefined) ?? `bakery${String(seedCounter)}@test.com`
+  const addressLine1 =
+    (overrides['address_line1'] as string | undefined) ?? `${String(seedCounter)} Test Street`
+  const city = (overrides['city'] as string | undefined) ?? 'Kampala'
+  const latitude = (overrides['latitude'] as number | undefined) ?? 0.3476 + seedCounter * 0.001
+  const longitude = (overrides['longitude'] as number | undefined) ?? 32.5825 + seedCounter * 0.001
+  const primaryColor = (overrides['primary_color'] as string | undefined) ?? '#8B4513'
+  const status = (overrides['status'] as string | undefined) ?? 'active'
 
   const result = await query(
     db,
@@ -49,22 +50,20 @@ export async function seedBakery(
   return result.rows[0]
 }
 
-/**
- * Bakery user (staff) test fixture
- * Creates a bakery staff member with deterministic data
- */
 export async function seedBakeryUser(
   db: Database = pool,
   bakeryId: string,
-  overrides: Partial<any> = {},
-): Promise<any> {
+  overrides: Record<string, unknown> = {},
+): Promise<unknown> {
   seedCounter++
 
-  const id = overrides.id ?? randomUUID()
-  const email = overrides.email ?? `staff${seedCounter}@test.com`
-  const fullName = overrides.full_name ?? `Test Staff ${seedCounter}`
-  const passwordHash = overrides.password_hash ?? 'hashed-password-for-testing'
-  const role = overrides.role ?? 'manager'
+  const id = (overrides['id'] as string | undefined) ?? randomUUID()
+  const email = (overrides['email'] as string | undefined) ?? `staff${String(seedCounter)}@test.com`
+  const fullName =
+    (overrides['full_name'] as string | undefined) ?? `Test Staff ${String(seedCounter)}`
+  const passwordHash =
+    (overrides['password_hash'] as string | undefined) ?? 'hashed-password-for-testing'
+  const role = (overrides['role'] as string | undefined) ?? 'manager'
 
   const result = await query(
     db,
@@ -78,20 +77,19 @@ export async function seedBakeryUser(
   return result.rows[0]
 }
 
-/**
- * Customer test fixture
- * Creates a customer account with deterministic data
- */
 export async function seedCustomer(
   db: Database = pool,
-  overrides: Partial<any> = {},
-): Promise<any> {
+  overrides: Record<string, unknown> = {},
+): Promise<unknown> {
   seedCounter++
 
-  const id = overrides.id ?? randomUUID()
-  const email = overrides.email ?? `customer${seedCounter}@test.com`
-  const fullName = overrides.full_name ?? `Test Customer ${seedCounter}`
-  const passwordHash = overrides.password_hash ?? 'hashed-password-for-testing'
+  const id = (overrides['id'] as string | undefined) ?? randomUUID()
+  const email =
+    (overrides['email'] as string | undefined) ?? `customer${String(seedCounter)}@test.com`
+  const fullName =
+    (overrides['full_name'] as string | undefined) ?? `Test Customer ${String(seedCounter)}`
+  const passwordHash =
+    (overrides['password_hash'] as string | undefined) ?? 'hashed-password-for-testing'
 
   const result = await query(
     db,
@@ -105,22 +103,18 @@ export async function seedCustomer(
   return result.rows[0]
 }
 
-/**
- * Product test fixture
- * Creates a product/menu item with deterministic data
- */
 export async function seedProduct(
   db: Database = pool,
   bakeryId: string,
-  overrides: Partial<any> = {},
-): Promise<any> {
+  overrides: Record<string, unknown> = {},
+): Promise<unknown> {
   seedCounter++
 
-  const id = overrides.id ?? randomUUID()
-  const slug = overrides.slug ?? `product-${seedCounter}`
-  const name = overrides.name ?? `Test Product ${seedCounter}`
-  const basePriceMinor = overrides.base_price_minor ?? 50000 // UGX 50,000
-  const isPublished = overrides.is_published ?? true
+  const id = (overrides['id'] as string | undefined) ?? randomUUID()
+  const slug = (overrides['slug'] as string | undefined) ?? `product-${String(seedCounter)}`
+  const name = (overrides['name'] as string | undefined) ?? `Test Product ${String(seedCounter)}`
+  const basePriceMinor = (overrides['base_price_minor'] as number | undefined) ?? 50000
+  const isPublished = (overrides['is_published'] as boolean | undefined) ?? true
 
   const result = await query(
     db,
@@ -136,25 +130,21 @@ export async function seedProduct(
   return result.rows[0]
 }
 
-/**
- * Order test fixture
- * Creates an order with deterministic data
- * Requires bakery_id in overrides
- */
 export async function seedOrder(
   db: Database = pool,
-  overrides: Partial<any> & { bakery_id: string },
-): Promise<any> {
+  overrides: Record<string, unknown> & { bakery_id: string },
+): Promise<unknown> {
   seedCounter++
 
-  const id = overrides.id ?? randomUUID()
-  const bakeryId = overrides.bakery_id
-  const customerId = overrides.customer_id ?? randomUUID()
-  const orderNumber = overrides.order_number ?? `EGU-TEST-${seedCounter}`
-  const status = overrides.status ?? 'pending'
-  const subtotalMinor = overrides.subtotal_minor ?? 50000 // UGX 50,000
-  const taxMinor = overrides.tax_minor ?? 0
-  const deliveryFeeMinor = overrides.delivery_fee_minor ?? 0
+  const id = (overrides['id'] as string | undefined) ?? randomUUID()
+  const bakeryId = overrides['bakery_id']
+  const customerId = (overrides['customer_id'] as string | undefined) ?? randomUUID()
+  const orderNumber =
+    (overrides['order_number'] as string | undefined) ?? `EGU-TEST-${String(seedCounter)}`
+  const status = (overrides['status'] as string | undefined) ?? 'pending'
+  const subtotalMinor = (overrides['subtotal_minor'] as number | undefined) ?? 50000
+  const taxMinor = (overrides['tax_minor'] as number | undefined) ?? 0
+  const deliveryFeeMinor = (overrides['delivery_fee_minor'] as number | undefined) ?? 0
   const totalMinor = subtotalMinor + taxMinor + deliveryFeeMinor
 
   const result = await query(
@@ -175,20 +165,18 @@ export async function seedOrder(
   return result.rows[0]
 }
 
-/**
- * Super admin test fixture
- * Creates a platform operator account with deterministic data
- */
 export async function seedSuperAdmin(
   db: Database = pool,
-  overrides: Partial<any> = {},
-): Promise<any> {
+  overrides: Record<string, unknown> = {},
+): Promise<unknown> {
   seedCounter++
 
-  const id = overrides.id ?? randomUUID()
-  const email = overrides.email ?? `admin${seedCounter}@test.com`
-  const fullName = overrides.full_name ?? `Test Admin ${seedCounter}`
-  const passwordHash = overrides.password_hash ?? 'hashed-password-for-testing'
+  const id = (overrides['id'] as string | undefined) ?? randomUUID()
+  const email = (overrides['email'] as string | undefined) ?? `admin${String(seedCounter)}@test.com`
+  const fullName =
+    (overrides['full_name'] as string | undefined) ?? `Test Admin ${String(seedCounter)}`
+  const passwordHash =
+    (overrides['password_hash'] as string | undefined) ?? 'hashed-password-for-testing'
 
   const result = await query(
     db,
@@ -202,23 +190,10 @@ export async function seedSuperAdmin(
   return result.rows[0]
 }
 
-/**
- * Reset the seed counter (useful for test isolation)
- */
 export function resetSeedCounter(): void {
   seedCounter = 0
 }
 
-/**
- * Get current seed counter value
- */
 export function getSeedCounter(): number {
   return seedCounter
 }
-
-// Legacy type exports for backward compatibility
-export type BakeryRow = { id: string; slug: string }
-export type BakeryUserRow = { id: string; bakery_id: string; email: string }
-export type CustomerRow = { id: string; email: string }
-export type ProductFixtureRow = { id: string; bakery_id: string; name: string }
-export type OrderRow = { id: string; bakery_id: string; order_number: string }

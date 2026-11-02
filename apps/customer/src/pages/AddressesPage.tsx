@@ -1,9 +1,10 @@
 import type { CustomerAddress } from '@eatgood/shared'
 import { useState } from 'react'
 
-import { AddressForm } from '../components/AddressForm'
+import { AddressForm, type AddressFormData } from '../components/AddressForm'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
+import { EmptyState } from '../components/EmptyState'
 import { IconNavigationCart, IconInteractionEdit, IconInteractionDelete } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageHeader } from '../components/PageHeader'
@@ -13,6 +14,8 @@ import {
   useCreateAddress,
   useUpdateAddress,
   useDeleteAddress,
+  type CreateAddressInput,
+  type UpdateAddressInput,
 } from '../features/profile/api'
 
 export default function AddressesPage() {
@@ -25,16 +28,23 @@ export default function AddressesPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
-  const handleCreateAddress = (data: any) => {
-    createAddress.mutate(data, {
+  const toAddressInput = (data: AddressFormData) => {
+    const entries = Object.entries(data).filter(
+      ([, value]) => value !== undefined && value !== null,
+    )
+    return Object.fromEntries(entries) as unknown as CreateAddressInput & UpdateAddressInput
+  }
+
+  const handleCreateAddress = (data: AddressFormData) => {
+    createAddress.mutate(toAddressInput(data), {
       onSuccess: () => {
         setIsAdding(false)
       },
     })
   }
 
-  const handleUpdateAddress = (addressId: string, data: any) => {
-    updateAddress.mutate(data, {
+  const handleUpdateAddress = (addressId: string, data: AddressFormData) => {
+    updateAddress.mutate(toAddressInput(data), {
       onSuccess: () => {
         setEditingId(null)
       },
@@ -60,7 +70,12 @@ export default function AddressesPage() {
           subheading="Manage your delivery and billing addresses"
         />
         {!isAdding && !editingId && (
-          <Button onClick={() => { setIsAdding(true); }} className="gap-2">
+          <Button
+            onClick={() => {
+              setIsAdding(true)
+            }}
+            className="gap-2"
+          >
             <IconNavigationCart size="sm" color="default" alt="" />
             Add Address
           </Button>
@@ -117,11 +132,12 @@ export default function AddressesPage() {
               {(createAddress.isError || updateAddress.isError) && (
                 <div className="mt-3 rounded-lg border border-platform-error bg-red-50 p-3">
                   <p className="text-xs text-platform-error">
-                    {createAddress.error || updateAddress.error
-                      ? (createAddress.error || updateAddress.error) instanceof Error
-                        ? (createAddress.error || updateAddress.error)!.message
+                    {(() => {
+                      const saveError = createAddress.error || updateAddress.error
+                      return saveError instanceof Error
+                        ? saveError.message
                         : 'Failed to save address'
-                      : 'Failed to save address'}
+                    })()}
                   </p>
                 </div>
               )}
@@ -166,7 +182,9 @@ export default function AddressesPage() {
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => { setEditingId(address.id); }}
+                        onClick={() => {
+                          setEditingId(address.id)
+                        }}
                         disabled={createAddress.isPending || updateAddress.isPending}
                       >
                         <IconInteractionEdit size="sm" color="default" alt="" />
@@ -174,7 +192,9 @@ export default function AddressesPage() {
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => { setDeleteConfirm(address.id); }}
+                        onClick={() => {
+                          setDeleteConfirm(address.id)
+                        }}
                         disabled={deleteAddress.isPending}
                         className="text-platform-error"
                       >
@@ -186,19 +206,24 @@ export default function AddressesPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed border-platform-border bg-platform-surface p-8 text-center">
-              <p className="text-sm text-platform-fg-muted mb-4">No addresses saved yet.</p>
-              {!isAdding && !editingId && (
-                <Button
-                  onClick={() => { setIsAdding(true); }}
-                  variant="secondary"
-                  className="gap-2 inline-flex"
-                >
-                  <IconNavigationCart size="sm" color="default" alt="" />
-                  Add Your First Address
-                </Button>
-              )}
-            </div>
+            <EmptyState
+              heading="No addresses saved yet."
+              action={
+                !isAdding &&
+                !editingId && (
+                  <Button
+                    onClick={() => {
+                      setIsAdding(true)
+                    }}
+                    variant="secondary"
+                    className="gap-2 inline-flex"
+                  >
+                    <IconNavigationCart size="sm" color="default" alt="" />
+                    Add Your First Address
+                  </Button>
+                )
+              }
+            />
           )}
         </>
       )}
@@ -214,7 +239,9 @@ export default function AddressesPage() {
             <div className="flex gap-3">
               <Button
                 variant="secondary"
-                onClick={() => { setDeleteConfirm(null); }}
+                onClick={() => {
+                  setDeleteConfirm(null)
+                }}
                 disabled={deleteAddress.isPending}
                 className="flex-1"
               >
@@ -222,7 +249,9 @@ export default function AddressesPage() {
               </Button>
               <Button
                 variant="danger"
-                onClick={() => { handleDeleteConfirm(deleteConfirm); }}
+                onClick={() => {
+                  handleDeleteConfirm(deleteConfirm)
+                }}
                 disabled={deleteAddress.isPending}
                 className="flex-1"
               >

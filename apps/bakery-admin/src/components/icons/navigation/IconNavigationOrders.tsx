@@ -1,4 +1,4 @@
-import { Receipt } from '@phosphor-icons/react'
+import { ReceiptIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconNavigationOrders size="md" />
  * <IconNavigationOrders size="lg" color="accent" />
  */
-export const IconNavigationOrders = adaptIcon(Receipt, 'orders')
+export const IconNavigationOrders = adaptIcon(ReceiptIcon, 'orders')
 
 IconNavigationOrders.displayName = 'IconNavigationOrders'

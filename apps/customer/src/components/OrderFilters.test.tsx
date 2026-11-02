@@ -11,8 +11,9 @@ describe('OrderFilters', () => {
 
     expect(screen.getByPlaceholderText('Search by order number...')).toBeInTheDocument()
     expect(screen.getByDisplayValue('All statuses')).toBeInTheDocument()
-    expect(screen.getAllByPlaceholderText(/date/i)[0]).toBeInTheDocument()
-    expect(screen.getAllByPlaceholderText(/date/i)[1]).toBeInTheDocument()
+    // Date inputs have no placeholder text; they're identified by their labels.
+    expect(screen.getByLabelText('From Date')).toBeInTheDocument()
+    expect(screen.getByLabelText('To Date')).toBeInTheDocument()
   })
 
   it('calls onFiltersChange when search input changes', async () => {
@@ -40,7 +41,9 @@ describe('OrderFilters', () => {
     render(<OrderFilters onFiltersChange={onFilterChange} />)
 
     const dateInputs = screen.getAllByDisplayValue('')
-    const fromDateInput = dateInputs.find(el => el instanceof HTMLInputElement && el.type === 'date') as HTMLInputElement | undefined
+    const fromDateInput = dateInputs.find(
+      (el) => el instanceof HTMLInputElement && el.type === 'date',
+    ) as HTMLInputElement | undefined
 
     if (fromDateInput) {
       await userEvent.type(fromDateInput, '2026-05-01')

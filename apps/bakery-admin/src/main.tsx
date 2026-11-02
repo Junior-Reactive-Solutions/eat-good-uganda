@@ -1,6 +1,6 @@
+import * as Sentry from '@sentry/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import * as Sentry from '@sentry/react'
 
 import { App } from './App'
 import './index.css'
@@ -8,7 +8,7 @@ import './index.css'
 // Initialize Sentry for error tracking (if DSN is provided)
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN,
+    dsn: import.meta.env.VITE_SENTRY_DSN as string,
     environment: import.meta.env.MODE,
     tracesSampleRate: 0.1, // 10% of transactions for performance monitoring
     integrations: [Sentry.replayIntegration()],

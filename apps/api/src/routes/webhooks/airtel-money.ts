@@ -1,4 +1,3 @@
-import { pool, updatePaymentStatus, getPaymentByProviderRef } from '@eatgood/db'
 import { Router } from 'express'
 import type { Request, Response } from 'express'
 
@@ -19,7 +18,7 @@ const router = Router()
  * We update the payment record in our database with the new status
  * and the Airtel transaction ID (if successful).
  */
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', (req: Request, res: Response) => {
   try {
     const body = req.body as Record<string, unknown>
 
@@ -27,13 +26,9 @@ router.post('/', async (req: Request, res: Response) => {
     const referenceId = body.reference as string | undefined
     const status = body.status as string | undefined
     const transactionId = body.transaction_id as string | undefined
-    const reason = body.reason as string | undefined
 
     if (!referenceId || !status) {
-      logger.warn(
-        { webhook_body: body },
-        'Airtel webhook missing required fields',
-      )
+      logger.warn({ webhook_body: body }, 'Airtel webhook missing required fields')
       return res.status(400).json({ error: 'Missing required fields' })
     }
 

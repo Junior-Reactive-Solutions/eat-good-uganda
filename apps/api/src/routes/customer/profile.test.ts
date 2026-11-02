@@ -1,9 +1,9 @@
 import * as profileDb from '@eatgood/db'
+import type { NextFunction, Request, Response } from 'express'
 import request from 'supertest'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import { app } from '../../app'
-
 
 vi.mock('@eatgood/db', () => ({
   pool: {},
@@ -12,19 +12,31 @@ vi.mock('@eatgood/db', () => ({
 }))
 
 vi.mock('../../middleware/authenticateToken', () => ({
-  authenticateToken: () => (_req: any, _res: any, next: any) => {
-    _req.auth = { kind: 'customer', sub: 'customer-123' }
+  authenticateToken: () => (req: Request, _res: Response, next: NextFunction) => {
+    req.auth = { kind: 'customer', sub: 'customer-123', iat: 0, exp: 0 }
     next()
   },
 }))
 
 vi.mock('../../middleware/requireCustomerContext', () => ({
-  requireCustomerContext: (_req: any, _res: any, next: any) => {
-    _req.customer = { id: 'customer-123' }
-    _req.db = {}
+  requireCustomerContext: (req: Request, _res: Response, next: NextFunction) => {
+    req.customer = { id: 'customer-123', bakery_id: 'bakery-1' }
+    req.db = {} as Request['db']
     next()
   },
 }))
+
+// The global CSRF middleware (app.ts) requires a matching cookie + header on
+// every state-changing method. This helper attaches a valid pair so PATCH
+// requests reach the route handler instead of being rejected with 403.
+const CSRF_TOKEN = 'test-csrf-token'
+
+function patchWithCsrf(path: string) {
+  return request(app)
+    .patch(path)
+    .set('Cookie', [`eg_csrf=${CSRF_TOKEN}`])
+    .set('x-csrf-token', CSRF_TOKEN)
+}
 
 describe('Customer Profile API', () => {
   const customerId = 'customer-123'
@@ -54,10 +66,7 @@ describe('Customer Profile API', () => {
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual(mockProfile)
-      expect(profileDb.getCustomerProfile).toHaveBeenCalledWith(
-        expect.anything(),
-        customerId,
-      )
+      expect(profileDb.getCustomerProfile).toHaveBeenCalledWith(expect.anything(), customerId)
     })
 
     it('returns 404 when profile not found', async () => {
@@ -100,7 +109,7 @@ describe('Customer Profile API', () => {
 
       vi.mocked(profileDb.updateCustomerProfile).mockResolvedValue(mockUpdatedProfile)
 
-      const response = await request(app).patch('/v1/customer/profile').send(updateData)
+      const response = await patchWithCsrf('/v1/customer/profile').send(updateData)
 
       expect(response.status).toBe(200)
       expect(response.body.first_name).toBe('Jane')
@@ -113,7 +122,7 @@ describe('Customer Profile API', () => {
     })
 
     it('validates date_of_birth format', async () => {
-      const response = await request(app).patch('/v1/customer/profile').send({
+      const response = await patchWithCsrf('/v1/customer/profile').send({
         date_of_birth: 'invalid-date',
       })
 
@@ -122,7 +131,7 @@ describe('Customer Profile API', () => {
     })
 
     it('validates avatar_url is a valid URL', async () => {
-      const response = await request(app).patch('/v1/customer/profile').send({
+      const response = await patchWithCsrf('/v1/customer/profile').send({
         avatar_url: 'not-a-url',
       })
 
@@ -146,7 +155,7 @@ describe('Customer Profile API', () => {
 
       vi.mocked(profileDb.updateCustomerProfile).mockResolvedValue(mockProfile)
 
-      const response = await request(app).patch('/v1/customer/profile').send({
+      const response = await patchWithCsrf('/v1/customer/profile').send({
         avatar_url: null,
       })
 
@@ -155,7 +164,7 @@ describe('Customer Profile API', () => {
     })
 
     it('validates field lengths', async () => {
-      const response = await request(app).patch('/v1/customer/profile').send({
+      const response = await patchWithCsrf('/v1/customer/profile').send({
         first_name: 'a'.repeat(256),
       })
 
@@ -165,7 +174,7 @@ describe('Customer Profile API', () => {
     it('returns 404 when profile not found', async () => {
       vi.mocked(profileDb.updateCustomerProfile).mockResolvedValue(null)
 
-      const response = await request(app).patch('/v1/customer/profile').send({
+      const response = await patchWithCsrf('/v1/customer/profile').send({
         first_name: 'Jane',
       })
 
@@ -174,11 +183,9 @@ describe('Customer Profile API', () => {
     })
 
     it('handles database errors gracefully', async () => {
-      vi.mocked(profileDb.updateCustomerProfile).mockRejectedValue(
-        new Error('Database error'),
-      )
+      vi.mocked(profileDb.updateCustomerProfile).mockRejectedValue(new Error('Database error'))
 
-      const response = await request(app).patch('/v1/customer/profile').send({
+      const response = await patchWithCsrf('/v1/customer/profile').send({
         first_name: 'Jane',
       })
 
@@ -202,16 +209,14 @@ describe('Customer Profile API', () => {
 
       vi.mocked(profileDb.updateCustomerProfile).mockResolvedValue(mockProfile)
 
-      const response = await request(app).patch('/v1/customer/profile').send({
+      const response = await patchWithCsrf('/v1/customer/profile').send({
         first_name: 'Updated',
       })
 
       expect(response.status).toBe(200)
-      expect(profileDb.updateCustomerProfile).toHaveBeenCalledWith(
-        expect.anything(),
-        customerId,
-        { first_name: 'Updated' },
-      )
+      expect(profileDb.updateCustomerProfile).toHaveBeenCalledWith(expect.anything(), customerId, {
+        first_name: 'Updated',
+      })
     })
   })
 })

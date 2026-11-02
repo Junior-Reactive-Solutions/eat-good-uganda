@@ -1,6 +1,6 @@
 import { checkoutFormSchema } from '@eatgood/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { render, screen, act } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { FormProvider, useForm } from 'react-hook-form'
 import { describe, it, expect } from 'vitest'

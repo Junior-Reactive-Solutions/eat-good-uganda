@@ -1,11 +1,12 @@
-import { pool, createOrder, getOrderById } from '@eatgood/db'
-import { orderCreationSchema, type OrderCreation } from '@eatgood/shared'
+import { pool, createOrder } from '@eatgood/db'
+import { orderCreationSchema } from '@eatgood/shared'
 import { Router } from 'express'
 import type { Request, Response } from 'express'
 
+import { sendEmail } from '../../lib/email'
+import { logger } from '../../lib/logger'
 import { authRateLimit } from '../../middleware/rateLimit'
-import { sendOrderConfirmationEmail } from '../../services/email/orders'
-import { generateOrderNumber, generateClaimToken, hashClaimToken } from '../../services/orders'
+import { generateOrderNumber, generateClaimToken } from '../../services/orders'
 
 const router = Router()
 
@@ -30,7 +31,7 @@ router.post('/', authRateLimit, async (req: Request, res: Response) => {
     }
 
     // Ensure items are not empty
-    if (!body.items || body.items.length === 0) {
+    if (body.items.length === 0) {
       return res.status(400).json({ error: 'Cart cannot be empty' })
     }
 
@@ -41,12 +42,12 @@ router.post('/', authRateLimit, async (req: Request, res: Response) => {
 
     // Generate claim token for guest to verify order ownership
     const claimToken = generateClaimToken()
-    const claimTokenHash = hashClaimToken(claimToken)
 
     // Prepare fulfillment data
     const fulfilmentData = {
       mode: body.fulfillment.mode,
-      delivery_address: body.fulfillment.mode === 'delivery' ? body.fulfillment.deliveryAddress : null,
+      delivery_address:
+        body.fulfillment.mode === 'delivery' ? body.fulfillment.deliveryAddress : null,
       scheduled_for: body.fulfillment.scheduledFor || null,
     }
 
@@ -59,14 +60,20 @@ router.post('/', authRateLimit, async (req: Request, res: Response) => {
       order_number: orderNumber,
       fulfilment_mode: body.fulfillment.mode,
       scheduled_for: fulfilmentData.scheduled_for ? new Date(fulfilmentData.scheduled_for) : null,
-      delivery_address: fulfilmentData.delivery_address ? {
-        line1: fulfilmentData.delivery_address.line1,
-        ...(fulfilmentData.delivery_address.line2 && { line2: fulfilmentData.delivery_address.line2 }),
-        city: fulfilmentData.delivery_address.city,
-        lat: fulfilmentData.delivery_address.lat || 0,
-        lng: fulfilmentData.delivery_address.lng || 0,
-        ...(fulfilmentData.delivery_address.notes && { notes: fulfilmentData.delivery_address.notes }),
-      } : null,
+      delivery_address: fulfilmentData.delivery_address
+        ? {
+            line1: fulfilmentData.delivery_address.line1,
+            ...(fulfilmentData.delivery_address.line2 && {
+              line2: fulfilmentData.delivery_address.line2,
+            }),
+            city: fulfilmentData.delivery_address.city,
+            lat: fulfilmentData.delivery_address.lat || 0,
+            lng: fulfilmentData.delivery_address.lng || 0,
+            ...(fulfilmentData.delivery_address.notes && {
+              notes: fulfilmentData.delivery_address.notes,
+            }),
+          }
+        : null,
       subtotal_minor: subtotalMinor,
       delivery_fee_minor: 0,
       total_minor: subtotalMinor,
@@ -91,23 +98,19 @@ router.post('/', authRateLimit, async (req: Request, res: Response) => {
     const publicCustomerUrl = process.env.PUBLIC_CUSTOMER_URL || 'https://app.eatgood.ug'
     const orderLink = `${publicCustomerUrl}/account/orders/${order.id}`
 
-    try {
-      await sendOrderConfirmationEmail({
-        to: body.customer.email,
-        orderNumber: order.order_number,
-        orderId: order.id,
-        claimToken,
-        orderLink,
-        total: order.total_minor,
-      })
-    } catch (emailError) {
-      // Email sending failed - fail the entire order creation
-      console.error('Email sending failed for order:', order.id, emailError)
-      // Note: In a real system, you might want to delete the order here
-      return res.status(500).json({
-        error: 'Failed to send confirmation email. Please try again.',
-      })
-    }
+    void sendEmail({
+      to: body.customer.email,
+      template: 'customer-order-placed',
+      data: {
+        first_name: body.customer.fullName.split(' ')[0] ?? body.customer.fullName,
+        order_number: order.order_number,
+        order_link: `${orderLink}?claim=${claimToken}`,
+        total: (order.total_minor / 100).toFixed(0),
+        currency: 'UGX',
+      },
+      idempotencyKey: `customer-order-placed:${order.id}:${body.customer.email}`,
+      bakeryId: body.bakeryId,
+    })
 
     return res.status(201).json({
       id: order.id,
@@ -127,7 +130,10 @@ router.post('/', authRateLimit, async (req: Request, res: Response) => {
         return res.status(422).json({ error: 'Invalid product or bakery' })
       }
     }
-    console.error('Error creating guest order:', error)
+    logger.error(
+      { err: error instanceof Error ? error.message : String(error) },
+      'Error creating guest order',
+    )
     return res.status(500).json({ error: 'Failed to create order' })
   }
 })
@@ -139,30 +145,18 @@ router.post('/', authRateLimit, async (req: Request, res: Response) => {
  * Requires claim token to verify ownership (guest cannot access order without token)
  * Query parameter: claim=<token>
  */
-router.get('/:id', async (req: Request, res: Response) => {
-  const orderId = req.params.id
+router.get('/:id', (req: Request, res: Response) => {
   const claimToken = req.query.claim as string | undefined
 
   if (!claimToken) {
     return res.status(401).json({ error: 'Claim token required to access guest order' })
   }
 
-  try {
-    // TODO: Implement proper guest order lookup
-    // For MVP Phase 2, we're skipping the claim token storage.
-    // In Phase 3, we should either:
-    // 1. Add claim_token_hash column to orders table
-    // 2. Create separate claim_tokens table
-    // For now, the frontend stores the claim token and includes it in URL
-
-    // Placeholder: return error indicating this endpoint is not fully implemented for guest access
-    return res.status(501).json({
-      error: 'Guest order lookup not yet implemented. Use authenticated endpoints or check email confirmation.'
-    })
-  } catch (error) {
-    console.error('Error fetching guest order:', error)
-    return res.status(500).json({ error: 'Failed to fetch order' })
-  }
+  // TODO: Implement proper guest order lookup (Phase 3 — add claim_token_hash to orders)
+  return res.status(501).json({
+    error:
+      'Guest order lookup not yet implemented. Use authenticated endpoints or check email confirmation.',
+  })
 })
 
 export default router

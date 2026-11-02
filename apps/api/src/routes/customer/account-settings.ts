@@ -37,7 +37,7 @@ const updateAccountSettingsSchema = z
  */
 customerAccountSettingsRouter.get(
   '/',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
   async (req: Request, res: Response) => {
     const customerId = req.customer?.id
@@ -112,9 +112,9 @@ customerAccountSettingsRouter.get(
  */
 customerAccountSettingsRouter.patch(
   '/',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     const customerId = req.customer?.id
 
     if (!customerId) {
@@ -141,17 +141,13 @@ customerAccountSettingsRouter.patch(
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid request body',
-           
+
           details: err.issues,
         })
       }
 
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to update account settings'
-      logger.error(
-        { error: errorMessage },
-        'Error updating account settings',
-      )
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update account settings'
+      logger.error({ error: errorMessage }, 'Error updating account settings')
       return res.status(500).json({ error: 'Failed to update account settings' })
     }
   },
@@ -170,9 +166,9 @@ const changePasswordSchema = z
 
 customerAccountSettingsRouter.post(
   '/change-password',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     const customerId = req.customer?.id
 
     if (!customerId) {
@@ -180,7 +176,7 @@ customerAccountSettingsRouter.post(
     }
 
     try {
-      const body = changePasswordSchema.parse(req.body)
+      changePasswordSchema.parse(req.body)
 
       // TODO: Implement password change with verification
       // For MVP, just return success
@@ -192,7 +188,7 @@ customerAccountSettingsRouter.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid request body',
-          details: (error as any).errors.map((e: any) => e.message),
+          details: error.issues.map((e) => e.message),
         })
       }
 
@@ -211,9 +207,9 @@ customerAccountSettingsRouter.post(
  */
 customerAccountSettingsRouter.post(
   '/verify-email',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     const customerId = req.customer?.id
 
     if (!customerId) {
@@ -243,9 +239,9 @@ customerAccountSettingsRouter.post(
  */
 customerAccountSettingsRouter.post(
   '/verify-phone',
-  authenticateToken,
+  authenticateToken('customer'),
   requireCustomerContext,
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     const customerId = req.customer?.id
 
     if (!customerId) {

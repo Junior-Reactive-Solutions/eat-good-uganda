@@ -5,10 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
 import { CustomerInfoCard } from '../components/CustomerInfoCard'
+import { IconNavigationMenu } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { OrderItemsTable } from '../components/OrderItemsTable'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
-import { IconNavigationMenu } from '../components/icons'
 import { useOrderDetail, useUpdateOrderStatus } from '../features/orders/api'
 
 function formatPrice(minor: number): string {

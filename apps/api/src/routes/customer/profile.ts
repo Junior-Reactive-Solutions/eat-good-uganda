@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-deprecated */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-deprecated, @typescript-eslint/no-unsafe-call */
 import {
   getCustomerProfile,
   updateCustomerProfile,
@@ -45,7 +45,7 @@ customerProfileRouter.get(
       res.json(profile)
     } catch (error) {
       const userId = (req as any).customer?.id as string | undefined
-       
+
       ;(logger as any).error('Failed to get customer profile', {
         error: error instanceof Error ? error.message : String(error),
         userId,
@@ -82,7 +82,6 @@ customerProfileRouter.patch(
         return res.status(404).json({ error: 'Profile not found' })
       }
 
-       
       ;(logger as any).info('Customer profile updated', { userId })
 
       res.json(profile)
@@ -92,7 +91,7 @@ customerProfileRouter.patch(
       }
 
       const userId = (req as any).customer?.id as string | undefined
-       
+
       ;(logger as any).error('Failed to update customer profile', {
         error: error instanceof Error ? error.message : String(error),
         userId,

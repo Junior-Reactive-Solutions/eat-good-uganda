@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+
 import { logger } from '../../lib/logger'
 
 const resendApiKey = process.env.RESEND_API_KEY
@@ -62,7 +63,7 @@ export async function sendTransactionalEmail(params: SendEmailParams): Promise<v
       {
         to,
         subject,
-        messageId: result.data?.id,
+        messageId: result.data?.id, // eslint-disable-line @typescript-eslint/no-unnecessary-condition
       },
       'Email sent successfully via Resend',
     )
@@ -231,9 +232,7 @@ export function buildBakeryOrderAlertHtml(params: {
   const { orderNumber, customerName, items, total, orderLink } = params
   const totalDisplay = total ? `UGX ${(total / 100).toLocaleString()}` : 'TBD'
 
-  const itemsList = items
-    .map((item) => `<li>${item.quantity}x ${item.name}</li>`)
-    .join('')
+  const itemsList = items.map((item) => `<li>${String(item.quantity)}x ${item.name}</li>`).join('')
 
   return `
 <!DOCTYPE html>
@@ -356,10 +355,7 @@ export function buildBakeryOrderAlertHtml(params: {
   `.trim()
 }
 
-export function buildPasswordResetHtml(params: {
-  resetLink: string
-  expiresIn?: string
-}): string {
+export function buildPasswordResetHtml(params: { resetLink: string; expiresIn?: string }): string {
   const { resetLink, expiresIn = '24 hours' } = params
 
   return `
@@ -467,9 +463,7 @@ export function buildPasswordResetHtml(params: {
   `.trim()
 }
 
-export function buildEmailVerificationHtml(params: {
-  verificationLink: string
-}): string {
+export function buildEmailVerificationHtml(params: { verificationLink: string }): string {
   const { verificationLink } = params
 
   return `

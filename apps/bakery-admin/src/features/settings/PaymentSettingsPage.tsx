@@ -1,5 +1,6 @@
-import { useState } from 'react'
+/* eslint-disable @typescript-eslint/no-confusing-void-expression, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 
 import { api } from '../../lib/api'
 
@@ -35,11 +36,11 @@ export function PaymentSettingsPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   // Fetch current settings
-  const { data: settings } = useQuery({
+  useQuery({
     queryKey: ['paymentSettings'],
     queryFn: async () => {
       const response = await api.get('/v1/bakery/payment-settings')
-      return response.data
+      return response.data as Record<string, unknown>
     },
   })
 
@@ -48,7 +49,7 @@ export function PaymentSettingsPage() {
     queryKey: ['paymentSettings', 'momo'],
     queryFn: async () => {
       const response = await api.get('/v1/bakery/payment-settings/mtn-momo')
-      return response.data
+      return response.data as Record<string, unknown>
     },
   })
 
@@ -56,7 +57,7 @@ export function PaymentSettingsPage() {
   const saveMomoMutation = useMutation({
     mutationFn: async (data: MomoCredentials) => {
       const response = await api.post('/v1/bakery/payment-settings/mtn-momo', data)
-      return response.data
+      return response.data as Record<string, unknown>
     },
     onSuccess: () => {
       setMessage({ type: 'success', text: 'MTN MoMo credentials saved successfully!' })
@@ -66,7 +67,9 @@ export function PaymentSettingsPage() {
         api_key: '',
         target_environment: 'sandbox',
       })
-      setTimeout(() => setMessage(null), 5000)
+      void setTimeout(() => {
+        setMessage(null)
+      }, 5000)
     },
     onError: (error) => {
       setMessage({
@@ -80,7 +83,7 @@ export function PaymentSettingsPage() {
   const saveAirtelMutation = useMutation({
     mutationFn: async (data: AirtelCredentials) => {
       const response = await api.post('/v1/bakery/payment-settings/airtel-money', data)
-      return response.data
+      return response.data as Record<string, unknown>
     },
     onSuccess: () => {
       setMessage({ type: 'success', text: 'Airtel Money credentials saved successfully!' })
@@ -89,7 +92,9 @@ export function PaymentSettingsPage() {
         client_secret: '',
         target_environment: 'staging',
       })
-      setTimeout(() => setMessage(null), 5000)
+      void setTimeout(() => {
+        setMessage(null)
+      }, 5000)
     },
     onError: (error) => {
       setMessage({
@@ -99,12 +104,12 @@ export function PaymentSettingsPage() {
     },
   })
 
-  const handleSaveMomo = (e: React.FormEvent) => {
+  const handleSaveMomo = (e: React.SyntheticEvent) => {
     e.preventDefault()
     saveMomoMutation.mutate(momoData)
   }
 
-  const handleSaveAirtel = (e: React.FormEvent) => {
+  const handleSaveAirtel = (e: React.SyntheticEvent) => {
     e.preventDefault()
     saveAirtelMutation.mutate(airtelData)
   }
@@ -121,9 +126,7 @@ export function PaymentSettingsPage() {
       {message && (
         <div
           className={`mb-6 rounded-lg p-4 ${
-            message.type === 'success'
-              ? 'bg-green-50 text-green-800'
-              : 'bg-red-50 text-red-800'
+            message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
           }`}
         >
           {message.text}
@@ -232,16 +235,12 @@ export function PaymentSettingsPage() {
               <input
                 type="password"
                 value={momoData.subscription_key}
-                onChange={(e) =>
-                  setMomoData({ ...momoData, subscription_key: e.target.value })
-                }
+                onChange={(e) => setMomoData({ ...momoData, subscription_key: e.target.value })}
                 placeholder="Enter your subscription key"
                 className="mt-1 block w-full rounded border border-gray-300 px-3 py-2"
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">
-                From your MTN MoMo Developer Account
-              </p>
+              <p className="mt-1 text-xs text-gray-500">From your MTN MoMo Developer Account</p>
             </div>
 
             <div>
@@ -279,7 +278,9 @@ export function PaymentSettingsPage() {
                   const value = e.target.value
                   setMomoData({
                     ...momoData,
-                    ...(value ? { collection_primary_key: value } : { collection_primary_key: undefined as any }),
+                    ...(value
+                      ? { collection_primary_key: value }
+                      : { collection_primary_key: undefined as any }),
                   })
                 }}
                 placeholder="Enter your collection primary key (if applicable)"
@@ -336,9 +337,7 @@ export function PaymentSettingsPage() {
                 className="mt-1 block w-full rounded border border-gray-300 px-3 py-2"
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">
-                From your Airtel Money Developer Account
-              </p>
+              <p className="mt-1 text-xs text-gray-500">From your Airtel Money Developer Account</p>
             </div>
 
             <div>
@@ -346,9 +345,7 @@ export function PaymentSettingsPage() {
               <input
                 type="password"
                 value={airtelData.client_secret}
-                onChange={(e) =>
-                  setAirtelData({ ...airtelData, client_secret: e.target.value })
-                }
+                onChange={(e) => setAirtelData({ ...airtelData, client_secret: e.target.value })}
                 placeholder="Enter your client secret"
                 className="mt-1 block w-full rounded border border-gray-300 px-3 py-2"
                 required
@@ -377,8 +374,8 @@ export function PaymentSettingsPage() {
             <div className="rounded-lg bg-green-50 p-4">
               <h3 className="font-semibold text-green-900">Cash on Delivery (COD)</h3>
               <p className="mt-2 text-green-800">
-                Customers pay your bakery when their order is delivered. No additional
-                configuration needed — this is enabled by default.
+                Customers pay your bakery when their order is delivered. No additional configuration
+                needed — this is enabled by default.
               </p>
             </div>
 

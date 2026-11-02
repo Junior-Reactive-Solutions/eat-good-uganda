@@ -1,14 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { CustomerAddress } from '@eatgood/shared'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import * as api from '../features/profile/api'
 
 import AddressesPage from './AddressesPage'
-
 
 vi.mock('../features/profile/api', () => ({
   useCustomerAddresses: vi.fn(),
@@ -127,7 +126,7 @@ describe('AddressesPage', () => {
 
     render(<AddressesPage />, { wrapper: createWrapper() })
 
-    expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toBeInTheDocument()
   })
 
   it('displays error message on failed fetch', () => {
@@ -498,7 +497,7 @@ describe('AddressesPage', () => {
       error: null,
     } as any)
 
-    const { container } = render(<AddressesPage />, { wrapper: createWrapper() })
+    render(<AddressesPage />, { wrapper: createWrapper() })
 
     // Find trash icon button (last button in the address card)
     const buttons = screen.getAllByRole('button')

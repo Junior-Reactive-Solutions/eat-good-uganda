@@ -207,7 +207,8 @@ All of the following were settled in the planning session that preceded scaffold
 
 **Decision:** Move credential encryption from client to server. Use AES-256-GCM with bakery_id as Additional Authenticated Data (AAD) for integrity verification.
 
-**Implementation:** 
+**Implementation:**
+
 - Encryption module: `apps/api/src/lib/encryption.ts` with `encryptPaymentCredentials()` and `decryptPaymentCredentials()`
 - Nonce stored with encrypted data in `payment_credentials` table
 - Automatic decryption on API retrieval
@@ -222,6 +223,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### HTTP Security Headers: Helmet.js with CSP, HSTS, X-Frame-Options
 
 **Decision:** Use Helmet.js middleware with comprehensive configuration:
+
 - Content Security Policy (CSP) with unsafe-hashes for script integrity
 - HSTS with 1-year max age and preload flag
 - X-Frame-Options: DENY (clickjacking protection)
@@ -235,6 +237,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### JWT Token TTL Validation: Type-safe constraints
 
 **Decision:** Enforce token lifetime constraints at the type system level:
+
 - Access tokens: 300-3600 seconds (5 min to 1 hour), default 300s
 - Refresh tokens: 7-90 days (604800-7776000 seconds), default 7 days
 - Type validation on refresh endpoint to prevent token lifetime inflation
@@ -248,6 +251,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Chart Components: Design token system with CSS custom properties
 
 **Decision:** Replace hardcoded colors in chart components with CSS variables. Create `apps/super-admin/src/styles/platform-theme.css` with:
+
 - 8 chart colors: `--chart-primary` through `--chart-octonary` (rotating through palette)
 - Platform status colors: success, error, warning, info
 - All chart components use `var(--chart-primary)` instead of `#3b82f6`
@@ -261,6 +265,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Chart Accessibility: SVG role="img", aria-label, and <title> elements
 
 **Decision:** All charts include:
+
 - `role="img"` on SVG root element
 - `aria-label` with descriptive text (e.g., "Revenue trend over last 30 days")
 - `<title>` element inside SVG with chart description
@@ -275,6 +280,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Analytics Aggregation: Platform-wide and per-bakery metrics with time series grouping
 
 **Decision:** Implement 4 analytics query functions in `packages/db/src/queries/analytics.ts`:
+
 - `getAdminPlatformMetrics()` — Total bakeries, customers, orders, revenue across platform
 - `getAdminBakeryAnalytics(bakeryId)` — Per-bakery stats with top 5 products
 - `getAdminMetricsTimeSeries(options)` — Revenue/orders/customers grouped by day/week/month
@@ -287,6 +293,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Super Admin Dashboard: Single page with 4 metrics cards, 3 charts, and responsive grid
 
 **Decision:** Create `AdminDashboardPage.tsx` as the entry point with:
+
 - 4 metric cards: total bakeries, active bakeries, total customers, total orders
 - LineChart for 30-day revenue trend
 - BarChart for top 10 bakeries by metric
@@ -300,7 +307,8 @@ All of the following were settled in the planning session that preceded scaffold
 
 ### React Query Cache Strategy: 5-minute and 10-minute staleTime for analytics
 
-**Decision:** 
+**Decision:**
+
 - `usePlatformMetrics()`: 5-minute staleTime (metrics change frequently)
 - `useMetricsTimeSeries()`: 10-minute staleTime (trend data changes less frequently)
 - `useTopBakeries()`: configurable cache with default 10-minute staleTime
@@ -312,6 +320,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### GitHub Actions Workflow: Multi-node testing with coverage tracking
 
 **Decision:** Create `.github/workflows/test-and-coverage.yml` with:
+
 - Test on Node 18.x and 20.x (LTS and latest)
 - TypeScript type check on all files
 - ESLint with 0-error threshold
@@ -325,6 +334,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Dependabot: Weekly npm and GitHub Actions updates with auto-labeling
 
 **Decision:** Configure `.github/dependabot.yml`:
+
 - Weekly npm dependency updates (Monday 03:00 UTC)
 - Weekly GitHub Actions updates (Monday 04:00 UTC)
 - Auto-label with `dependencies`, `npm`, `github-actions` tags
@@ -338,6 +348,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Code Ownership: CODEOWNERS file for team assignments
 
 **Decision:** Create `.github/CODEOWNERS` with:
+
 - Global default: `@Junior-Reactive-Solutions/dev-team`
 - Specific ownership for API, DB, frontend apps
 - PR reviews required before merge (GitHub enforces via branch protection)
@@ -349,6 +360,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Security Scanning: Trivy + npm audit + Trufflehog with weekly schedule
 
 **Decision:** Create `.github/workflows/security.yml`:
+
 - Trivy filesystem scan (FS mode) with SARIF output for GitHub Security tab
 - npm audit to scan dependencies
 - Trufflehog for secret detection
@@ -361,6 +373,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### PR Auto-labeling: Automatic labels based on changed files
 
 **Decision:** Create `.github/workflows/labeler.yml` with file patterns:
+
 - `backend` → `apps/api/` changes
 - `frontend` → `apps/customer/`, `apps/bakery-admin/`, `apps/super-admin/` changes
 - `database` → `packages/db/` changes
@@ -375,6 +388,7 @@ All of the following were settled in the planning session that preceded scaffold
 ### Release Management: GitHub releases from semantic version tags
 
 **Decision:** Create `.github/workflows/release.yml`:
+
 - Trigger on tags matching `v*.*.*` (semantic versioning)
 - Auto-generate release notes
 - Publish artifacts
@@ -430,7 +444,7 @@ _Narrative and evidence for everything below: [`23-SESSION_LOG_2026-09.md`](23-S
 
 **Decision:** Every app adds `path: '*'` (nested under the authenticated layout so the sidebar survives, and at top level) alongside `errorElement` on top-level routes, both rendering a per-app `RouteErrorPage` that uses `isRouteErrorResponse` to distinguish a 404 from a runtime error.
 
-**Context:** React Router's default "Unexpected Application Error! 404" screen appears when *no route matches at all*; `errorElement` only handles a matched route that throws.
+**Context:** React Router's default "Unexpected Application Error! 404" screen appears when _no route matches at all_; `errorElement` only handles a matched route that throws.
 
 **Consequences:** An unauthenticated visitor to an unknown admin path is redirected to `/login` before reaching the 404 (by design). Verified in the served bundles; not yet seen visually.
 
@@ -452,7 +466,7 @@ _Narrative and evidence for everything below: [`23-SESSION_LOG_2026-09.md`](23-S
 
 ### Bulk approve is a client-side loop until a bulk endpoint exists
 
-**Decision:** The Bakeries table's "Approve N" calls `POST /v1/admin/bakeries/:bakeryId/approve` once per selected pending row. Bulk *suspend* is deliberately omitted because suspension requires a reason.
+**Decision:** The Bakeries table's "Approve N" calls `POST /v1/admin/bakeries/:bakeryId/approve` once per selected pending row. Bulk _suspend_ is deliberately omitted because suspension requires a reason.
 
 **Context:** No bulk endpoint exists, and the design's headline scenario is approving several applications in one pass.
 
@@ -481,3 +495,49 @@ _Narrative and evidence for everything below: [`23-SESSION_LOG_2026-09.md`](23-S
 **Context:** Earlier work committed two features that had only half-applied (CRLF files defeated multi-line patterns and a "something changed" guard still passed) and reported lint clean from empty background output. See the session log §7.
 
 **Consequences:** Slower, but claims in commit messages now match the diff. Normalise line endings before scripting (there is no `.gitattributes` yet).
+
+### Opening hours: compute open-status in the API using Intl.DateTimeFormat, not a SQL expression
+
+**Decision:** `computeOpenStatus()` runs in Node.js using `Intl.DateTimeFormat` with the bakery's IANA timezone string. The `bakery_opening_hours` table stores plain `TIME` columns (no timezone); open/closed arithmetic is done entirely in application code, not in SQL.
+
+**Context:** The alternative was a single SQL query using `AT TIME ZONE` and `NOW()`, but that ties correctness to the database server's timezone config and makes unit testing harder. A pure TypeScript function with an injectable `now` parameter is trivial to test and keeps all scheduling logic in one place.
+
+**Consequences:** `computeOpenStatus` must be called server-side (it needs `Date` and `Intl`); it is not safe to ship to the browser without a polyfill check. The `opens_soon` threshold (≤ 60 minutes) is a constant in the function; change it there if the product requirement shifts.
+
+---
+
+## 2026-10-05 — Manual OpenAPI 3.1 spec over @asteasolutions/zod-to-openapi
+
+**Decision:** The OpenAPI 3.1 spec (`apps/api/src/lib/openapi.ts`) is authored as a hand-written plain TypeScript object returned by `getOpenAPISpec()`, not generated from Zod schemas via a library.
+
+**Context:** `@asteasolutions/zod-to-openapi` is incompatible with zod v4 (the version used throughout this project). Attempting to use it results in type errors and runtime failures because zod v4 changed its internal schema shape significantly. A manual spec also gives exact control over the output without fighting generator quirks.
+
+**Alternatives considered:** `zod-openapi` (similar zod v4 incompatibility), a custom zod-to-openapi transformer (too much maintenance surface). The existing Swagger UI route at `/api-docs` already consumed a plain spec object, making the manual approach a natural fit.
+
+**Consequences:** Schema changes in `packages/shared` are not automatically reflected in the spec — developers must update `openapi.ts` when adding or changing validated endpoints. The contract tests in `apps/api/tests/contract.test.ts` (256 assertions) catch missing paths and broken `$ref`s at CI time.
+
+---
+
+## 2026-10-11 — Fixed local dev bootstrap and stale API hostname in docs
+
+**Decision:** Three fixes made while verifying the stack runs live:
+
+1. `apps/api/src/server.ts` now imports `./env` before `./app` (with a scoped `eslint-disable-next-line import/order`). `app.ts` transitively imports `@eatgood/db`, which reads `process.env.DATABASE_URL` at module-evaluation time — before `env.ts`'s `dotenv.config()` had run, since `./app` sorted alphabetically ahead of `./env`.
+2. `RESEND_API_KEY` in `apps/api/src/env.ts` is now `z.string().default('')` instead of required. The `.env.example` already documented it as "optional for local dev," but the schema didn't match. `apps/api/src/lib/email.ts` now guards both the `Resend` client construction and the two call sites (`sendEmail`, `retryFailedEmails`) behind `env.RESEND_API_KEY` being non-empty, via a `requireResend()` helper (avoids a banned non-null assertion).
+3. `docs/20-DEPLOYMENT_CONFIGURATION.md`, `docs/07-PAYMENTS.md`, `docs/13-DEPLOYMENT.md`, and `docs/21-MVP-READY.md` all referenced the API at `eatgood-api.onrender.com`. The actual deployed Render service (confirmed live in the Render dashboard, matching `apps/api/render.yaml`'s `name: eatgooduganda-api`) is `eatgooduganda-api.onrender.com`. All four docs corrected.
+
+**Context:** Asked to start the app and view it live. Local API failed to boot (`DATABASE_URL or DATABASE_URL_DIRECT must be set`, then after fixing that, `RESEND_API_KEY is required`). Separately, the live bakery-admin frontend on Vercel threw "Network Error" on login — Render dashboard logs confirmed the API itself boots and runs cleanly, ruling out an API-side bug; the stale doc hostname is the leading suspect since deployment docs are the normal source for setting Vercel's `VITE_API_URL`.
+
+**Consequences:** Local `pnpm --filter @eatgood/api dev` now boots cleanly without a real Resend key. If the live bakery-admin/super-admin Vercel projects were in fact configured with `VITE_API_URL=https://eatgood-api.onrender.com`, that still needs fixing directly in Vercel's project settings (not discoverable from this repo — those two Vercel projects are under an account/team not connected to this session) followed by a redeploy, since Vite bakes `VITE_*` vars in at build time.
+
+---
+
+## 2026-10-11 — Critical: `authenticateToken` factory invoked bare, hanging four route files forever
+
+**Decision:** Fixed `authenticateToken` call sites in `apps/api/src/routes/customer/orders.ts` (4 routes), `apps/api/src/routes/customer/account-settings.ts` (5 routes), `apps/api/src/routes/customer/notifications.ts` (4 routes), and `apps/api/src/routes/bakery/opening-hours.ts` (`router.use`) to call `authenticateToken('customer')` / `authenticateToken('bakery')` instead of passing the bare factory function as Express middleware.
+
+**Context:** Asked to dig into why `customer/orders.test.ts` and `customer/addresses.test.ts` returned 403 instead of their expected status codes. The 403s turned out to be a real but minor test gap — these two files never attached the `eg_csrf` cookie + `x-csrf-token` header the global CSRF middleware (`apps/api/src/middleware/csrf.ts`) requires on POST/PATCH/DELETE, unlike `customer/payments.test.ts`, which already has an established helper for this. Fixing that CSRF gap in `orders.test.ts` surfaced a second, far more serious problem: every GET request in that file was timing out at vitest's 30s default, not failing fast.
+
+Tracing the hang: `authenticateToken(namespace)` is a factory — it returns a configured `RequestHandler` closure and does not call `next()` itself. All four affected files registered routes as `router.get('/', authenticateToken, requireCustomerContext, handler)` — passing the **factory**, not its return value. Express calls `authenticateToken(req, res, next)` directly; `namespace` binds to the Express `req` object, the function returns a throwaway closure, and `next()` is never called. The request pipeline stalls forever with no error, no log line, and no response — confirmed directly by invoking the real `authenticateToken` export the same way the broken code did and observing `next` is never invoked. `git blame` traces this to when these routes were first written (`apps/api/src/routes/customer/orders.ts` from 2026-05-07, before the three-namespace factory pattern in `authenticateToken.ts` even existed as of 2026-04-28 — the files were never updated to the new calling convention). Every test for these routes mocks `authenticateToken` with its own correctly-shaped factory, which accidentally reproduces the exact same bug when the route code misuses it the same way — so the tests never caught it; they just hung, and CSRF (for POST/PATCH/DELETE) or nothing at all (for GET, outside any try/catch) made the symptom look like unrelated flakiness instead of a total outage.
+
+**Consequences:** This was a complete, silent outage for every customer-facing order, account-settings, and notifications request, and for the bakery opening-hours endpoints — not a degraded-but-working state. No client error, no 5xx, no log line; requests simply never completed. `apps/api/src/routes/customer/orders.ts`'s catch block also didn't special-case `z.ZodError`, so schema validation failures (e.g. an empty cart) fell through to a generic 500 instead of 400 — fixed alongside this, following the same pattern already used in `bakery/auth.ts`. `account-settings.ts` and `notifications.ts` have no existing test files, so those two fixes are verified by code inspection and by the identical, already-proven fix in `orders.ts`/`opening-hours.ts`, not by a passing test suite — worth writing tests for if this area sees more work.

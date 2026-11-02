@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { CustomerDetail } from '@eatgood/db'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-
 
 import UserManagementPage from '../UserManagementPage'
 
@@ -249,7 +248,7 @@ describe('UserManagementPage', () => {
     renderWithProviders(<UserManagementPage />)
 
     expect(screen.getByText(/page 1 of 3/i)).toBeInTheDocument()
-    expect(screen.getByText('Next')).toBeInTheDocument()
+    expect(screen.getByText(/Next/)).toBeInTheDocument()
   })
 
   it('should show error state on load failure', () => {

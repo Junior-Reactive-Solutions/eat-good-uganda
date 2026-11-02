@@ -3,7 +3,6 @@
  * Ensures that the seed functions work correctly and return fresh deterministic data
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import {
   seedBakery,
   seedBakeryUser,
@@ -15,6 +14,8 @@ import {
   getSeedCounter,
   pool,
 } from '@eatgood/db'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import { cleanupDB } from './test-utils'
 
 describe('Database Fixtures', () => {

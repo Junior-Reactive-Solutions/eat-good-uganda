@@ -42,14 +42,20 @@ const MESSAGE_COLS = sql`
 // Query interfaces
 export interface GetTicketsFilters {
   status?: 'open' | 'in_progress' | 'resolved' | 'closed'
-  bakeryId: string
+  // Optional: bakery-side callers always pass this (their own bakery_id);
+  // super-admin callers may omit it to list tickets across all bakeries.
+  bakeryId?: string
   priority?: 'low' | 'medium' | 'high'
   limit?: number
   offset?: number
 }
 
+export interface SupportTicketListItem extends SupportTicket {
+  message_count: number
+}
+
 export interface GetTicketsResult {
-  tickets: SupportTicket[]
+  tickets: SupportTicketListItem[]
   total: number
 }
 
@@ -63,7 +69,11 @@ export async function getTickets(
   const { bakeryId, status, priority, limit = 20, offset = 0 } = filters
 
   // Build WHERE clause
-  let whereClause = sql`WHERE bakery_id = ${bakeryId} AND deleted_at IS NULL`
+  let whereClause = sql`WHERE deleted_at IS NULL`
+
+  if (bakeryId) {
+    whereClause = sql`${whereClause} AND bakery_id = ${bakeryId}`
+  }
 
   if (status) {
     whereClause = sql`${whereClause} AND status = ${status}`
@@ -81,9 +91,11 @@ export async function getTickets(
   const total = parseInt(countResult.rows[0]?.count ?? '0', 10)
 
   // Get paginated results
-  const result = await query<SupportTicket>(
+  const result = await query<SupportTicketListItem>(
     db,
-    sql`SELECT ${TICKET_COLS} FROM support_tickets
+    sql`SELECT ${TICKET_COLS},
+          (SELECT COUNT(*)::int FROM ticket_messages WHERE ticket_messages.ticket_id = support_tickets.id) AS message_count
+        FROM support_tickets
         ${whereClause}
         ORDER BY created_at DESC
         LIMIT ${limit} OFFSET ${offset}`,
@@ -98,7 +110,10 @@ export async function getTickets(
 /**
  * Get a single ticket with all its messages
  */
-export async function getTicketDetail(db: Database, ticketId: string): Promise<TicketDetail | null> {
+export async function getTicketDetail(
+  db: Database,
+  ticketId: string,
+): Promise<TicketDetail | null> {
   // Get ticket
   const ticketResult = await query<SupportTicket>(
     db,

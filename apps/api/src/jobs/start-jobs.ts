@@ -1,6 +1,7 @@
 import { pool } from '@eatgood/db'
 import cron from 'node-cron'
 
+import { retryFailedEmails } from '../lib/email'
 import { logger } from '../lib/logger'
 
 import { cleanupExpiredTokens } from './cleanupExpiredTokens'
@@ -9,6 +10,9 @@ import { sendWeeklyDigests } from './sendWeeklyDigests'
 
 /** Every 15 minutes: reconcile stuck pending payments. */
 const RECONCILE_SCHEDULE = '*/15 * * * *'
+
+/** Every 15 minutes: retry failed email sends. */
+const EMAIL_RETRY_SCHEDULE = '*/15 * * * *'
 
 /** Every 6 hours: clean up expired tokens. */
 const CLEANUP_SCHEDULE = '0 */6 * * *'
@@ -35,10 +39,7 @@ export function startJobs(): void {
       )
     })
   })
-  logger.info(
-    { schedule: RECONCILE_SCHEDULE },
-    'registered pending-payment reconciliation job',
-  )
+  logger.info({ schedule: RECONCILE_SCHEDULE }, 'registered pending-payment reconciliation job')
 
   // Clean up expired tokens every 6 hours
   cron.schedule(CLEANUP_SCHEDULE, () => {
@@ -49,20 +50,32 @@ export function startJobs(): void {
       )
     })
   })
-  logger.info(
-    { schedule: CLEANUP_SCHEDULE },
-    'registered token cleanup job',
-  )
+  logger.info({ schedule: CLEANUP_SCHEDULE }, 'registered token cleanup job')
 
-  // Send weekly digests every Sunday at 9am Africa/Kampala
-  cron.schedule(DIGEST_SCHEDULE, () => {
-    void sendWeeklyDigests(pool).catch((error: unknown) => {
+  // Retry failed email sends every 15 minutes
+  cron.schedule(EMAIL_RETRY_SCHEDULE, () => {
+    void retryFailedEmails().catch((error: unknown) => {
       logger.error(
         { error: error instanceof Error ? error.message : String(error) },
-        'Weekly digest job failed',
+        'Email retry job failed',
       )
     })
-  }, { timezone: 'Africa/Kampala' })
+  })
+  logger.info({ schedule: EMAIL_RETRY_SCHEDULE }, 'registered email retry job')
+
+  // Send weekly digests every Sunday at 9am Africa/Kampala
+  cron.schedule(
+    DIGEST_SCHEDULE,
+    () => {
+      void sendWeeklyDigests(pool).catch((error: unknown) => {
+        logger.error(
+          { error: error instanceof Error ? error.message : String(error) },
+          'Weekly digest job failed',
+        )
+      })
+    },
+    { timezone: 'Africa/Kampala' },
+  )
   logger.info(
     { schedule: DIGEST_SCHEDULE, timezone: 'Africa/Kampala' },
     'registered weekly digest job',

@@ -64,14 +64,13 @@ export const useUpdateNotificationPreferences = () => {
 
   return useMutation({
     mutationFn: async (preferences: UpdateNotificationPreferencesInput) => {
-      const { data } = await api.patch<AccountSettings>(
-        '/v1/customer/account-settings',
-        { notification_preferences: preferences },
-      )
+      const { data } = await api.patch<AccountSettings>('/v1/customer/account-settings', {
+        notification_preferences: preferences,
+      })
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: accountQueryKeys.settings })
+      void queryClient.invalidateQueries({ queryKey: accountQueryKeys.settings })
     },
   })
 }
@@ -84,14 +83,13 @@ export const useUpdateLanguagePreference = () => {
 
   return useMutation({
     mutationFn: async (language: 'en' | 'sw' | 'lg') => {
-      const { data } = await api.patch<AccountSettings>(
-        '/v1/customer/account-settings',
-        { language },
-      )
+      const { data } = await api.patch<AccountSettings>('/v1/customer/account-settings', {
+        language,
+      })
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: accountQueryKeys.settings })
+      void queryClient.invalidateQueries({ queryKey: accountQueryKeys.settings })
     },
   })
 }
@@ -104,14 +102,13 @@ export const useUpdatePrivacyMode = () => {
 
   return useMutation({
     mutationFn: async (privacy_mode: boolean) => {
-      const { data } = await api.patch<AccountSettings>(
-        '/v1/customer/account-settings',
-        { privacy_mode },
-      )
+      const { data } = await api.patch<AccountSettings>('/v1/customer/account-settings', {
+        privacy_mode,
+      })
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: accountQueryKeys.settings })
+      void queryClient.invalidateQueries({ queryKey: accountQueryKeys.settings })
     },
   })
 }

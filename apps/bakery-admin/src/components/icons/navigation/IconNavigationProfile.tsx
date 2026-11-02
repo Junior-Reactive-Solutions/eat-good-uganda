@@ -1,4 +1,4 @@
-import { User } from '@phosphor-icons/react'
+import { UserIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconNavigationProfile size="md" />
  * <IconNavigationProfile size="lg" color="accent" />
  */
-export const IconNavigationProfile = adaptIcon(User, 'profile')
+export const IconNavigationProfile = adaptIcon(UserIcon, 'profile')
 
 IconNavigationProfile.displayName = 'IconNavigationProfile'

@@ -1,4 +1,4 @@
-import { Phone } from '@phosphor-icons/react'
+import { PhoneIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconInteractionPhone size="md" />
  * <IconInteractionPhone size="lg" color="accent" />
  */
-export const IconInteractionPhone = adaptIcon(Phone, 'phone')
+export const IconInteractionPhone = adaptIcon(PhoneIcon, 'phone')
 
 IconInteractionPhone.displayName = 'IconInteractionPhone'

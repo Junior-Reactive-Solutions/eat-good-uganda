@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-explicit-any */
 import type { Product, ProductCategory } from '@eatgood/shared'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -71,8 +72,7 @@ const mockProduct: Product = {
 }
 
 describe('ProductForm', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mockOnSubmit = vi.fn(async (_data: ProductFormData) => {}) as any
+  const mockOnSubmit = vi.fn(async () => {}) as any
   const mockOnCancel = vi.fn()
 
   afterEach(() => {
@@ -82,11 +82,7 @@ describe('ProductForm', () => {
   describe('Form rendering', () => {
     it('renders all form fields for create mode', () => {
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       // Basic info fields
@@ -119,11 +115,7 @@ describe('ProductForm', () => {
 
     it('renders category select with categories', () => {
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const categorySelect = screen.getByLabelText(/Category/) as HTMLSelectElement
@@ -150,12 +142,10 @@ describe('ProductForm', () => {
         'chocolate-cake',
       )
       expect((screen.getByDisplayValue('50000') as HTMLInputElement).value).toBe('50000')
-      expect((screen.getByDisplayValue('Delicious chocolate cake') as HTMLTextAreaElement).value).toBe(
-        'Delicious chocolate cake',
-      )
-      expect((screen.getByLabelText(/Product is available/) as HTMLInputElement).checked).toBe(
-        true,
-      )
+      expect(
+        (screen.getByDisplayValue('Delicious chocolate cake') as HTMLTextAreaElement).value,
+      ).toBe('Delicious chocolate cake')
+      expect((screen.getByLabelText(/Product is available/) as HTMLInputElement).checked).toBe(true)
       expect((screen.getByLabelText(/Publish to customer menu/) as HTMLInputElement).checked).toBe(
         true,
       )
@@ -167,11 +157,7 @@ describe('ProductForm', () => {
     it('submits form with valid data', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)
@@ -203,11 +189,7 @@ describe('ProductForm', () => {
     it('shows validation error for missing required name', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const slugInput = screen.getByLabelText(/Slug \*/)
@@ -228,11 +210,7 @@ describe('ProductForm', () => {
     it('shows validation error for missing required slug', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)
@@ -256,11 +234,7 @@ describe('ProductForm', () => {
     it('shows validation error for zero price', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       await user.type(screen.getByLabelText(/Product Name \*/), 'Test Cake')
@@ -277,11 +251,7 @@ describe('ProductForm', () => {
     it('shows validation error for negative price', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       await user.type(screen.getByLabelText(/Product Name \*/), 'Test Cake')
@@ -331,11 +301,7 @@ describe('ProductForm', () => {
       ) as any
 
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={slowSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={slowSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)
@@ -361,11 +327,7 @@ describe('ProductForm', () => {
     it('calls onCancel when cancel button is clicked', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const cancelButton = screen.getByText(/Cancel/)
@@ -404,11 +366,7 @@ describe('ProductForm', () => {
     it('adds image URL input when Add Image button is clicked', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const addImageButton = screen.getByText(/Add Image/)
@@ -441,11 +399,7 @@ describe('ProductForm', () => {
     it('includes image URLs in form submission', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)
@@ -482,11 +436,7 @@ describe('ProductForm', () => {
     it('adds tag input when Add Tag button is clicked', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const addTagButton = screen.getByText(/Add Tag/)
@@ -518,11 +468,7 @@ describe('ProductForm', () => {
     it('includes tags in form submission', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)
@@ -537,10 +483,7 @@ describe('ProductForm', () => {
       await user.type(priceInput, '50000')
 
       await user.click(screen.getByText(/Add Tag/))
-      await user.type(
-        screen.getByPlaceholderText(/e\.g\., vegan, gluten-free/),
-        'vegan',
-      )
+      await user.type(screen.getByPlaceholderText(/e\.g\., vegan, gluten-free/), 'vegan')
 
       await user.click(screen.getByText(/Save Product/))
 
@@ -559,11 +502,7 @@ describe('ProductForm', () => {
     it('auto-populates slug from name on create mode', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)
@@ -577,11 +516,7 @@ describe('ProductForm', () => {
     it('handles special characters in auto-slug generation', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)
@@ -619,11 +554,7 @@ describe('ProductForm', () => {
     it('accepts optional advance notice hours', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)
@@ -653,11 +584,7 @@ describe('ProductForm', () => {
     it('accepts optional sort order', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)
@@ -689,11 +616,7 @@ describe('ProductForm', () => {
     it('handles is_available checkbox correctly', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)
@@ -728,11 +651,7 @@ describe('ProductForm', () => {
     it('handles is_published checkbox correctly', async () => {
       const user = userEvent.setup()
       render(
-        <ProductForm
-          categories={mockCategories}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-        />,
+        <ProductForm categories={mockCategories} onSubmit={mockOnSubmit} onCancel={mockOnCancel} />,
       )
 
       const nameInput = screen.getByLabelText(/Product Name \*/)

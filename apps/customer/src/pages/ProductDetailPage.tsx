@@ -3,10 +3,7 @@ import toast from 'react-hot-toast'
 import { Link, useParams } from 'react-router-dom'
 
 import { Button } from '../components/Button'
-import {
-  IconNavigationMenu,
-  IconNavigationCart,
-} from '../components/icons'
+import { IconNavigationMenu, IconNavigationCart } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageMeta } from '../components/PageMeta'
 import { usePublicBakery, usePublicProduct, usePublicProducts } from '../features/bakery/api'
@@ -26,7 +23,8 @@ export default function ProductDetailPage() {
   const [showCartSwitchDialog, setShowCartSwitchDialog] = useState(false)
 
   // Move hooks before early returns
-  const { data: bakery, isLoading: isBakeryLoading } = usePublicBakery(slug ?? '')
+  const { data: bakeryData, isLoading: isBakeryLoading } = usePublicBakery(slug ?? '')
+  const bakery = bakeryData?.bakery
   const { data: product, isLoading: isProductLoading } = usePublicProduct(
     slug ?? '',
     productSlug ?? '',

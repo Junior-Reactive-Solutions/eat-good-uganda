@@ -1,4 +1,4 @@
-import { Basket } from '@phosphor-icons/react'
+import { BasketIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconNavigationCart size="md" />
  * <IconNavigationCart size="lg" color="accent" />
  */
-export const IconNavigationCart = adaptIcon(Basket, 'basket')
+export const IconNavigationCart = adaptIcon(BasketIcon, 'basket')
 
 IconNavigationCart.displayName = 'IconNavigationCart'

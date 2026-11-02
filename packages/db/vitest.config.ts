@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    setupFiles: ['../../vitest.setup.ts'],
     include: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
     exclude: ['node_modules', 'dist', 'migrations'],
     coverage: {

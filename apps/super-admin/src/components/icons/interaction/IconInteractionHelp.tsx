@@ -1,4 +1,4 @@
-import { Question } from '@phosphor-icons/react'
+import { QuestionIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconInteractionHelp size="md" />
  * <IconInteractionHelp size="lg" color="accent" />
  */
-export const IconInteractionHelp = adaptIcon(Question, 'help')
+export const IconInteractionHelp = adaptIcon(QuestionIcon, 'help')
 
 IconInteractionHelp.displayName = 'IconInteractionHelp'

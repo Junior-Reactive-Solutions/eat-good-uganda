@@ -3,6 +3,23 @@ import { useQuery } from '@tanstack/react-query'
 
 import { api } from '../../lib/api'
 
+export type OpeningHoursRow = {
+  id: string
+  bakery_id: string
+  day_of_week: number // 0=Sun … 6=Sat
+  opens_at: string // 'HH:MM:SS'
+  closes_at: string // 'HH:MM:SS'
+  is_closed: boolean
+}
+
+export type OpenStatus = 'open' | 'closed' | 'opens_soon'
+
+export type OpenStatusResult = {
+  status: OpenStatus
+  opens_at_local: string | null
+  closes_at_local: string | null
+}
+
 export type PublicBakery = {
   id: string
   slug: string
@@ -17,8 +34,15 @@ export type PublicBakery = {
   city: string
   accepts_pickup: boolean
   accepts_delivery: boolean
+  delivery_fee_minor: number | null
   delivery_radius_km: number | null
+  min_order_minor: number | null
   distance_km: number | null
+}
+
+export type PublicBakeryDetail = PublicBakery & {
+  opening_hours: OpeningHoursRow[]
+  open_status: OpenStatusResult
 }
 
 export type ProductDetail = Product & {
@@ -61,8 +85,16 @@ export const usePublicBakery = (slug: string) => {
   return useQuery({
     queryKey: ['public-bakery', slug],
     queryFn: async () => {
-      const { data } = await api.get<{ bakery: Bakery }>(`/v1/public/bakeries/${slug}`)
-      return data.bakery
+      const { data } = await api.get<{
+        bakery: Bakery
+        opening_hours: OpeningHoursRow[]
+        open_status: OpenStatusResult
+      }>(`/v1/public/bakeries/${slug}`)
+      return {
+        bakery: data.bakery,
+        opening_hours: data.opening_hours,
+        open_status: data.open_status,
+      }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   })

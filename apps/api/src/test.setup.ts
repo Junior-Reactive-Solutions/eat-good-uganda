@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, vi } from 'vitest'
 import { pool } from '@eatgood/db'
+import { afterEach, beforeEach, vi } from 'vitest'
 
 /**
  * API-specific test setup

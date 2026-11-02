@@ -1,9 +1,9 @@
 import * as addressesDb from '@eatgood/db'
+import type { RequestHandler } from 'express'
 import request from 'supertest'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import { app } from '../../app'
-
 
 vi.mock('@eatgood/db', () => ({
   pool: {},
@@ -15,19 +15,28 @@ vi.mock('@eatgood/db', () => ({
 }))
 
 vi.mock('../../middleware/authenticateToken', () => ({
-  authenticateToken: () => (_req: any, _res: any, next: any) => {
-    _req.auth = { kind: 'customer', sub: 'customer-123' }
+  authenticateToken: (): RequestHandler => (req, _res, next) => {
+    req.auth = { kind: 'customer', sub: 'customer-123' }
     next()
   },
 }))
 
 vi.mock('../../middleware/requireCustomerContext', () => ({
-  requireCustomerContext: (_req: any, _res: any, next: any) => {
-    _req.customer = { id: 'customer-123' }
-    _req.db = {}
+  requireCustomerContext: ((req, _res, next) => {
+    req.customer = { id: 'customer-123', bakery_id: 'n/a' }
+    req.db = {} as typeof req.db
     next()
-  },
+  }) as RequestHandler,
 }))
+
+// The global CSRF middleware (app.ts) requires a matching cookie + header on
+// every state-changing method. These helpers attach a valid pair so POST/PATCH/
+// DELETE requests reach the route handler instead of being rejected with 403.
+const CSRF_TOKEN = 'test-csrf-token'
+
+function withCsrf<T extends { set: (field: string, val: string | string[]) => T }>(req: T): T {
+  return req.set('Cookie', [`eg_csrf=${CSRF_TOKEN}`]).set('x-csrf-token', CSRF_TOKEN)
+}
 
 describe('Customer Addresses API', () => {
   const customerId = 'customer-123'
@@ -75,10 +84,7 @@ describe('Customer Addresses API', () => {
       expect(response.body.items).toHaveLength(2)
       expect(response.body.total).toBe(2)
       expect(response.body.items[0].id).toBe('addr-1')
-      expect(addressesDb.getCustomerAddresses).toHaveBeenCalledWith(
-        expect.anything(),
-        customerId,
-      )
+      expect(addressesDb.getCustomerAddresses).toHaveBeenCalledWith(expect.anything(), customerId)
     })
 
     it('returns empty array when no addresses exist', async () => {
@@ -153,7 +159,7 @@ describe('Customer Addresses API', () => {
 
       vi.mocked(addressesDb.createCustomerAddress).mockResolvedValue(mockCreatedAddress)
 
-      const response = await request(app).post('/v1/customer/addresses').send(createData)
+      const response = await withCsrf(request(app).post('/v1/customer/addresses')).send(createData)
 
       expect(response.status).toBe(201)
       expect(response.body.street_address).toBe(createData.street_address)
@@ -186,14 +192,14 @@ describe('Customer Addresses API', () => {
 
       vi.mocked(addressesDb.createCustomerAddress).mockResolvedValue(mockCreatedAddress)
 
-      const response = await request(app).post('/v1/customer/addresses').send(createData)
+      const response = await withCsrf(request(app).post('/v1/customer/addresses')).send(createData)
 
       expect(response.status).toBe(201)
       expect(response.body.is_default).toBe(true)
     })
 
     it('validates required fields', async () => {
-      const response = await request(app).post('/v1/customer/addresses').send({
+      const response = await withCsrf(request(app).post('/v1/customer/addresses')).send({
         city: 'Kampala',
         // missing street_address and district
       })
@@ -203,7 +209,7 @@ describe('Customer Addresses API', () => {
     })
 
     it('validates field lengths', async () => {
-      const response = await request(app).post('/v1/customer/addresses').send({
+      const response = await withCsrf(request(app).post('/v1/customer/addresses')).send({
         street_address: 'a'.repeat(256),
         city: 'Kampala',
         district: 'Makindye',
@@ -213,11 +219,9 @@ describe('Customer Addresses API', () => {
     })
 
     it('handles database errors gracefully', async () => {
-      vi.mocked(addressesDb.createCustomerAddress).mockRejectedValue(
-        new Error('Database error'),
-      )
+      vi.mocked(addressesDb.createCustomerAddress).mockRejectedValue(new Error('Database error'))
 
-      const response = await request(app).post('/v1/customer/addresses').send({
+      const response = await withCsrf(request(app).post('/v1/customer/addresses')).send({
         street_address: '789 Elm St',
         city: 'Nakawa',
         district: 'Nakawa',
@@ -251,13 +255,11 @@ describe('Customer Addresses API', () => {
         updated_at: '2026-05-13T10:30:00Z',
       }
 
-      vi.mocked(addressesDb.updateCustomerAddress).mockResolvedValue(
-        mockUpdatedAddress,
-      )
+      vi.mocked(addressesDb.updateCustomerAddress).mockResolvedValue(mockUpdatedAddress)
 
-      const response = await request(app)
-        .patch('/v1/customer/addresses/addr-1')
-        .send(updateData)
+      const response = await withCsrf(request(app).patch('/v1/customer/addresses/addr-1')).send(
+        updateData,
+      )
 
       expect(response.status).toBe(200)
       expect(response.body.street_address).toBe('Updated Street')
@@ -285,11 +287,9 @@ describe('Customer Addresses API', () => {
         updated_at: '2026-05-13T10:30:00Z',
       }
 
-      vi.mocked(addressesDb.updateCustomerAddress).mockResolvedValue(
-        mockUpdatedAddress,
-      )
+      vi.mocked(addressesDb.updateCustomerAddress).mockResolvedValue(mockUpdatedAddress)
 
-      const response = await request(app).patch('/v1/customer/addresses/addr-1').send({
+      const response = await withCsrf(request(app).patch('/v1/customer/addresses/addr-1')).send({
         is_default: true,
       })
 
@@ -300,22 +300,20 @@ describe('Customer Addresses API', () => {
     it('returns 404 when address not found', async () => {
       vi.mocked(addressesDb.updateCustomerAddress).mockResolvedValue(null)
 
-      const response = await request(app)
-        .patch('/v1/customer/addresses/nonexistent')
-        .send({
-          street_address: 'Updated',
-        })
+      const response = await withCsrf(
+        request(app).patch('/v1/customer/addresses/nonexistent'),
+      ).send({
+        street_address: 'Updated',
+      })
 
       expect(response.status).toBe(404)
       expect(response.body).toEqual({ error: 'Address not found' })
     })
 
     it('validates input schema', async () => {
-      const response = await request(app)
-        .patch('/v1/customer/addresses/addr-1')
-        .send({
-          postal_code: 'a'.repeat(21),
-        })
+      const response = await withCsrf(request(app).patch('/v1/customer/addresses/addr-1')).send({
+        postal_code: 'a'.repeat(21),
+      })
 
       expect(response.status).toBe(400)
     })
@@ -325,7 +323,7 @@ describe('Customer Addresses API', () => {
     it('deletes address successfully', async () => {
       vi.mocked(addressesDb.deleteCustomerAddress).mockResolvedValue(true)
 
-      const response = await request(app).delete('/v1/customer/addresses/addr-1')
+      const response = await withCsrf(request(app).delete('/v1/customer/addresses/addr-1'))
 
       expect(response.status).toBe(204)
       expect(addressesDb.deleteCustomerAddress).toHaveBeenCalledWith(
@@ -338,18 +336,16 @@ describe('Customer Addresses API', () => {
     it('returns 404 when address not found', async () => {
       vi.mocked(addressesDb.deleteCustomerAddress).mockResolvedValue(false)
 
-      const response = await request(app).delete('/v1/customer/addresses/nonexistent')
+      const response = await withCsrf(request(app).delete('/v1/customer/addresses/nonexistent'))
 
       expect(response.status).toBe(404)
       expect(response.body).toEqual({ error: 'Address not found' })
     })
 
     it('handles database errors gracefully', async () => {
-      vi.mocked(addressesDb.deleteCustomerAddress).mockRejectedValue(
-        new Error('Database error'),
-      )
+      vi.mocked(addressesDb.deleteCustomerAddress).mockRejectedValue(new Error('Database error'))
 
-      const response = await request(app).delete('/v1/customer/addresses/addr-1')
+      const response = await withCsrf(request(app).delete('/v1/customer/addresses/addr-1'))
 
       expect(response.status).toBe(500)
       expect(response.body.error).toContain('Failed to delete customer address')
@@ -358,28 +354,24 @@ describe('Customer Addresses API', () => {
 
   describe('User isolation', () => {
     it('prevents cross-user address access', async () => {
-      const otherUserId = 'customer-456'
-
-      vi.mocked(addressesDb.getCustomerAddress).mockImplementation(
-        (_db, userId, _addressId) => {
-          if (userId !== customerId) {
-            return Promise.resolve(null)
-          }
-          return Promise.resolve({
-            id: 'addr-1',
-            user_id: customerId,
-            street_address: '123 Main St',
-            city: 'Kampala',
-            district: 'Makindye',
-            postal_code: null,
-            is_default: true,
-            is_delivery_address: true,
-            is_billing_address: false,
-            created_at: '2026-05-13T10:00:00Z',
-            updated_at: '2026-05-13T10:00:00Z',
-          } as any)
-        },
-      )
+      vi.mocked(addressesDb.getCustomerAddress).mockImplementation((_db, userId) => {
+        if (userId !== customerId) {
+          return Promise.resolve(null)
+        }
+        return Promise.resolve({
+          id: 'addr-1',
+          user_id: customerId,
+          street_address: '123 Main St',
+          city: 'Kampala',
+          district: 'Makindye',
+          postal_code: null,
+          is_default: true,
+          is_delivery_address: true,
+          is_billing_address: false,
+          created_at: '2026-05-13T10:00:00Z',
+          updated_at: '2026-05-13T10:00:00Z',
+        } as Awaited<ReturnType<typeof addressesDb.getCustomerAddress>>)
+      })
 
       const response = await request(app).get('/v1/customer/addresses/addr-1')
 

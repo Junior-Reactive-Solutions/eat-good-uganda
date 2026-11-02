@@ -17,9 +17,9 @@ import {
 } from '@eatgood/db'
 import type { Customer } from '@eatgood/shared'
 
+import { sendEmail } from '../../lib/email'
 import { hashPassword, verifyPassword } from '../../lib/password'
 import { createRefreshToken, signAccessToken, rotateRefreshToken } from '../../lib/tokens'
-import { sendEmailVerificationEmail, sendPasswordResetEmail } from '../email/verification'
 
 const TOKEN_TTL_HOURS = 24
 const RESET_TOKEN_TTL_MINUTES = 30
@@ -53,7 +53,15 @@ export async function signupCustomer(
     expires_at: expiresAt,
   })
 
-  sendEmailVerificationEmail(customer.email, emailToken)
+  void sendEmail({
+    to: customer.email,
+    template: 'customer-verify-email',
+    data: {
+      first_name: (customer.full_name ?? '').split(' ')[0] || 'there',
+      verification_link: `${process.env.PUBLIC_CUSTOMER_URL ?? 'http://localhost:5173'}/verify-email?token=${emailToken}`,
+    },
+    idempotencyKey: `customer-verify-email:${customer.id}:${customer.email}`,
+  })
 
   return customer
 }
@@ -144,7 +152,16 @@ export async function forgotPasswordCustomer(db: Database, email: string): Promi
     expires_at: expiresAt,
   })
 
-  sendPasswordResetEmail(email, resetToken)
+  void sendEmail({
+    to: email,
+    template: 'customer-password-reset',
+    data: {
+      first_name: (customer.full_name ?? '').split(' ')[0] || 'there',
+      reset_link: `${process.env.PUBLIC_CUSTOMER_URL ?? 'http://localhost:5173'}/reset-password?token=${resetToken}`,
+      expires_minutes: RESET_TOKEN_TTL_MINUTES,
+    },
+    idempotencyKey: `customer-password-reset:${customer.id}:${resetTokenHash}`,
+  })
 }
 
 export async function resetPasswordCustomer(

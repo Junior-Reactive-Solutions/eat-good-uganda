@@ -92,7 +92,7 @@ export default function PaymentMethodSection() {
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <Icon size="md" color="default" />
+                      <Icon size="md" color="default" alt="" />
                       <span className="font-medium text-platform-fg">{option.label}</span>
                     </div>
                     <p className="text-xs text-platform-fg-muted mt-1">{option.description}</p>

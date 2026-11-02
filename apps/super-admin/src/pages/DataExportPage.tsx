@@ -1,11 +1,8 @@
 import { useState } from 'react'
 
 import { Button } from '@/components/Button'
+import { IconNavigationMenu, IconInteractionDownload } from '@/components/icons'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
-import {
-  IconNavigationMenu,
-  IconInteractionDownload,
-} from '@/components/icons'
 import { downloadExport, useExports, useTriggerExport } from '@/features/exports/api'
 
 const formatDate = (dateString: string | undefined): string => {

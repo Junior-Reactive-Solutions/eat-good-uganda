@@ -9,7 +9,7 @@ export function generateOrderNumber(): string {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
-  const dateStr = `${year}${month}${day}`
+  const dateStr = `${String(year)}${month}${day}`
 
   // Generate 4-character random hex (0-15 for each, 4 chars = 16^4 possibilities)
   const randomHex = crypto.randomBytes(2).toString('hex').toUpperCase().slice(0, 4)

@@ -22,9 +22,9 @@ const mockOrder: Order = {
     lat: 0.3163,
     lng: 32.5853,
   },
-  subtotal_minor: 50000,
-  delivery_fee_minor: 5000,
-  total_minor: 55000,
+  subtotal_minor: 5000000,
+  delivery_fee_minor: 500000,
+  total_minor: 5500000,
   currency_code: 'UGX',
   customer_notes: null,
   internal_notes: null,
@@ -54,7 +54,8 @@ describe('OrderRow', () => {
       </BrowserRouter>,
     )
 
-    expect(screen.getByText(/May 1, 2026/)).toBeInTheDocument()
+    // en-UG locale formats dates as "1 May 2026", not US-style "May 1, 2026"
+    expect(screen.getByText(/1 May 2026/)).toBeInTheDocument()
   })
 
   it('renders formatted total amount', () => {
@@ -133,7 +134,21 @@ describe('OrderRow', () => {
   })
 
   it('renders multiple status labels correctly', () => {
-    const statuses: Array<['pending_payment' | 'confirmed' | 'preparing' | 'ready' | 'out_for_delivery' | 'delivered' | 'cancelled' | 'refunded', string]> = [
+    const statuses: Array<
+      [
+        (
+          | 'pending_payment'
+          | 'confirmed'
+          | 'preparing'
+          | 'ready'
+          | 'out_for_delivery'
+          | 'delivered'
+          | 'cancelled'
+          | 'refunded'
+        ),
+        string,
+      ]
+    > = [
       ['delivered', 'Delivered'],
       ['pending_payment', 'Pending Payment'],
       ['cancelled', 'Cancelled'],

@@ -1,4 +1,4 @@
-import { TrendUp } from '@phosphor-icons/react'
+import { TrendUpIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconProductTrending size="md" />
  * <IconProductTrending size="lg" color="accent" />
  */
-export const IconProductTrending = adaptIcon(TrendUp, 'trending')
+export const IconProductTrending = adaptIcon(TrendUpIcon, 'trending')
 
 IconProductTrending.displayName = 'IconProductTrending'

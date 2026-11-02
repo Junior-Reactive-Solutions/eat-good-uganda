@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as paymentsDb from '@eatgood/db'
 import request from 'supertest'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
@@ -110,8 +110,10 @@ describe('Customer Payments API', () => {
         pollUrl: `/v1/customer/orders/${ORDER_ID}/payment-status`,
       })
 
-      const response = await payRequest(ORDER_ID)
-        .send({ method: 'mtn_momo', phone: '+256700000000' })
+      const response = await payRequest(ORDER_ID).send({
+        method: 'mtn_momo',
+        phone: '+256700000000',
+      })
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual({
@@ -143,8 +145,11 @@ describe('Customer Payments API', () => {
         pollUrl: `/v1/customer/orders/${ORDER_ID}/payment-status`,
       })
 
-      const response = await payRequest(ORDER_ID)
-        .send({ method: 'mtn_momo', phone: '+256700000000', idempotencyKey })
+      const response = await payRequest(ORDER_ID).send({
+        method: 'mtn_momo',
+        phone: '+256700000000',
+        idempotencyKey,
+      })
 
       expect(response.status).toBe(200)
       expect(initiateService.initiateMomoPayment).toHaveBeenCalledWith(
@@ -154,8 +159,7 @@ describe('Customer Payments API', () => {
     })
 
     it('rejects an invalid phone number with 400', async () => {
-      const response = await payRequest(ORDER_ID)
-        .send({ method: 'mtn_momo', phone: '0700000000' })
+      const response = await payRequest(ORDER_ID).send({ method: 'mtn_momo', phone: '0700000000' })
 
       expect(response.status).toBe(400)
       expect(response.body).toEqual({ error: 'Invalid Uganda phone number' })
@@ -165,8 +169,10 @@ describe('Customer Payments API', () => {
     })
 
     it('rejects a non-MoMo method with 400', async () => {
-      const response = await payRequest(ORDER_ID)
-        .send({ method: 'airtel_money', phone: '+256700000000' })
+      const response = await payRequest(ORDER_ID).send({
+        method: 'airtel_money',
+        phone: '+256700000000',
+      })
 
       expect(response.status).toBe(400)
       expect(initiateService.initiateMomoPayment).not.toHaveBeenCalled()
@@ -175,8 +181,10 @@ describe('Customer Payments API', () => {
     it('returns 404 when the order does not exist', async () => {
       mockOrderQuery(null)
 
-      const response = await payRequest(ORDER_ID)
-        .send({ method: 'mtn_momo', phone: '+256700000000' })
+      const response = await payRequest(ORDER_ID).send({
+        method: 'mtn_momo',
+        phone: '+256700000000',
+      })
 
       expect(response.status).toBe(404)
       expect(response.body).toEqual({ error: 'Order not found' })
@@ -186,8 +194,10 @@ describe('Customer Payments API', () => {
     it('returns 400 when the order is no longer pending payment', async () => {
       mockOrderQuery(pendingOrderRow({ status: 'confirmed' }))
 
-      const response = await payRequest(ORDER_ID)
-        .send({ method: 'mtn_momo', phone: '+256700000000' })
+      const response = await payRequest(ORDER_ID).send({
+        method: 'mtn_momo',
+        phone: '+256700000000',
+      })
 
       expect(response.status).toBe(400)
       expect(response.body).toEqual({
@@ -202,8 +212,10 @@ describe('Customer Payments API', () => {
         { id: 'payment-0', status: 'paid' } as any,
       ])
 
-      const response = await payRequest(ORDER_ID)
-        .send({ method: 'mtn_momo', phone: '+256700000000' })
+      const response = await payRequest(ORDER_ID).send({
+        method: 'mtn_momo',
+        phone: '+256700000000',
+      })
 
       expect(response.status).toBe(400)
       expect(response.body).toEqual({
@@ -221,8 +233,10 @@ describe('Customer Payments API', () => {
         error: 'MoMo not configured',
       })
 
-      const response = await payRequest(ORDER_ID)
-        .send({ method: 'mtn_momo', phone: '+256700000000' })
+      const response = await payRequest(ORDER_ID).send({
+        method: 'mtn_momo',
+        phone: '+256700000000',
+      })
 
       expect(response.status).toBe(503)
       expect(response.body.error).toBe('MoMo not configured')
@@ -237,8 +251,10 @@ describe('Customer Payments API', () => {
         error: 'Payment could not be initiated',
       })
 
-      const response = await payRequest(ORDER_ID)
-        .send({ method: 'mtn_momo', phone: '+256700000000' })
+      const response = await payRequest(ORDER_ID).send({
+        method: 'mtn_momo',
+        phone: '+256700000000',
+      })
 
       expect(response.status).toBe(502)
       expect(response.body.error).toBe('Payment could not be initiated')
@@ -255,9 +271,7 @@ describe('Customer Payments API', () => {
         status: 'pending',
       })
 
-      const response = await request(app).get(
-        `/v1/customer/orders/${ORDER_ID}/payment-status`,
-      )
+      const response = await request(app).get(`/v1/customer/orders/${ORDER_ID}/payment-status`)
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual({ status: 'pending' })
@@ -278,9 +292,7 @@ describe('Customer Payments API', () => {
         financialTransactionId: 'ftx-999',
       })
 
-      const response = await request(app).get(
-        `/v1/customer/orders/${ORDER_ID}/payment-status`,
-      )
+      const response = await request(app).get(`/v1/customer/orders/${ORDER_ID}/payment-status`)
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual({
@@ -299,9 +311,7 @@ describe('Customer Payments API', () => {
         reason: 'Payment failed',
       })
 
-      const response = await request(app).get(
-        `/v1/customer/orders/${ORDER_ID}/payment-status`,
-      )
+      const response = await request(app).get(`/v1/customer/orders/${ORDER_ID}/payment-status`)
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual({ status: 'failed', reason: 'Payment failed' })
@@ -310,9 +320,7 @@ describe('Customer Payments API', () => {
     it('returns 404 when the order does not exist', async () => {
       mockOrderQuery(null)
 
-      const response = await request(app).get(
-        `/v1/customer/orders/${ORDER_ID}/payment-status`,
-      )
+      const response = await request(app).get(`/v1/customer/orders/${ORDER_ID}/payment-status`)
 
       expect(response.status).toBe(404)
       expect(response.body).toEqual({ error: 'Order not found' })
@@ -323,9 +331,7 @@ describe('Customer Payments API', () => {
       mockOrderQuery(pendingOrderRow())
       vi.mocked(paymentsDb.listPaymentsForOrder).mockResolvedValue([])
 
-      const response = await request(app).get(
-        `/v1/customer/orders/${ORDER_ID}/payment-status`,
-      )
+      const response = await request(app).get(`/v1/customer/orders/${ORDER_ID}/payment-status`)
 
       expect(response.status).toBe(404)
       expect(response.body).toEqual({ error: 'Payment not found' })
@@ -341,9 +347,7 @@ describe('Customer Payments API', () => {
         new statusService.PaymentNotFoundError(),
       )
 
-      const response = await request(app).get(
-        `/v1/customer/orders/${ORDER_ID}/payment-status`,
-      )
+      const response = await request(app).get(`/v1/customer/orders/${ORDER_ID}/payment-status`)
 
       expect(response.status).toBe(404)
       expect(response.body).toEqual({ error: 'Payment not found' })

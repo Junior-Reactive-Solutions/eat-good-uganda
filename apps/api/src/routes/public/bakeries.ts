@@ -5,6 +5,8 @@ import {
   listProductCategories,
   listProductsByCategory,
   getProductBySlugWithVariants,
+  getOpeningHours,
+  computeOpenStatus,
 } from '@eatgood/db'
 import { Router } from 'express'
 import { z } from 'zod'
@@ -67,9 +69,27 @@ router.get('/:slug', async (req, res) => {
       res.status(404).json({ error: 'Bakery not found' })
       return
     }
-    res.json({ bakery })
+    const hours = await getOpeningHours(pool, bakery.id)
+    const open_status = computeOpenStatus(hours, bakery.timezone)
+    res.json({ bakery, opening_hours: hours, open_status })
   } catch {
     res.status(500).json({ error: 'Failed to fetch bakery' })
+  }
+})
+
+router.get('/:slug/opening-hours', async (req, res) => {
+  const { slug } = req.params
+  try {
+    const bakery = await getBakeryBySlug(pool, slug)
+    if (!bakery || bakery.status !== 'active') {
+      res.status(404).json({ error: 'Bakery not found' })
+      return
+    }
+    const hours = await getOpeningHours(pool, bakery.id)
+    const open_status = computeOpenStatus(hours, bakery.timezone)
+    res.json({ opening_hours: hours, open_status })
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch opening hours' })
   }
 })
 

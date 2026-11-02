@@ -1,4 +1,4 @@
-import { Star } from '@phosphor-icons/react'
+import { StarIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconProductStarRating size="md" />
  * <IconProductStarRating size="lg" color="accent" />
  */
-export const IconProductStarRating = adaptIcon(Star, 'rating')
+export const IconProductStarRating = adaptIcon(StarIcon, 'rating')
 
 IconProductStarRating.displayName = 'IconProductStarRating'

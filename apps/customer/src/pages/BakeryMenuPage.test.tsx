@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
@@ -75,7 +75,11 @@ describe('BakeryMenuPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(bakeryApi.usePublicBakery).mockReturnValue({
-      data: mockBakery,
+      data: {
+        bakery: mockBakery,
+        opening_hours: [],
+        open_status: { status: 'open', opens_at_local: null, closes_at_local: null },
+      },
       isLoading: false,
       error: null,
       refetch: vi.fn(),
@@ -136,9 +140,9 @@ describe('BakeryMenuPage', () => {
     const images = screen.getAllByRole('img')
     const productImages = images.filter((img) => {
       const alt = (img as HTMLImageElement).alt
-      return alt.includes('Sourdough') ||
-        alt.includes('Rye Bread') ||
-        alt.includes('Chocolate Cake')
+      return (
+        alt.includes('Sourdough') || alt.includes('Rye Bread') || alt.includes('Chocolate Cake')
+      )
     })
     expect(productImages.length).toBeGreaterThan(0)
   })

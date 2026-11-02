@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Button } from '../components/Button'
-import { IconNavigationCart } from '../components/icons'
+import { EmptyState } from '../components/EmptyState'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { OrderFilters } from '../components/OrderFilters'
 import { OrderRow } from '../components/OrderRow'
@@ -42,9 +42,7 @@ export default function OrderHistoryPage() {
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold text-platform-fg">Order History</h1>
-        <p className="mt-2 text-platform-fg-muted">
-          View and track all your orders
-        </p>
+        <p className="mt-2 text-platform-fg-muted">View and track all your orders</p>
       </div>
 
       {/* Filters */}
@@ -68,16 +66,19 @@ export default function OrderHistoryPage() {
 
       {/* Empty State */}
       {!isLoading && !error && items.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-platform-border bg-platform-surface/50 p-8 text-center">
-          <IconNavigationCart size="lg" color="default" className="mx-auto mb-4" alt="" />
-          <h2 className="mb-2 text-lg font-semibold text-platform-fg">
-            No orders found
-          </h2>
-          <p className="mb-6 text-platform-fg-muted">
-            Start placing orders to see them here!
-          </p>
-          <Button onClick={() => { void navigate('/') }}>Browse Bakeries</Button>
-        </div>
+        <EmptyState
+          heading="No orders found"
+          body="Start placing orders to see them here!"
+          action={
+            <Button
+              onClick={() => {
+                void navigate('/')
+              }}
+            >
+              Browse Bakeries
+            </Button>
+          }
+        />
       ) : null}
 
       {/* Orders List */}
@@ -93,13 +94,16 @@ export default function OrderHistoryPage() {
           {totalPages > 1 ? (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-platform-border">
               <p className="text-sm text-platform-fg-muted">
-                Page {currentPage} of {totalPages} ({total} total {total === 1 ? 'order' : 'orders'})
+                Page {currentPage} of {totalPages} ({total} total {total === 1 ? 'order' : 'orders'}
+                )
               </p>
 
               <div className="flex gap-2">
                 <Button
                   variant="secondary"
-                  onClick={() => { handlePageChange(currentPage - 1); }}
+                  onClick={() => {
+                    handlePageChange(currentPage - 1)
+                  }}
                   disabled={currentPage <= 1}
                 >
                   Previous
@@ -111,7 +115,9 @@ export default function OrderHistoryPage() {
                     <Button
                       key={page}
                       variant={currentPage === page ? 'primary' : 'secondary'}
-                      onClick={() => { handlePageChange(page); }}
+                      onClick={() => {
+                        handlePageChange(page)
+                      }}
                       className="min-w-10"
                     >
                       {page}
@@ -121,7 +127,9 @@ export default function OrderHistoryPage() {
 
                 <Button
                   variant="secondary"
-                  onClick={() => { handlePageChange(currentPage + 1); }}
+                  onClick={() => {
+                    handlePageChange(currentPage + 1)
+                  }}
                   disabled={currentPage >= totalPages}
                 >
                   Next

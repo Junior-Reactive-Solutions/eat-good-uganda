@@ -125,7 +125,7 @@ export function validateThemeContrast(theme: {
 
     if (primaryRatio < CONTRAST_LEVELS.AA_NORMAL) {
       errors.push(
-        `Primary text on primary background has ${ratios.primary}:1 contrast, ` +
+        `Primary text on primary background has ${String(ratios.primary)}:1 contrast, ` +
           `but WCAG AA requires 4.5:1 for normal text.`,
       )
     }
@@ -141,7 +141,7 @@ export function validateThemeContrast(theme: {
 
       if (secondaryRatio < CONTRAST_LEVELS.AA_NORMAL) {
         warnings.push(
-          `Secondary text on secondary background has ${ratios.secondary}:1 contrast. ` +
+          `Secondary text on secondary background has ${String(ratios.secondary)}:1 contrast. ` +
             `WCAG AA recommends 4.5:1 for normal text.`,
         )
       }
@@ -158,7 +158,7 @@ export function validateThemeContrast(theme: {
 
       if (accentRatio < CONTRAST_LEVELS.AA_UI) {
         warnings.push(
-          `Accent color on background has ${ratios.accent}:1 contrast. ` +
+          `Accent color on background has ${String(ratios.accent)}:1 contrast. ` +
             `WCAG AA recommends 3:1 for UI components.`,
         )
       }
@@ -179,7 +179,7 @@ export function validateThemeContrast(theme: {
  * Format contrast ratio for display
  */
 export function formatContrastRatio(ratio: number): string {
-  return `${Math.round(ratio * 100) / 100}:1`
+  return `${String(Math.round(ratio * 100) / 100)}:1`
 }
 
 /**
@@ -224,10 +224,7 @@ export function adjustColorForContrast(
     }
 
     const lighterHex =
-      '#' +
-      [lighter.r, lighter.g, lighter.b]
-        .map((c) => c.toString(16).padStart(2, '0'))
-        .join('')
+      '#' + [lighter.r, lighter.g, lighter.b].map((c) => c.toString(16).padStart(2, '0')).join('')
 
     const lighterRatio = getContrastRatio(lighterHex, background)
     if (lighterRatio >= targetContrast) {
@@ -242,10 +239,7 @@ export function adjustColorForContrast(
     }
 
     const darkerHex =
-      '#' +
-      [darker.r, darker.g, darker.b]
-        .map((c) => c.toString(16).padStart(2, '0'))
-        .join('')
+      '#' + [darker.r, darker.g, darker.b].map((c) => c.toString(16).padStart(2, '0')).join('')
 
     const darkerRatio = getContrastRatio(darkerHex, background)
     if (darkerRatio >= targetContrast) {
@@ -272,7 +266,7 @@ export function validateColorPalette(
         ratio: Math.round(ratio * 100) / 100,
         accessible: meetsWCAGAA(ratio),
       }
-    } catch (e) {
+    } catch {
       results[name] = {
         ratio: 0,
         accessible: false,

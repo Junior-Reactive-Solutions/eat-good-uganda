@@ -1,6 +1,5 @@
-import express from 'express'
-
 import { pool } from '@eatgood/db'
+import express from 'express'
 
 const router = express.Router()
 
@@ -19,7 +18,9 @@ router.get('/', async (_req, res) => {
     const timer = setTimeout(() => {
       resolve('timeout')
     }, 500)
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer)
+    }
   })
 
   try {

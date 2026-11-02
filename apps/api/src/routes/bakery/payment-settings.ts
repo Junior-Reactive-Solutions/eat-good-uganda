@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access */
 import { pool } from '@eatgood/db'
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
@@ -9,7 +10,6 @@ import { requireBakeryContext } from '../../middleware/requireBakeryContext'
 import {
   saveBakeryMomoCredentials,
   loadBakeryMomoCredentials,
-  type BakeryMomoCredentials,
 } from '../../services/payment/credentials'
 
 export const bakeryPaymentSettingsRouter = createRouter() as Router
@@ -37,7 +37,7 @@ bakeryPaymentSettingsRouter.get(
   '/',
   authenticateToken('bakery'),
   requireBakeryContext(),
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     const bakeryId = (req as any).bakery?.id as string | undefined
 
     if (!bakeryId) {
@@ -148,7 +148,7 @@ bakeryPaymentSettingsRouter.post(
   '/airtel-money',
   authenticateToken('bakery'),
   requireBakeryContext(),
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     const bakeryId = (req as any).bakery?.id as string | undefined
 
     if (!bakeryId) {
