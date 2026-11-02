@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
 import {
   getCustomerAddresses,
   getCustomerAddress,
@@ -53,7 +53,7 @@ customerAddressesRouter.get(
       })
     } catch (error) {
       const userId = (req as any).customer?.id as string | undefined
-       
+
       ;(logger as any).error('Failed to list customer addresses', {
         error: error instanceof Error ? error.message : String(error),
         userId,
@@ -88,7 +88,7 @@ customerAddressesRouter.get(
       res.json(address)
     } catch (error) {
       const userId = (req as any).customer?.id as string | undefined
-       
+
       ;(logger as any).error('Failed to get customer address', {
         error: error instanceof Error ? error.message : String(error),
         userId,
@@ -125,7 +125,6 @@ customerAddressesRouter.post(
         return res.status(500).json({ error: 'Failed to create address' })
       }
 
-       
       ;(logger as any).info('Customer address created', { userId, addressId: address.id })
 
       res.status(201).json(address)
@@ -135,7 +134,7 @@ customerAddressesRouter.post(
       }
 
       const userId = (req as any).customer?.id as string | undefined
-       
+
       ;(logger as any).error('Failed to create customer address', {
         error: error instanceof Error ? error.message : String(error),
         userId,
@@ -174,7 +173,6 @@ customerAddressesRouter.patch(
         return res.status(404).json({ error: 'Address not found' })
       }
 
-       
       ;(logger as any).info('Customer address updated', { userId, addressId })
 
       res.json(address)
@@ -184,7 +182,7 @@ customerAddressesRouter.patch(
       }
 
       const userId = (req as any).customer?.id as string | undefined
-       
+
       ;(logger as any).error('Failed to update customer address', {
         error: error instanceof Error ? error.message : String(error),
         userId,
@@ -217,13 +215,12 @@ customerAddressesRouter.delete(
         return res.status(404).json({ error: 'Address not found' })
       }
 
-       
       ;(logger as any).info('Customer address deleted', { userId, addressId })
 
       res.status(204).send()
     } catch (error) {
       const userId = (req as any).customer?.id as string | undefined
-       
+
       ;(logger as any).error('Failed to delete customer address', {
         error: error instanceof Error ? error.message : String(error),
         userId,

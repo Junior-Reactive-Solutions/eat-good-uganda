@@ -1,14 +1,9 @@
 import type { AuditLog } from '@eatgood/db'
 import { useState } from 'react'
 
-
 import { Button } from '@/components/Button'
+import { IconNavigationMenu, IconAdminAuditLog, IconInteractionDelete } from '@/components/icons'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
-import {
-  IconNavigationMenu,
-  IconAdminAuditLog,
-  IconInteractionDelete,
-} from '@/components/icons'
 import { useAuditLogs } from '@/features/audit-logs/api'
 import { useDebounce } from '@/lib/hooks'
 
@@ -77,14 +72,19 @@ export default function AuditLogsPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-platform-fg">Audit Logs</h1>
-        <p className="text-sm text-platform-fg-muted mt-1">View administrative actions and platform activities</p>
+        <p className="text-sm text-platform-fg-muted mt-1">
+          View administrative actions and platform activities
+        </p>
       </div>
 
       {/* Filters */}
       <div className="rounded-lg border border-platform-border bg-platform-surface p-4 space-y-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
-            <label htmlFor="admin-filter" className="block text-sm font-medium text-platform-fg mb-1">
+            <label
+              htmlFor="admin-filter"
+              className="block text-sm font-medium text-platform-fg mb-1"
+            >
               Admin ID
             </label>
             <input
@@ -101,7 +101,10 @@ export default function AuditLogsPage() {
           </div>
 
           <div>
-            <label htmlFor="action-filter" className="block text-sm font-medium text-platform-fg mb-1">
+            <label
+              htmlFor="action-filter"
+              className="block text-sm font-medium text-platform-fg mb-1"
+            >
               Action
             </label>
             <input
@@ -118,7 +121,10 @@ export default function AuditLogsPage() {
           </div>
 
           <div>
-            <label htmlFor="bakery-filter" className="block text-sm font-medium text-platform-fg mb-1">
+            <label
+              htmlFor="bakery-filter"
+              className="block text-sm font-medium text-platform-fg mb-1"
+            >
               Bakery ID
             </label>
             <input
@@ -153,17 +159,29 @@ export default function AuditLogsPage() {
             <table className="w-full">
               <thead className="border-b border-platform-border bg-platform-bg">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Timestamp</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Admin</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Action</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Resource</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Details</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Timestamp
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Admin
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Action
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Resource
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Details
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-platform-border">
                 {logs.map((log) => (
                   <tr key={log.id} className="hover:bg-platform-bg transition-colors">
-                    <td className="px-6 py-3 text-sm text-platform-fg-muted">{formatDate(log.created_at)}</td>
+                    <td className="px-6 py-3 text-sm text-platform-fg-muted">
+                      {formatDate(log.created_at)}
+                    </td>
                     <td className="px-6 py-3 text-sm text-platform-fg">
                       <span className="font-mono text-xs">{truncateId(log.admin_id)}</span>
                     </td>
@@ -174,7 +192,9 @@ export default function AuditLogsPage() {
                     <td className="px-6 py-3 text-sm">
                       {log.changes && (
                         <button
-                          onClick={() => { setSelectedLog(log); }}
+                          onClick={() => {
+                            setSelectedLog(log)
+                          }}
                           className="inline-flex items-center gap-1 px-2 py-1 rounded text-platform-primary hover:bg-platform-bg transition-colors"
                           title="View changes"
                         >
@@ -197,7 +217,9 @@ export default function AuditLogsPage() {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => { setPage((p) => Math.max(1, p - 1)); }}
+            onClick={() => {
+              setPage((p) => Math.max(1, p - 1))
+            }}
             disabled={page === 1}
           >
             <IconNavigationMenu size="sm" color="default" alt="" />
@@ -211,7 +233,9 @@ export default function AuditLogsPage() {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => { setPage((p) => Math.min(pagination.totalPages, p + 1)); }}
+            onClick={() => {
+              setPage((p) => Math.min(pagination.totalPages, p + 1))
+            }}
             disabled={page === pagination.totalPages}
           >
             Next
@@ -225,9 +249,13 @@ export default function AuditLogsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-4 w-full max-w-2xl rounded-lg bg-platform-surface shadow-lg">
             <div className="flex items-center justify-between border-b border-platform-border px-6 py-4">
-              <h2 className="text-lg font-semibold text-platform-fg">Changes for {selectedLog.action}</h2>
+              <h2 className="text-lg font-semibold text-platform-fg">
+                Changes for {selectedLog.action}
+              </h2>
               <button
-                onClick={() => { setSelectedLog(undefined); }}
+                onClick={() => {
+                  setSelectedLog(undefined)
+                }}
                 className="text-platform-fg-muted hover:text-platform-fg"
               >
                 <IconInteractionDelete size="sm" color="default" alt="" />
@@ -238,13 +266,17 @@ export default function AuditLogsPage() {
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-platform-fg mb-2">Timestamp</p>
-                  <p className="text-sm text-platform-fg-muted">{formatDate(selectedLog.created_at)}</p>
+                  <p className="text-sm text-platform-fg-muted">
+                    {formatDate(selectedLog.created_at)}
+                  </p>
                 </div>
 
                 {selectedLog.admin_id && (
                   <div>
                     <p className="text-sm font-medium text-platform-fg mb-2">Admin ID</p>
-                    <p className="font-mono text-sm bg-platform-bg p-2 rounded">{selectedLog.admin_id}</p>
+                    <p className="font-mono text-sm bg-platform-bg p-2 rounded">
+                      {selectedLog.admin_id}
+                    </p>
                   </div>
                 )}
 
@@ -260,7 +292,13 @@ export default function AuditLogsPage() {
             </div>
 
             <div className="border-t border-platform-border px-6 py-4">
-              <Button variant="secondary" onClick={() => { setSelectedLog(undefined); }} className="w-full">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setSelectedLog(undefined)
+                }}
+                className="w-full"
+              >
                 Close
               </Button>
             </div>

@@ -51,7 +51,7 @@ export default function AccountSettingsPage() {
     updatePrivacyMode.mutate(value)
   }
 
-  const handleChangePassword = async (e: React.FormEvent) => {
+  const handleChangePassword = (e: React.SyntheticEvent) => {
     e.preventDefault()
     setPasswordError('')
     setPasswordSuccess('')
@@ -93,9 +93,7 @@ export default function AccountSettingsPage() {
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-        <p className="text-sm text-red-900 font-medium">
-          Failed to load account settings
-        </p>
+        <p className="text-sm text-red-900 font-medium">Failed to load account settings</p>
       </div>
     )
   }
@@ -118,13 +116,16 @@ export default function AccountSettingsPage() {
           <div className="flex-1">
             <h3 className="font-semibold text-yellow-900">Verify your email</h3>
             <p className="text-sm text-yellow-800 mt-1">
-              Your email address has not been verified yet. Click the button below to send a verification link.
+              Your email address has not been verified yet. Click the button below to send a
+              verification link.
             </p>
             <Button
               variant="secondary"
               size="sm"
               className="mt-3"
-              onClick={() => { sendEmailVerification.mutate(); }}
+              onClick={() => {
+                sendEmailVerification.mutate()
+              }}
               disabled={sendEmailVerification.isPending}
             >
               {sendEmailVerification.isPending ? 'Sending...' : 'Send Verification Email'}
@@ -158,7 +159,9 @@ export default function AccountSettingsPage() {
               <input
                 type="checkbox"
                 checked={settings.notification_preferences.email_orders}
-                onChange={(e) => { handleNotificationChange('email_orders', e.target.checked); }}
+                onChange={(e) => {
+                  handleNotificationChange('email_orders', e.target.checked)
+                }}
                 disabled={updateNotificationPrefs.isPending}
                 className="w-5 h-5 rounded border-platform-border"
               />
@@ -175,7 +178,9 @@ export default function AccountSettingsPage() {
               <input
                 type="checkbox"
                 checked={settings.notification_preferences.email_promotions}
-                onChange={(e) => { handleNotificationChange('email_promotions', e.target.checked); }}
+                onChange={(e) => {
+                  handleNotificationChange('email_promotions', e.target.checked)
+                }}
                 disabled={updateNotificationPrefs.isPending}
                 className="w-5 h-5 rounded border-platform-border"
               />
@@ -192,7 +197,9 @@ export default function AccountSettingsPage() {
               <input
                 type="checkbox"
                 checked={settings.notification_preferences.sms_orders}
-                onChange={(e) => { handleNotificationChange('sms_orders', e.target.checked); }}
+                onChange={(e) => {
+                  handleNotificationChange('sms_orders', e.target.checked)
+                }}
                 disabled={updateNotificationPrefs.isPending || !settings.phone}
                 className="w-5 h-5 rounded border-platform-border"
               />
@@ -213,7 +220,10 @@ export default function AccountSettingsPage() {
           </div>
         </div>
 
-        <form onSubmit={handleChangePassword} className="space-y-4 border-t border-platform-border pt-4">
+        <form
+          onSubmit={handleChangePassword}
+          className="space-y-4 border-t border-platform-border pt-4"
+        >
           {passwordSuccess && (
             <div className="flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-3">
               <IconAdminApproved size="sm" color="success" className="flex-shrink-0" alt="" />
@@ -232,7 +242,9 @@ export default function AccountSettingsPage() {
             label="Current Password"
             type="password"
             value={currentPassword}
-            onChange={(e) => { setCurrentPassword(e.target.value); }}
+            onChange={(e) => {
+              setCurrentPassword(e.target.value)
+            }}
             placeholder="Enter your current password"
             disabled={changePassword.isPending}
             required
@@ -242,7 +254,9 @@ export default function AccountSettingsPage() {
             label="New Password"
             type="password"
             value={newPassword}
-            onChange={(e) => { setNewPassword(e.target.value); }}
+            onChange={(e) => {
+              setNewPassword(e.target.value)
+            }}
             placeholder="Enter your new password (min 8 characters)"
             disabled={changePassword.isPending}
             required
@@ -252,7 +266,9 @@ export default function AccountSettingsPage() {
             label="Confirm Password"
             type="password"
             value={confirmPassword}
-            onChange={(e) => { setConfirmPassword(e.target.value); }}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value)
+            }}
             placeholder="Confirm your new password"
             disabled={changePassword.isPending}
             required
@@ -260,7 +276,9 @@ export default function AccountSettingsPage() {
 
           <Button
             type="submit"
-            disabled={changePassword.isPending || !currentPassword || !newPassword || !confirmPassword}
+            disabled={
+              changePassword.isPending || !currentPassword || !newPassword || !confirmPassword
+            }
           >
             {changePassword.isPending ? 'Changing Password...' : 'Change Password'}
           </Button>
@@ -273,9 +291,7 @@ export default function AccountSettingsPage() {
           <IconNavigationSettings size="sm" color="default" alt="" />
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-platform-fg">Language</h2>
-            <p className="text-sm text-platform-fg-muted">
-              Choose your preferred language
-            </p>
+            <p className="text-sm text-platform-fg-muted">Choose your preferred language</p>
           </div>
         </div>
 
@@ -283,7 +299,9 @@ export default function AccountSettingsPage() {
           <div className="border-t border-platform-border pt-4">
             <select
               value={settings.language}
-              onChange={(e) => { handleLanguageChange(e.target.value as 'en' | 'sw' | 'lg'); }}
+              onChange={(e) => {
+                handleLanguageChange(e.target.value as 'en' | 'sw' | 'lg')
+              }}
               disabled={updateLanguage.isPending}
               className="w-full rounded-md border border-platform-border bg-platform-bg px-3 py-2 text-platform-fg disabled:opacity-50"
             >
@@ -304,9 +322,7 @@ export default function AccountSettingsPage() {
           <IconInteractionPhone size="sm" color="default" alt="" />
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-platform-fg">Privacy</h2>
-            <p className="text-sm text-platform-fg-muted">
-              Control how your information is used
-            </p>
+            <p className="text-sm text-platform-fg-muted">Control how your information is used</p>
           </div>
         </div>
 
@@ -322,7 +338,9 @@ export default function AccountSettingsPage() {
               <input
                 type="checkbox"
                 checked={settings.privacy_mode}
-                onChange={(e) => { handlePrivacyModeChange(e.target.checked); }}
+                onChange={(e) => {
+                  handlePrivacyModeChange(e.target.checked)
+                }}
                 disabled={updatePrivacyMode.isPending}
                 className="w-5 h-5 rounded border-platform-border"
               />
@@ -361,7 +379,9 @@ export default function AccountSettingsPage() {
 
             <div className="flex justify-between py-2 border-b border-platform-border/50">
               <span className="text-platform-fg-muted">Email Status</span>
-              <span className={`font-medium ${settings.email_verified ? 'text-green-600' : 'text-yellow-600'}`}>
+              <span
+                className={`font-medium ${settings.email_verified ? 'text-green-600' : 'text-yellow-600'}`}
+              >
                 {settings.email_verified ? 'Verified' : 'Not Verified'}
               </span>
             </div>

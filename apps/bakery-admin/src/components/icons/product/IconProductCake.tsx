@@ -1,4 +1,4 @@
-import { Cake } from '@phosphor-icons/react'
+import { CakeIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconProductCake size="md" />
  * <IconProductCake size="lg" color="accent" />
  */
-export const IconProductCake = adaptIcon(Cake, 'cake')
+export const IconProductCake = adaptIcon(CakeIcon, 'cake')
 
 IconProductCake.displayName = 'IconProductCake'

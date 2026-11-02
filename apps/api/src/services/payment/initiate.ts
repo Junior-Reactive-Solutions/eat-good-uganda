@@ -11,15 +11,15 @@ import type { Payment } from '@eatgood/shared'
 import { normalizeUgandaPhone } from '@eatgood/shared'
 
 import { loadBakeryMomoCredentials } from './credentials'
+import { AirtelClient, AirtelPaymentError, newAirtelProviderReference } from './providers/airtel'
+import { initiateBankTransferPayment } from './providers/bank-transfer'
+import { initiateCodPayment } from './providers/cod'
 import {
   MomoClient,
   MomoPaymentError,
   MomoTokenError,
   newMomoProviderReference,
 } from './providers/momo'
-import { AirtelClient, AirtelPaymentError, newAirtelProviderReference } from './providers/airtel'
-import { initiateCodPayment } from './providers/cod'
-import { initiateBankTransferPayment } from './providers/bank-transfer'
 
 /**
  * Inputs for {@link initiateMomoPayment}. The caller is responsible for
@@ -138,10 +138,7 @@ function resultFromExistingPayment(payment: Payment): InitiateMomoPaymentResult 
  * but the unique index on (method, provider_reference) would surface them
  * as a DB error — checking up front lets us regenerate cleanly instead.
  */
-async function generateUniqueProviderReference(
-  db: Database,
-  bakeryId: string,
-): Promise<string> {
+async function generateUniqueProviderReference(db: Database, bakeryId: string): Promise<string> {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const candidate = newMomoProviderReference()
     const existing = await getPaymentByProviderRef(db, bakeryId, 'mtn_momo', candidate)

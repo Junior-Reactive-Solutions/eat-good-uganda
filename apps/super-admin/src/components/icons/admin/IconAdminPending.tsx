@@ -1,4 +1,4 @@
-import { HourglassMedium } from '@phosphor-icons/react'
+import { HourglassMediumIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconAdminPending size="md" />
  * <IconAdminPending size="lg" color="accent" />
  */
-export const IconAdminPending = adaptIcon(HourglassMedium, 'pending')
+export const IconAdminPending = adaptIcon(HourglassMediumIcon, 'pending')
 
 IconAdminPending.displayName = 'IconAdminPending'

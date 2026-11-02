@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { pool } from '@eatgood/db'
 import request from 'supertest'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
@@ -9,7 +10,6 @@ describe('Public Bakeries API', () => {
   let testBakeryId: string
   let testCategoryId: string
   let testProductId: string
-  let testVariantId: string
 
   beforeAll(async () => {
     client = await pool.connect()
@@ -78,7 +78,7 @@ describe('Public Bakeries API', () => {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
       ['test-variant-1', testProductId, testBakeryId, 'Small', 45000, 1, true],
     )
-    testVariantId = variantRes.rows[0].id
+    void variantRes.rows[0].id // testVariantId unused in tests
 
     // Create unpublished product for testing
     await client.query(

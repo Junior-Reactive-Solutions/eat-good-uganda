@@ -1,5 +1,5 @@
 import type { OrderStatus } from '@eatgood/shared'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import type { BakeryOrderResponse } from '../features/orders/api'
 import { useUpdateOrderStatus } from '../features/orders/api'
@@ -56,8 +56,10 @@ const COLUMNS: BoardColumnDef[] = [
   {
     status: 'ready',
     label: 'Ready',
-    nextStatus: (order) => (order.fulfilment_mode === 'delivery' ? 'out_for_delivery' : 'delivered'),
-    actionLabel: (order) => (order.fulfilment_mode === 'delivery' ? 'Send for delivery' : 'Mark delivered'),
+    nextStatus: (order) =>
+      order.fulfilment_mode === 'delivery' ? 'out_for_delivery' : 'delivered',
+    actionLabel: (order) =>
+      order.fulfilment_mode === 'delivery' ? 'Send for delivery' : 'Mark delivered',
   },
   {
     status: 'out_for_delivery',
@@ -74,66 +76,73 @@ interface OrderCardProps {
 }
 
 function OrderCard({ order, column }: OrderCardProps) {
-  const navigate = useNavigate()
   const updateStatus = useUpdateOrderStatus(order.id)
   const elapsed = formatElapsed(order.created_at)
   const showTimer = column.status === 'pending_payment'
+  const borderClass =
+    showTimer && elapsed.urgent
+      ? 'border-platform-error/50 ring-1 ring-platform-error/20'
+      : 'border-platform-border'
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      onClick={() => {
-        void navigate(`/orders/${order.id}`)
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          void navigate(`/orders/${order.id}`)
-        }
-      }}
-      className={`flex cursor-pointer flex-col gap-1.5 rounded-lg border bg-platform-surface p-3 text-left shadow-sm transition-shadow hover:shadow-md ${
-        showTimer && elapsed.urgent ? 'border-platform-error/50 ring-1 ring-platform-error/20' : 'border-platform-border'
-      }`}
+      className={`flex flex-col gap-0 rounded-lg border bg-platform-surface shadow-sm transition-shadow hover:shadow-md ${borderClass}`}
     >
-      <div className="flex items-center gap-2">
-        <span className="font-mono text-xs font-medium text-platform-fg-muted">
-          {order.order_number}
-        </span>
-        <span className="ml-auto text-sm font-semibold text-platform-fg">
-          {formatPrice(order.total_minor)}
-        </span>
-      </div>
-      <p className="text-sm font-semibold text-platform-fg">{order.customer_name ?? 'Guest'}</p>
-      <div className="flex items-center gap-1.5 text-xs text-platform-fg-muted">
-        {showTimer && (
-          <span
-            className={`inline-flex items-center gap-1 font-medium ${elapsed.urgent ? 'text-platform-error' : 'text-platform-fg-muted'}`}
-          >
-            <IconInteractionClock size="sm" color="default" alt="" />
-            {elapsed.text}
+      {/* The card face is a plain link — no nested button, no role="button" on a div */}
+      <Link
+        to={`/orders/${order.id}`}
+        className="flex flex-col gap-1.5 p-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-platform-primary"
+      >
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs font-medium text-platform-fg-muted">
+            {order.order_number}
           </span>
-        )}
-        <span>{order.fulfilment_mode === 'delivery' ? 'Delivery' : 'Pickup'}</span>
-      </div>
-      {(() => {
-        const getNextStatus = column.nextStatus
-        const getActionLabel = column.actionLabel
-        if (!getNextStatus || !getActionLabel) return null
-        return (
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={updateStatus.isPending}
-            onClick={(e) => {
-              e.stopPropagation()
-              updateStatus.mutate(getNextStatus(order))
-            }}
-            className="mt-1 w-full justify-center border-platform-primary text-platform-primary hover:bg-platform-primary hover:text-white"
-          >
-            {updateStatus.isPending ? 'Updating…' : `${getActionLabel(order)} →`}
-          </Button>
-        )
-      })()}
+          <span className="ml-auto text-sm font-semibold text-platform-fg">
+            {formatPrice(order.total_minor)}
+          </span>
+        </div>
+        <p className="text-sm font-semibold text-platform-fg">{order.customer_name ?? 'Guest'}</p>
+        <div className="flex items-center gap-1.5 text-xs text-platform-fg-muted">
+          {showTimer && (
+            <span
+              className={`inline-flex items-center gap-1 font-medium ${elapsed.urgent ? 'text-platform-error' : 'text-platform-fg-muted'}`}
+            >
+              <IconInteractionClock size="sm" color="default" alt="" />
+              {elapsed.text}
+            </span>
+          )}
+          <span>{order.fulfilment_mode === 'delivery' ? 'Delivery' : 'Pickup'}</span>
+        </div>
+      </Link>
+      {/* Action button lives outside the link so there's no nested interactive element */}
+      {column.nextStatus && column.actionLabel && (
+        <div className="px-3 pb-3">
+          {(() => {
+            const getNext = column.nextStatus
+            const getLabel = column.actionLabel
+            return (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={updateStatus.isPending}
+                onClick={() => {
+                  updateStatus.mutate(getNext(order))
+                }}
+                className="w-full justify-center border-platform-primary text-platform-primary hover:bg-platform-primary hover:text-white"
+              >
+                {updateStatus.isPending ? 'Updating…' : `${getLabel(order)} →`}
+              </Button>
+            )
+          })()}
+          {updateStatus.isError && (
+            <p className="mt-1.5 text-center text-xs text-platform-error" role="alert">
+              {updateStatus.error instanceof Error
+                ? updateStatus.error.message
+                : 'Update failed — please try again'}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

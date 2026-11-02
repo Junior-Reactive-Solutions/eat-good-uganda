@@ -54,8 +54,7 @@ export class AirtelClient {
     referenceId: string
     status: 'pending'
   }> {
-    const baseUrl =
-      this.targetEnv === 'staging' ? STAGING_BASE_URL : PRODUCTION_BASE_URL
+    const baseUrl = this.targetEnv === 'staging' ? STAGING_BASE_URL : PRODUCTION_BASE_URL
 
     const url = `${baseUrl}/merchant/v2/payments/`
 
@@ -92,16 +91,13 @@ export class AirtelClient {
       if (!response.ok) {
         // Don't include response body in error
         throw new AirtelPaymentError(
-          `Airtel API error: ${response.status}`,
+          `Airtel API error: ${String(response.status)}`,
           'provider_error',
         )
       }
 
       // Response format from Airtel
-      const data = (await response.json()) as {
-        data?: { transaction_id?: string }
-        status?: string
-      }
+      await response.json() // consume response body
 
       // Airtel returns 'DP00000200' for pending/success
       return {
@@ -112,10 +108,7 @@ export class AirtelClient {
       if (error instanceof AirtelPaymentError) {
         throw error
       }
-      throw new AirtelPaymentError(
-        'Failed to initiate Airtel payment',
-        'provider_error',
-      )
+      throw new AirtelPaymentError('Failed to initiate Airtel payment', 'provider_error')
     }
   }
 
@@ -124,14 +117,13 @@ export class AirtelClient {
    * In production, this would poll the Airtel status endpoint.
    * For now, we rely on webhook callbacks.
    */
-  async getPaymentStatus(
-    _referenceId: string,
-  ): Promise<AirtelPaymentStatus> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getPaymentStatus(_referenceId: string): Promise<AirtelPaymentStatus> {
     // Airtel uses webhooks for status updates
     // This is a placeholder for direct status queries if needed
-    return {
+    return Promise.resolve({
       status: 'pending',
-    }
+    })
   }
 
   /**
@@ -139,12 +131,9 @@ export class AirtelClient {
    * Uses Basic Auth with client_id:client_secret.
    */
   private async getToken(): Promise<string> {
-    const credentials = Buffer.from(
-      `${this.clientId}:${this.clientSecret}`,
-    ).toString('base64')
+    const credentials = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')
 
-    const baseUrl =
-      this.targetEnv === 'staging' ? STAGING_BASE_URL : PRODUCTION_BASE_URL
+    const baseUrl = this.targetEnv === 'staging' ? STAGING_BASE_URL : PRODUCTION_BASE_URL
 
     try {
       const response = await fetch(`${baseUrl}/auth/oauth2/token`, {
@@ -202,10 +191,7 @@ export class AirtelClient {
 
     // Ensure it starts with 256 (Uganda country code)
     if (!normalized.startsWith('256')) {
-      throw new AirtelPaymentError(
-        'Invalid phone number format',
-        'validation_error',
-      )
+      throw new AirtelPaymentError('Invalid phone number format', 'validation_error')
     }
 
     return `+${normalized}`

@@ -1,4 +1,4 @@
-import { Clock } from '@phosphor-icons/react'
+import { ClockIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconDeliveryTime size="md" />
  * <IconDeliveryTime size="lg" color="accent" />
  */
-export const IconDeliveryTime = adaptIcon(Clock, 'delivery time')
+export const IconDeliveryTime = adaptIcon(ClockIcon, 'delivery time')
 
 IconDeliveryTime.displayName = 'IconDeliveryTime'

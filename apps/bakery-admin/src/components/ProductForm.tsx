@@ -5,10 +5,7 @@ import { z } from 'zod'
 
 import { Button } from './Button'
 import { Card } from './Card'
-import {
-  IconNavigationCart,
-  IconInteractionDelete,
-} from './icons'
+import { IconNavigationCart, IconInteractionDelete } from './icons'
 
 // Validation schema
 const productFormSchema = z.object({
@@ -20,7 +17,7 @@ const productFormSchema = z.object({
     .positive('Price must be greater than 0'),
   category_id: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  image_urls: z.array(z.string().url('Must be a valid URL')),
+  image_urls: z.array(z.url('Must be a valid URL')),
   tags: z.array(z.string()),
   is_published: z.boolean(),
   is_available: z.boolean(),
@@ -46,7 +43,6 @@ export function ProductForm({
   isLoading = false,
 }: ProductFormProps) {
   const {
-    control,
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -71,7 +67,6 @@ export function ProductForm({
 
   const imageUrls = watch('image_urls')
   const tags = watch('tags')
-  const name = watch('name')
 
   // Auto-populate slug from name on create mode
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +84,10 @@ export function ProductForm({
   }
 
   const handleRemoveImage = (index: number) => {
-    setValue('image_urls', imageUrls.filter((_, i) => i !== index))
+    setValue(
+      'image_urls',
+      imageUrls.filter((_, i) => i !== index),
+    )
   }
 
   const handleAddTag = () => {
@@ -97,14 +95,22 @@ export function ProductForm({
   }
 
   const handleRemoveTag = (index: number) => {
-    setValue('tags', tags.filter((_, i) => i !== index))
+    setValue(
+      'tags',
+      tags.filter((_, i) => i !== index),
+    )
   }
 
   const isSubmittingOrLoading = isSubmitting || isLoading
 
   return (
     <Card className="rounded-lg border border-platform-border bg-platform-surface p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          void handleSubmit(onSubmit)(e)
+        }}
+        className="space-y-6"
+      >
         {/* Basic Info */}
         <fieldset className="space-y-4">
           <legend className="text-sm font-semibold text-platform-fg">Basic Information</legend>
@@ -154,7 +160,10 @@ export function ProductForm({
 
           {/* Price */}
           <div>
-            <label htmlFor="base_price_minor" className="block text-sm font-medium text-platform-fg mb-1">
+            <label
+              htmlFor="base_price_minor"
+              className="block text-sm font-medium text-platform-fg mb-1"
+            >
               Price (UGX) *
             </label>
             <input
@@ -175,7 +184,10 @@ export function ProductForm({
 
           {/* Category */}
           <div>
-            <label htmlFor="category_id" className="block text-sm font-medium text-platform-fg mb-1">
+            <label
+              htmlFor="category_id"
+              className="block text-sm font-medium text-platform-fg mb-1"
+            >
               Category
             </label>
             <select
@@ -214,14 +226,16 @@ export function ProductForm({
               <input
                 type="url"
                 placeholder="https://example.com/image.jpg"
-                {...register(`image_urls.${index}`)}
+                {...register(`image_urls.${String(index)}` as `image_urls.${number}`)}
                 className="flex-1 px-3 py-2 border border-platform-border rounded-md bg-platform-surface text-platform-fg placeholder-platform-fg-muted focus:outline-none focus:ring-2 focus:ring-bakery-primary"
               />
               <Button
                 type="button"
                 variant="secondary"
                 size="md"
-                onClick={() => handleRemoveImage(index)}
+                onClick={() => {
+                  handleRemoveImage(index)
+                }}
                 aria-label="Remove image"
               >
                 <IconInteractionDelete size="sm" color="default" alt="" />
@@ -248,14 +262,16 @@ export function ProductForm({
               <input
                 type="text"
                 placeholder="e.g., vegan, gluten-free"
-                {...register(`tags.${index}`)}
+                {...register(`tags.${String(index)}` as `tags.${number}`)}
                 className="flex-1 px-3 py-2 border border-platform-border rounded-md bg-platform-surface text-platform-fg placeholder-platform-fg-muted focus:outline-none focus:ring-2 focus:ring-bakery-primary"
               />
               <Button
                 type="button"
                 variant="secondary"
                 size="md"
-                onClick={() => handleRemoveTag(index)}
+                onClick={() => {
+                  handleRemoveTag(index)
+                }}
                 aria-label="Remove tag"
               >
                 <IconInteractionDelete size="sm" color="default" alt="" />
@@ -300,7 +316,10 @@ export function ProductForm({
             </label>
           </div>
           <div>
-            <label htmlFor="requires_advance_notice_hours" className="block text-sm font-medium text-platform-fg mb-1">
+            <label
+              htmlFor="requires_advance_notice_hours"
+              className="block text-sm font-medium text-platform-fg mb-1"
+            >
               Advance Notice (hours)
             </label>
             <input
@@ -338,12 +357,7 @@ export function ProductForm({
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            size="md"
-            disabled={isSubmittingOrLoading}
-            className="flex-1"
-          >
+          <Button type="submit" size="md" disabled={isSubmittingOrLoading} className="flex-1">
             {isSubmittingOrLoading ? 'Saving...' : 'Save Product'}
           </Button>
         </div>

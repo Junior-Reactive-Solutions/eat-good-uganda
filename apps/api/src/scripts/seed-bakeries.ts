@@ -11,8 +11,9 @@
  *   cd apps/api
  *   DATABASE_URL="postgres://..." npx tsx src/scripts/seed-bakeries.ts
  */
-import { Pool, PoolClient } from 'pg'
 import * as argon2 from 'argon2'
+import { Pool } from 'pg'
+import type { PoolClient } from 'pg'
 
 import type { BakeryDef, CategoryDef, ProductDef } from './seed-data/bakeries.ts'
 import { BAKERIES } from './seed-data/bakeries.ts'
@@ -27,20 +28,28 @@ async function getOrInsert(
   values: unknown[],
   conflictValues?: unknown[],
 ): Promise<string> {
-  const res = await client.query(`${insertSql} ON CONFLICT (${conflictCol}) DO NOTHING RETURNING id`, values)
+  const res = await client.query(
+    `${insertSql} ON CONFLICT (${conflictCol}) DO NOTHING RETURNING id`,
+    values,
+  )
   if (res.rows.length > 0) return res.rows[0].id as string
 
   const cols = conflictCol.split(',').map((c) => c.trim())
   const cv = conflictValues ?? values.slice(0, cols.length)
   const where = cols.map((c, i) => `${c} = $${i + 1}`).join(' AND ')
   const sel = await client.query(`SELECT id FROM ${table} WHERE ${where} LIMIT 1`, cv)
-  if (sel.rows.length === 0) throw new Error(`Row not found in ${table} after conflict on (${conflictCol})`)
+  if (sel.rows.length === 0)
+    throw new Error(`Row not found in ${table} after conflict on (${conflictCol})`)
   return sel.rows[0].id as string
 }
 
 // ─── Per-entity seeders ───────────────────────────────────────────────────────
 
-async function seedBakery(client: PoolClient, bakery: BakeryDef, superAdminId: string): Promise<string> {
+async function seedBakery(
+  client: PoolClient,
+  bakery: BakeryDef,
+  superAdminId: string,
+): Promise<string> {
   const id = await getOrInsert(
     client,
     'bakeries',

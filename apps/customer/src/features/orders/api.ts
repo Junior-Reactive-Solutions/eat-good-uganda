@@ -37,10 +37,7 @@ export const orderQueryKeys = {
  * Fetch order details by ID
  * Supports both authenticated users (no claim token) and guest users (with claim token)
  */
-export const useOrderDetail = <T extends Order = Order>(
-  orderId: string,
-  claimToken?: string,
-) => {
+export const useOrderDetail = <T extends Order = Order>(orderId: string, claimToken?: string) => {
   return useQuery({
     queryKey: orderQueryKeys.detail(orderId),
     queryFn: async (): Promise<T> => {
@@ -63,12 +60,9 @@ export const useOrders = (limit = 20, offset = 0, filters?: Partial<OrderListFil
   return useQuery({
     queryKey: ['orders', limit, offset, filters],
     queryFn: async (): Promise<PaginatedResponse<Order>> => {
-      const response = await api.get<PaginatedResponse<Order>>(
-        '/v1/customer/orders',
-        {
-          params: { limit, offset, ...filters },
-        },
-      )
+      const response = await api.get<PaginatedResponse<Order>>('/v1/customer/orders', {
+        params: { limit, offset, ...filters },
+      })
       return response.data
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -116,7 +110,9 @@ export const useOrderTracking = (orderId: string, enabled = false) => {
   return useQuery({
     queryKey: orderQueryKeys.tracking(orderId),
     queryFn: async () => {
-      const { data } = await api.get(`/v1/customer/orders/${orderId}/tracking`)
+      const { data } = await api.get<Record<string, unknown>>(
+        `/v1/customer/orders/${orderId}/tracking`,
+      )
       return data
     },
     staleTime: 30 * 1000,
@@ -136,8 +132,8 @@ export const useCancelOrder = () => {
       await api.post(`/v1/customer/orders/${orderId}/cancel`)
     },
     onSuccess: (_data, orderId) => {
-      queryClient.invalidateQueries({ queryKey: orderQueryKeys.detail(orderId) })
-      queryClient.invalidateQueries({ queryKey: orderQueryKeys.all })
+      void queryClient.invalidateQueries({ queryKey: orderQueryKeys.detail(orderId) })
+      void queryClient.invalidateQueries({ queryKey: orderQueryKeys.all })
     },
   })
 }

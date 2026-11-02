@@ -1,4 +1,4 @@
-import { Package } from '@phosphor-icons/react'
+import { PackageIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconAdminInventory size="md" />
  * <IconAdminInventory size="lg" color="accent" />
  */
-export const IconAdminInventory = adaptIcon(Package, 'inventory')
+export const IconAdminInventory = adaptIcon(PackageIcon, 'inventory')
 
 IconAdminInventory.displayName = 'IconAdminInventory'

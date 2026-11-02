@@ -1,4 +1,4 @@
-import { CreditCard } from '@phosphor-icons/react'
+import { CreditCardIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconPaymentGeneric size="md" />
  * <IconPaymentGeneric size="lg" color="accent" />
  */
-export const IconPaymentGeneric = adaptIcon(CreditCard, 'payment method')
+export const IconPaymentGeneric = adaptIcon(CreditCardIcon, 'payment method')
 
 IconPaymentGeneric.displayName = 'IconPaymentGeneric'

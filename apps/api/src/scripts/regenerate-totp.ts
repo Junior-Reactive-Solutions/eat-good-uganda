@@ -4,6 +4,7 @@
  * Run: DATABASE_URL="..." npx tsx src/scripts/regenerate-totp.ts
  */
 import crypto from 'crypto'
+
 import { Pool } from 'pg'
 
 const B32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
@@ -39,17 +40,17 @@ async function regenerateTotp() {
 
   const pool = new Pool({
     connectionString,
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: false },
   })
 
   try {
     const totpSecret = toBase32(crypto.randomBytes(20))
     const otpauthUrl = buildOtpauthUrl('admin@eatgooduganda.com', 'Eat Good Uganda', totpSecret)
 
-    await pool.query(
-      'UPDATE super_admin_users SET totp_secret = $1 WHERE email = $2',
-      [totpSecret, 'admin@eatgooduganda.com']
-    )
+    await pool.query('UPDATE super_admin_users SET totp_secret = $1 WHERE email = $2', [
+      totpSecret,
+      'admin@eatgooduganda.com',
+    ])
 
     console.log('\n✅ TOTP Secret Regenerated for Super Admin\n')
     console.log(`Email:        admin@eatgooduganda.com`)

@@ -1,4 +1,4 @@
-import { PencilSimple } from '@phosphor-icons/react'
+import { PencilSimpleIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconInteractionEdit size="md" />
  * <IconInteractionEdit size="lg" color="accent" />
  */
-export const IconInteractionEdit = adaptIcon(PencilSimple, 'edit')
+export const IconInteractionEdit = adaptIcon(PencilSimpleIcon, 'edit')
 
 IconInteractionEdit.displayName = 'IconInteractionEdit'

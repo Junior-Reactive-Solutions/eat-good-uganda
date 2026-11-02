@@ -1,4 +1,4 @@
-import { Trash } from '@phosphor-icons/react'
+import { TrashIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconInteractionDelete size="md" />
  * <IconInteractionDelete size="lg" color="accent" />
  */
-export const IconInteractionDelete = adaptIcon(Trash, 'delete')
+export const IconInteractionDelete = adaptIcon(TrashIcon, 'delete')
 
 IconInteractionDelete.displayName = 'IconInteractionDelete'

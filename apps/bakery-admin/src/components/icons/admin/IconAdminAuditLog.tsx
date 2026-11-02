@@ -1,4 +1,4 @@
-import { ClipboardText } from '@phosphor-icons/react'
+import { ClipboardTextIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconAdminAuditLog size="md" />
  * <IconAdminAuditLog size="lg" color="accent" />
  */
-export const IconAdminAuditLog = adaptIcon(ClipboardText, 'audit log')
+export const IconAdminAuditLog = adaptIcon(ClipboardTextIcon, 'audit log')
 
 IconAdminAuditLog.displayName = 'IconAdminAuditLog'

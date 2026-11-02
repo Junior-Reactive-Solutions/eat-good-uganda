@@ -1,4 +1,4 @@
-import { Bell } from '@phosphor-icons/react'
+import { BellIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconInteractionBellNotification size="md" />
  * <IconInteractionBellNotification size="lg" color="accent" />
  */
-export const IconInteractionBellNotification = adaptIcon(Bell, 'notifications')
+export const IconInteractionBellNotification = adaptIcon(BellIcon, 'notifications')
 
 IconInteractionBellNotification.displayName = 'IconInteractionBellNotification'

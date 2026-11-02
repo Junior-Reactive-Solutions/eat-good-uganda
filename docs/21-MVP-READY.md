@@ -552,11 +552,11 @@ See `docs/15-ROADMAP.md` for full post-MVP planning.
 **MVP Launch Checklist**
 
 - [ ] All items above verified
-- [ ] Team lead approval: ********\_******** Date: ****\_\_\_****
-- [ ] Product owner approval: ********\_******** Date: ****\_\_\_****
-- [ ] Technical lead approval: ********\_******** Date: ****\_\_\_****
+- [ ] Team lead approval: **\*\*\*\***\_**\*\*\*\*** Date: \***\*\_\_\_\*\***
+- [ ] Product owner approval: **\*\*\*\***\_**\*\*\*\*** Date: \***\*\_\_\_\*\***
+- [ ] Technical lead approval: **\*\*\*\***\_**\*\*\*\*** Date: \***\*\_\_\_\*\***
 
-**Launch Date:** ********\_********
+**Launch Date:** **\*\*\*\***\_**\*\*\*\***
 
 **Live URLs (After Launch):**
 
@@ -568,9 +568,9 @@ See `docs/15-ROADMAP.md` for full post-MVP planning.
 
 **Emergency Contacts:**
 
-- Technical Lead: ********\_******** Phone: ********\_********
-- DevOps: ********\_******** Phone: ********\_********
-- Support Lead: ********\_******** Phone: ********\_********
+- Technical Lead: **\*\*\*\***\_**\*\*\*\*** Phone: **\*\*\*\***\_**\*\*\*\***
+- DevOps: **\*\*\*\***\_**\*\*\*\*** Phone: **\*\*\*\***\_**\*\*\*\***
+- Support Lead: **\*\*\*\***\_**\*\*\*\*** Phone: **\*\*\*\***\_**\*\*\*\***
 
 ---
 

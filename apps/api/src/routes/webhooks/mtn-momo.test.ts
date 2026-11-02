@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as db from '@eatgood/db'
 import request from 'supertest'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
@@ -66,9 +66,7 @@ describe('POST /v1/webhooks/mtn-momo', () => {
   })
 
   it('1. valid webhook cross-verifies and updates payment status (paid), then 200', async () => {
-    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(
-      paymentRow() as any,
-    )
+    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(paymentRow() as any)
     vi.mocked(statusService.checkPaymentStatus).mockResolvedValue({
       status: 'paid',
       financialTransactionId: 'ftx-123',
@@ -108,9 +106,7 @@ describe('POST /v1/webhooks/mtn-momo', () => {
   })
 
   it('1b. reads the reference from the body when the header is absent', async () => {
-    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(
-      paymentRow() as any,
-    )
+    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(paymentRow() as any)
     vi.mocked(statusService.checkPaymentStatus).mockResolvedValue({
       status: 'pending',
     })
@@ -160,9 +156,7 @@ describe('POST /v1/webhooks/mtn-momo', () => {
     // Body claims SUCCESSFUL, but the provider (via checkPaymentStatus) says
     // the payment actually failed. Our state must follow the provider, not the
     // attacker-controlled body — defeating replay/spoof attempts.
-    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(
-      paymentRow() as any,
-    )
+    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(paymentRow() as any)
     vi.mocked(statusService.checkPaymentStatus).mockResolvedValue({
       status: 'failed',
       reason: 'PAYER_DECLINED',
@@ -204,9 +198,7 @@ describe('POST /v1/webhooks/mtn-momo', () => {
   })
 
   it('4. concurrent webhooks for the same reference all resolve to 200', async () => {
-    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(
-      paymentRow() as any,
-    )
+    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(paymentRow() as any)
     vi.mocked(statusService.checkPaymentStatus).mockResolvedValue({
       status: 'paid',
       financialTransactionId: 'ftx-123',
@@ -215,9 +207,7 @@ describe('POST /v1/webhooks/mtn-momo', () => {
 
     const responses = await Promise.all(
       Array.from({ length: 5 }, () =>
-        webhookRequest()
-          .set('X-Reference-Id', REFERENCE_ID)
-          .send({ referenceId: REFERENCE_ID }),
+        webhookRequest().set('X-Reference-Id', REFERENCE_ID).send({ referenceId: REFERENCE_ID }),
       ),
     )
 
@@ -229,9 +219,7 @@ describe('POST /v1/webhooks/mtn-momo', () => {
   })
 
   it('5. responds 200 in well under 3 seconds', async () => {
-    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(
-      paymentRow() as any,
-    )
+    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(paymentRow() as any)
     vi.mocked(statusService.checkPaymentStatus).mockResolvedValue({
       status: 'paid',
       financialTransactionId: 'ftx-123',
@@ -249,12 +237,8 @@ describe('POST /v1/webhooks/mtn-momo', () => {
   })
 
   it('6. cross-verification failure still returns 200 and records the error', async () => {
-    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(
-      paymentRow() as any,
-    )
-    vi.mocked(statusService.checkPaymentStatus).mockRejectedValue(
-      new Error('provider unreachable'),
-    )
+    vi.mocked(db.getPaymentByProviderRefUnscoped).mockResolvedValue(paymentRow() as any)
+    vi.mocked(statusService.checkPaymentStatus).mockRejectedValue(new Error('provider unreachable'))
     vi.mocked(db.recordWebhookDelivery).mockResolvedValue({} as any)
 
     const response = await webhookRequest()
@@ -269,9 +253,7 @@ describe('POST /v1/webhooks/mtn-momo', () => {
   })
 
   it('7. an unexpected lookup error still returns 200 (never lets MoMo see a 5xx)', async () => {
-    vi.mocked(db.getPaymentByProviderRefUnscoped).mockRejectedValue(
-      new Error('db down'),
-    )
+    vi.mocked(db.getPaymentByProviderRefUnscoped).mockRejectedValue(new Error('db down'))
 
     const response = await webhookRequest()
       .set('X-Reference-Id', REFERENCE_ID)

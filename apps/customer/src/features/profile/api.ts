@@ -35,11 +35,11 @@ export const useCustomerAddresses = () => {
 }
 
 export interface UpdateProfileInput {
-  first_name?: string
-  last_name?: string
-  date_of_birth?: string
-  bio?: string
-  avatar_url?: string | null
+  first_name?: string | undefined
+  last_name?: string | undefined
+  date_of_birth?: string | null | undefined
+  bio?: string | null | undefined
+  avatar_url?: string | null | undefined
 }
 
 export const useUpdateProfile = () => {
@@ -47,14 +47,11 @@ export const useUpdateProfile = () => {
 
   return useMutation({
     mutationFn: async (input: UpdateProfileInput) => {
-      const { data } = await api.patch<CustomerProfile>(
-        '/v1/customer/profile',
-        input,
-      )
+      const { data } = await api.patch<CustomerProfile>('/v1/customer/profile', input)
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: profileQueryKeys.profile })
+      void queryClient.invalidateQueries({ queryKey: profileQueryKeys.profile })
     },
   })
 }
@@ -74,14 +71,11 @@ export const useCreateAddress = () => {
 
   return useMutation({
     mutationFn: async (input: CreateAddressInput) => {
-      const { data } = await api.post<CustomerAddress>(
-        '/v1/customer/addresses',
-        input,
-      )
+      const { data } = await api.post<CustomerAddress>('/v1/customer/addresses', input)
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: profileQueryKeys.addresses })
+      void queryClient.invalidateQueries({ queryKey: profileQueryKeys.addresses })
     },
   })
 }
@@ -108,7 +102,7 @@ export const useUpdateAddress = (addressId: string) => {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: profileQueryKeys.addresses })
+      void queryClient.invalidateQueries({ queryKey: profileQueryKeys.addresses })
     },
   })
 }
@@ -121,7 +115,7 @@ export const useDeleteAddress = () => {
       await api.delete(`/v1/customer/addresses/${addressId}`)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: profileQueryKeys.addresses })
+      void queryClient.invalidateQueries({ queryKey: profileQueryKeys.addresses })
     },
   })
 }

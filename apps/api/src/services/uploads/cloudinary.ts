@@ -75,11 +75,18 @@ export async function uploadProductImage(
 
   try {
     // Upload to Cloudinary with transformations
-    const result = await new Promise<any>((resolve, reject) => {
+    type CloudinaryResult = {
+      public_id: string
+      secure_url: string
+      bytes: number
+      width: number
+      height: number
+    }
+    const result = await new Promise<CloudinaryResult>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: `eatgood/bakeries/${input.bakeryId}/products`,
-          public_id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          public_id: `${String(Date.now())}-${Math.random().toString(36).slice(2, 9)}`,
           resource_type: 'auto',
           quality: 'auto',
           fetch_format: 'auto',
@@ -107,8 +114,9 @@ export async function uploadProductImage(
           overwrite: false,
         },
         (error, result) => {
-          if (error) reject(error)
-          else resolve(result)
+          if (error)
+            reject(new Error(error instanceof Error ? error.message : JSON.stringify(error)))
+          else resolve(result as CloudinaryResult)
         },
       )
 

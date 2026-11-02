@@ -1,4 +1,4 @@
-import { CheckCircle } from '@phosphor-icons/react'
+import { CheckCircleIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconAdminApproved size="md" />
  * <IconAdminApproved size="lg" color="accent" />
  */
-export const IconAdminApproved = adaptIcon(CheckCircle, 'approved')
+export const IconAdminApproved = adaptIcon(CheckCircleIcon, 'approved')
 
 IconAdminApproved.displayName = 'IconAdminApproved'

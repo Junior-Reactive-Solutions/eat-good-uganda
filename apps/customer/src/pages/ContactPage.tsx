@@ -19,13 +19,15 @@ export default function ContactPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
     // In a real app, this would send the message to a backend service
     console.log('Contact form submitted:', formData)
     setSubmitted(true)
     setFormData({ name: '', email: '', subject: '', message: '' })
-    setTimeout(() => setSubmitted(false), 5000)
+    setTimeout(() => {
+      setSubmitted(false)
+    }, 5000)
   }
 
   return (
@@ -34,10 +36,7 @@ export default function ContactPage() {
         title="Contact Us"
         description="Get in touch with the Eat Good Uganda team — we'd love to hear from you."
       />
-      <PageHeader
-        heading="Contact Us"
-        subheading="We'd love to hear from you"
-      />
+      <PageHeader heading="Contact Us" subheading="We'd love to hear from you" />
 
       <div className="grid gap-8 md:grid-cols-2">
         {/* Contact Information */}
@@ -60,29 +59,20 @@ export default function ContactPage() {
               >
                 support@eatgooduganda.com
               </a>
-              <p className="text-xs text-platform-fg-muted mt-1">
-                We respond within 24 hours
-              </p>
+              <p className="text-xs text-platform-fg-muted mt-1">We respond within 24 hours</p>
             </div>
 
             <div className="rounded-lg border border-platform-border bg-platform-surface p-4">
               <h3 className="font-semibold text-platform-fg mb-2">Phone</h3>
-              <a
-                href="tel:+256753000000"
-                className="text-amber-500 hover:underline text-sm"
-              >
+              <a href="tel:+256753000000" className="text-amber-500 hover:underline text-sm">
                 +256 753 000 000
               </a>
-              <p className="text-xs text-platform-fg-muted mt-1">
-                Mon-Fri, 8am-6pm EAT
-              </p>
+              <p className="text-xs text-platform-fg-muted mt-1">Mon-Fri, 8am-6pm EAT</p>
             </div>
 
             <div className="rounded-lg border border-platform-border bg-platform-surface p-4">
               <h3 className="font-semibold text-platform-fg mb-2">Location</h3>
-              <p className="text-sm text-platform-fg-muted">
-                Kampala, Uganda
-              </p>
+              <p className="text-sm text-platform-fg-muted">Kampala, Uganda</p>
             </div>
           </div>
 

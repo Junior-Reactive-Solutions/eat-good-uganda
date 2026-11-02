@@ -23,6 +23,18 @@ function formatDate(date: string | Date): string {
 
 const ORDER_LIMIT = 20
 const BOARD_LIMIT = 100
+const BOARD_DELIVERED_LIMIT = 20
+
+// Every status the board shows a column for except 'delivered', which is
+// fetched separately (see BOARD_DELIVERED_LIMIT) so a backlog of delivered
+// orders can't push still-active orders off the board's single page.
+const BOARD_ACTIVE_STATUSES: OrderStatus[] = [
+  'pending_payment',
+  'confirmed',
+  'preparing',
+  'ready',
+  'out_for_delivery',
+]
 
 const VALID_STATUSES: OrderStatus[] = [
   'pending_payment',
@@ -89,16 +101,29 @@ export default function OrdersPage() {
     setSearchParams(next, { replace: true })
   }
 
-  // The board shows every active status as its own column, so it always
-  // fetches unfiltered (a larger page — enough for a single bakery's active
-  // orders) rather than respecting the table's status tabs.
-  const filters =
-    view === 'board'
-      ? { limit: BOARD_LIMIT, offset: 0 }
-      : statusFilter
-        ? { limit: ORDER_LIMIT, offset, status: statusFilter }
-        : { limit: ORDER_LIMIT, offset }
-  const { data, isLoading, error } = useOrders(filters)
+  // The board shows every active status as its own column and ignores the
+  // table's status tabs. It fetches active statuses and a recent slice of
+  // delivered orders as two separate queries so a backlog of delivered
+  // orders can't push still-active orders off a single unfiltered page.
+  const tableFilters = statusFilter
+    ? { limit: ORDER_LIMIT, offset, status: statusFilter }
+    : { limit: ORDER_LIMIT, offset }
+  const { data, isLoading, error } = useOrders(tableFilters, { enabled: view === 'table' })
+
+  const activeBoardQuery = useOrders(
+    { statuses: BOARD_ACTIVE_STATUSES, limit: BOARD_LIMIT },
+    { enabled: view === 'board' },
+  )
+  const deliveredBoardQuery = useOrders(
+    { status: 'delivered', limit: BOARD_DELIVERED_LIMIT },
+    { enabled: view === 'board' },
+  )
+  const boardOrders = [
+    ...(activeBoardQuery.data?.items ?? []),
+    ...(deliveredBoardQuery.data?.items ?? []),
+  ]
+  const boardLoading = activeBoardQuery.isLoading || deliveredBoardQuery.isLoading
+  const boardError = activeBoardQuery.error ?? deliveredBoardQuery.error
 
   const orders = data?.items || []
   const total = data?.total || 0
@@ -118,7 +143,10 @@ export default function OrdersPage() {
     'cancelled',
   ]
 
-  if (isLoading) {
+  const viewIsLoading = view === 'board' ? boardLoading : isLoading
+  const viewError = view === 'board' ? boardError : error
+
+  if (viewIsLoading) {
     return (
       <div className="p-8">
         <h1 className="text-3xl font-bold mb-2">Orders</h1>
@@ -127,13 +155,15 @@ export default function OrdersPage() {
     )
   }
 
-  if (error) {
+  if (viewError) {
     return (
       <div className="p-8">
         <h1 className="text-3xl font-bold mb-2">Orders</h1>
         <div className="rounded-lg border border-platform-border bg-red-50 p-4 text-red-800">
           <p className="font-medium mb-2">Error loading orders</p>
-          <p className="text-sm mb-4">{error instanceof Error ? error.message : 'Unknown error'}</p>
+          <p className="text-sm mb-4">
+            {viewError instanceof Error ? viewError.message : 'Unknown error'}
+          </p>
           <Button
             onClick={() => {
               window.location.reload()
@@ -206,7 +236,7 @@ export default function OrdersPage() {
       )}
 
       {view === 'board' ? (
-        orders.length === 0 ? (
+        boardOrders.length === 0 ? (
           <div className="rounded-lg border border-platform-border bg-white p-12 text-center">
             <p className="text-platform-fg-muted mb-4">No orders yet</p>
             <p className="text-sm text-platform-fg-muted">
@@ -214,7 +244,7 @@ export default function OrdersPage() {
             </p>
           </div>
         ) : (
-          <OrderBoard orders={orders} />
+          <OrderBoard orders={boardOrders} />
         )
       ) : orders.length === 0 ? (
         <div className="rounded-lg border border-platform-border bg-white p-12 text-center">

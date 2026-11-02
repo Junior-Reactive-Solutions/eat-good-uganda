@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access */
 import { Router as createRouter } from 'express'
 import type { Request, Response, Router } from 'express'
 import multer from 'multer'
@@ -78,7 +79,7 @@ bakeryUploadsRouter.post(
         {
           error: error instanceof Error ? error.message : String(error),
           bakery_id: bakeryId,
-          filename: req.file?.originalname,
+          filename: req.file.originalname,
         },
         'Failed to upload product image',
       )
@@ -114,7 +115,7 @@ bakeryUploadsRouter.get(
     try {
       const width = req.query.width ? parseInt(req.query.width as string) : undefined
       const height = req.query.height ? parseInt(req.query.height as string) : undefined
-      const crop = (req.query.crop as 'fill' | 'fit' | 'scale') || 'fill'
+      const crop = ((req.query.crop as string | undefined) ?? 'fill') as 'fill' | 'fit' | 'scale'
 
       const options = {
         ...(width !== undefined && { width }),

@@ -1,4 +1,4 @@
-import { ShareNetwork } from '@phosphor-icons/react'
+import { ShareNetworkIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconInteractionShare size="md" />
  * <IconInteractionShare size="lg" color="accent" />
  */
-export const IconInteractionShare = adaptIcon(ShareNetwork, 'share')
+export const IconInteractionShare = adaptIcon(ShareNetworkIcon, 'share')
 
 IconInteractionShare.displayName = 'IconInteractionShare'

@@ -1,4 +1,4 @@
-import { DownloadSimple } from '@phosphor-icons/react'
+import { DownloadSimpleIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconInteractionDownload size="md" />
  * <IconInteractionDownload size="lg" color="accent" />
  */
-export const IconInteractionDownload = adaptIcon(DownloadSimple, 'download')
+export const IconInteractionDownload = adaptIcon(DownloadSimpleIcon, 'download')
 
 IconInteractionDownload.displayName = 'IconInteractionDownload'

@@ -3,15 +3,10 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
 
-
 import { Button } from '@/components/Button'
+import { IconNavigationMenu, IconInteractionEdit, IconInteractionDelete } from '@/components/icons'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { StaffFormModal } from '@/components/modals/StaffFormModal'
-import {
-  IconNavigationMenu,
-  IconInteractionEdit,
-  IconInteractionDelete,
-} from '@/components/icons'
 import { useRemoveStaffMember, useStaff } from '@/features/staff/api'
 
 const formatDate = (dateString: string | undefined) => {
@@ -113,7 +108,9 @@ export default function BakeryStaffPage() {
         </button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-platform-fg">Bakery Staff</h1>
-          <p className="text-sm text-platform-fg-muted mt-1">Manage staff members for this bakery</p>
+          <p className="text-sm text-platform-fg-muted mt-1">
+            Manage staff members for this bakery
+          </p>
         </div>
         <Button variant="primary" onClick={handleAddStaff}>
           Add Staff Member
@@ -124,7 +121,9 @@ export default function BakeryStaffPage() {
       <div className="rounded-lg border border-platform-border bg-platform-surface overflow-hidden">
         {staff && staff.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-platform-fg-muted mb-4">No staff members yet. Add one to get started.</p>
+            <p className="text-platform-fg-muted mb-4">
+              No staff members yet. Add one to get started.
+            </p>
             <Button variant="primary" onClick={handleAddStaff}>
               Add First Staff Member
             </Button>
@@ -135,10 +134,16 @@ export default function BakeryStaffPage() {
               <thead className="border-b border-platform-border bg-platform-bg">
                 <tr>
                   <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Name</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Email</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Email
+                  </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Role</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Last Login</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">Actions</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Last Login
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-platform-fg">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-platform-border">
@@ -158,14 +163,18 @@ export default function BakeryStaffPage() {
                     </td>
                     <td className="px-6 py-3 text-sm space-x-2">
                       <button
-                        onClick={() => { handleEditStaff(member); }}
+                        onClick={() => {
+                          handleEditStaff(member)
+                        }}
                         className="inline-flex items-center gap-1 px-2 py-1 rounded text-platform-fg hover:bg-platform-bg transition-colors"
                         title="Edit staff member"
                       >
                         <IconInteractionEdit size="sm" color="default" alt="" />
                       </button>
                       <button
-                        onClick={() => { handleDeleteClick(member); }}
+                        onClick={() => {
+                          handleDeleteClick(member)
+                        }}
                         className="inline-flex items-center gap-1 px-2 py-1 rounded text-platform-error hover:bg-red-50 transition-colors"
                         title="Remove staff member"
                       >
@@ -202,7 +211,8 @@ export default function BakeryStaffPage() {
           <div className="mx-4 w-full max-w-sm rounded-lg bg-platform-surface shadow-lg p-6">
             <h3 className="text-lg font-semibold text-platform-fg mb-2">Remove Staff Member?</h3>
             <p className="text-sm text-platform-fg-muted mb-4">
-              Are you sure you want to remove <strong>{staffToDelete.full_name}</strong> from the staff?
+              Are you sure you want to remove <strong>{staffToDelete.full_name}</strong> from the
+              staff?
             </p>
             <div className="flex gap-3">
               <Button

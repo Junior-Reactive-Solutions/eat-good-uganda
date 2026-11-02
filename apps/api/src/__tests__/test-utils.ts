@@ -3,11 +3,12 @@
  * Includes app factory, login helpers, external provider mocks, and DB cleanup
  */
 
+import { pool } from '@eatgood/db'
 import type { Express } from 'express'
 import request from 'supertest'
-import { pool, withTransaction } from '@eatgood/db'
-import { app as baseApp } from '../app'
 import type { Agent } from 'supertest'
+
+import { app as baseApp } from '../app'
 
 /**
  * Returns a fresh Express app instance for testing
@@ -22,10 +23,7 @@ export function createTestApp(): Express {
  * Login a customer and return a Supertest agent with session cookie
  * Assumes the customer already exists in the database
  */
-export async function loginAsCustomer(customer: {
-  id: string
-  email: string
-}): Promise<Agent> {
+export async function loginAsCustomer(customer: { id: string; email: string }): Promise<Agent> {
   const agent = request.agent(baseApp)
 
   // Simulate a login by making the login request
@@ -35,7 +33,7 @@ export async function loginAsCustomer(customer: {
   })
 
   if (res.status !== 200) {
-    throw new Error(`Failed to login customer: ${res.status} ${res.text}`)
+    throw new Error(`Failed to login customer: ${String(res.status)} ${res.text}`)
   }
 
   return agent
@@ -58,7 +56,7 @@ export async function loginAsBakeryUser(user: {
   })
 
   if (res.status !== 200) {
-    throw new Error(`Failed to login bakery user: ${res.status} ${res.text}`)
+    throw new Error(`Failed to login bakery user: ${String(res.status)} ${res.text}`)
   }
 
   return agent
@@ -69,10 +67,7 @@ export async function loginAsBakeryUser(user: {
  * Assumes the super admin already exists in the database
  * Note: Real TOTP verification may be required; this is for tests with TOTP mocked
  */
-export async function loginAsSuperAdmin(admin: {
-  id: string
-  email: string
-}): Promise<Agent> {
+export async function loginAsSuperAdmin(admin: { id: string; email: string }): Promise<Agent> {
   const agent = request.agent(baseApp)
 
   const res = await agent.post('/v1/admin/auth/login').send({
@@ -83,7 +78,7 @@ export async function loginAsSuperAdmin(admin: {
   })
 
   if (res.status !== 200) {
-    throw new Error(`Failed to login super admin: ${res.status} ${res.text}`)
+    throw new Error(`Failed to login super admin: ${String(res.status)} ${res.text}`)
   }
 
   return agent
@@ -152,7 +147,7 @@ export async function cleanupDB(): Promise<void> {
     for (const table of tables) {
       try {
         await client.query(`TRUNCATE TABLE ${table} CASCADE`)
-      } catch (e) {
+      } catch {
         // Table might not exist or be empty, that's ok
       }
     }
@@ -176,20 +171,18 @@ export async function cleanupDB(): Promise<void> {
  * })
  * ```
  */
-export async function runInTransaction<T>(
-  callback: (db: typeof pool) => Promise<T>,
-): Promise<T> {
+export async function runInTransaction<T>(callback: (db: typeof pool) => Promise<T>): Promise<T> {
   const client = await pool.connect()
 
   try {
     await client.query('BEGIN')
-    const result = await callback(client as any)
+    const result = await callback(client as unknown as typeof pool)
     await client.query('ROLLBACK')
     return result
   } catch (error) {
     try {
       await client.query('ROLLBACK')
-    } catch (rollbackError) {
+    } catch {
       // Ignore rollback errors
     }
     throw error
@@ -209,7 +202,11 @@ export async function runInTransaction<T>(
  * assertValidSchema(schema, { id: '123' })
  * ```
  */
-export function assertValidSchema<T>(schema: any, data: any): asserts data is T {
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+export function assertValidSchema<T>(
+  schema: { safeParse: (data: unknown) => { success: boolean; error?: unknown } },
+  data: unknown,
+): asserts data is T {
   const result = schema.safeParse(data)
   if (!result.success) {
     throw new Error(`Schema validation failed: ${JSON.stringify(result.error)}`)

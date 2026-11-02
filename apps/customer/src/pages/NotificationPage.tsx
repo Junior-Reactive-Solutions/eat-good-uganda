@@ -1,10 +1,7 @@
 import { useState } from 'react'
 
 import { Button } from '../components/Button'
-import {
-  IconInteractionBellNotification,
-  IconInteractionDelete,
-} from '../components/icons'
+import { IconInteractionBellNotification, IconInteractionDelete } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { PageMeta } from '../components/PageMeta'
 import {
@@ -20,11 +17,11 @@ function formatTimeAgo(date: Date): string {
 
   if (seconds < 60) return 'just now'
   const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 60) return `${String(minutes)}m ago`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return `${String(hours)}h ago`
   const days = Math.floor(hours / 24)
-  if (days < 7) return `${days}d ago`
+  if (days < 7) return `${String(days)}d ago`
   return date.toLocaleDateString('en-UG')
 }
 
@@ -54,7 +51,7 @@ export default function NotificationPage() {
   const totalPages = Math.ceil(total / limit)
   const currentPage = Math.floor(offset / limit) + 1
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = notifications.filter((n) => !n.read).length
 
   const handleMarkAsRead = (id: string) => {
     markAsRead.mutate(id)
@@ -84,9 +81,7 @@ export default function NotificationPage() {
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-        <p className="text-sm text-red-900 font-medium">
-          Failed to load notifications
-        </p>
+        <p className="text-sm text-red-900 font-medium">Failed to load notifications</p>
       </div>
     )
   }
@@ -99,7 +94,9 @@ export default function NotificationPage() {
         <div>
           <h1 className="text-3xl font-bold text-platform-fg">Notifications</h1>
           <p className="mt-2 text-platform-fg-muted">
-            {total === 0 ? 'No notifications' : `You have ${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`}
+            {total === 0
+              ? 'No notifications'
+              : `You have ${String(unreadCount)} unread notification${String(unreadCount) !== '1' ? 's' : ''}`}
           </p>
         </div>
 
@@ -117,10 +114,13 @@ export default function NotificationPage() {
       {/* Empty State */}
       {notifications.length === 0 && (
         <div className="rounded-lg border border-dashed border-platform-border bg-platform-surface/50 p-8 text-center">
-          <IconInteractionBellNotification size="lg" color="default" className="mx-auto mb-4" alt="" />
-          <h2 className="mb-2 text-lg font-semibold text-platform-fg">
-            No notifications
-          </h2>
+          <IconInteractionBellNotification
+            size="lg"
+            color="default"
+            className="mx-auto mb-4"
+            alt=""
+          />
+          <h2 className="mb-2 text-lg font-semibold text-platform-fg">No notifications</h2>
           <p className="text-platform-fg-muted">
             You're all caught up! New notifications will appear here.
           </p>
@@ -131,7 +131,8 @@ export default function NotificationPage() {
       {notifications.length > 0 && (
         <div className="space-y-2">
           {notifications.map((notification) => {
-            const typeColor = notificationTypeColors[notification.type] || 'bg-gray-100 text-gray-700'
+            const typeColor =
+              notificationTypeColors[notification.type] || 'bg-gray-100 text-gray-700'
             const typeLabel = notificationTypeLabels[notification.type] || notification.type
 
             return (
@@ -158,12 +159,8 @@ export default function NotificationPage() {
                     </div>
 
                     {/* Content */}
-                    <h3 className="text-lg font-semibold text-platform-fg">
-                      {notification.title}
-                    </h3>
-                    <p className="text-platform-fg-muted mt-2">
-                      {notification.message}
-                    </p>
+                    <h3 className="text-lg font-semibold text-platform-fg">{notification.title}</h3>
+                    <p className="text-platform-fg-muted mt-2">{notification.message}</p>
 
                     {/* Timestamp */}
                     <p className="text-xs text-platform-fg-muted mt-3">
@@ -175,7 +172,9 @@ export default function NotificationPage() {
                   <div className="flex gap-2 flex-shrink-0">
                     {!notification.read && (
                       <button
-                        onClick={() => { handleMarkAsRead(notification.id); }}
+                        onClick={() => {
+                          handleMarkAsRead(notification.id)
+                        }}
                         className="px-3 py-1 rounded-md text-sm font-medium text-blue-600 hover:bg-blue-100 transition-colors"
                         disabled={markAsRead.isPending}
                       >
@@ -183,7 +182,9 @@ export default function NotificationPage() {
                       </button>
                     )}
                     <button
-                      onClick={() => { handleDelete(notification.id); }}
+                      onClick={() => {
+                        handleDelete(notification.id)
+                      }}
                       className="p-2 text-platform-fg-muted hover:text-red-600 transition-colors"
                       title="Delete notification"
                       disabled={deleteNotification.isPending}
@@ -208,7 +209,9 @@ export default function NotificationPage() {
           <div className="flex gap-2">
             <Button
               variant="secondary"
-              onClick={() => { handlePageChange(currentPage - 1); }}
+              onClick={() => {
+                handlePageChange(currentPage - 1)
+              }}
               disabled={currentPage <= 1}
             >
               Previous
@@ -218,7 +221,9 @@ export default function NotificationPage() {
               <Button
                 key={page}
                 variant={currentPage === page ? 'primary' : 'secondary'}
-                onClick={() => { handlePageChange(page); }}
+                onClick={() => {
+                  handlePageChange(page)
+                }}
                 className="min-w-10"
               >
                 {page}
@@ -227,7 +232,9 @@ export default function NotificationPage() {
 
             <Button
               variant="secondary"
-              onClick={() => { handlePageChange(currentPage + 1); }}
+              onClick={() => {
+                handlePageChange(currentPage + 1)
+              }}
               disabled={currentPage >= totalPages}
             >
               Next

@@ -1,5 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { pool } from '@eatgood/db'
 import request from 'supertest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 // Mock the database module before importing app
 vi.mock('@eatgood/db', () => {
@@ -12,7 +13,6 @@ vi.mock('@eatgood/db', () => {
 })
 
 import { app } from '../../app'
-import { pool } from '@eatgood/db'
 
 const mockPoolQuery = vi.mocked(pool.query)
 

@@ -2,9 +2,10 @@
  * One-time script to update logo_url values in the bakeries table.
  * Run after fixing DB credentials: pnpm -w tsx apps/api/src/scripts/update-logo-urls.ts
  */
-import { Pool } from 'pg'
-import { config } from 'dotenv'
 import { resolve } from 'path'
+
+import { config } from 'dotenv'
+import { Pool } from 'pg'
 
 config({ path: resolve(process.cwd(), 'apps/api/.env') })
 

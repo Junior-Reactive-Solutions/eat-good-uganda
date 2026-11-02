@@ -1,4 +1,4 @@
-import { ChartLineUp } from '@phosphor-icons/react'
+import { ChartLineUpIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconAdminAnalytics size="md" />
  * <IconAdminAnalytics size="lg" color="accent" />
  */
-export const IconAdminAnalytics = adaptIcon(ChartLineUp, 'analytics')
+export const IconAdminAnalytics = adaptIcon(ChartLineUpIcon, 'analytics')
 
 IconAdminAnalytics.displayName = 'IconAdminAnalytics'

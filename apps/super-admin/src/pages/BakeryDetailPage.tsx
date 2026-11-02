@@ -4,12 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import { BakeryStatusBadge } from '../components/BakeryStatusBadge'
 import { Button } from '../components/Button'
+import { IconNavigationMenu, IconInteractionPhone, IconDeliveryLocation } from '../components/icons'
 import { LoadingSpinner } from '../components/LoadingSpinner'
-import {
-  IconNavigationMenu,
-  IconInteractionPhone,
-  IconDeliveryLocation,
-} from '../components/icons'
 import {
   useApproveBakery,
   useBakeryDetail,
@@ -156,7 +152,12 @@ export default function BakeryDetailPage() {
             {/* Address */}
             <div className="mb-4">
               <div className="flex items-start gap-2">
-                <IconDeliveryLocation size="sm" color="default" className="mt-1 flex-shrink-0" alt="" />
+                <IconDeliveryLocation
+                  size="sm"
+                  color="default"
+                  className="mt-1 flex-shrink-0"
+                  alt=""
+                />
                 <div>
                   <p className="text-platform-fg-muted">{bakery.address_line1}</p>
                   {bakery.address_line2 && (

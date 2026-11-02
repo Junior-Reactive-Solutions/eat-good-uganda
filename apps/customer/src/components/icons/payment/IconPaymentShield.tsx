@@ -1,4 +1,4 @@
-import { ShieldCheck } from '@phosphor-icons/react'
+import { ShieldCheckIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconPaymentShield size="md" />
  * <IconPaymentShield size="lg" color="accent" />
  */
-export const IconPaymentShield = adaptIcon(ShieldCheck, 'secure payment')
+export const IconPaymentShield = adaptIcon(ShieldCheckIcon, 'secure payment')
 
 IconPaymentShield.displayName = 'IconPaymentShield'

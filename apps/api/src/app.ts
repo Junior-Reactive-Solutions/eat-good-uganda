@@ -5,7 +5,6 @@ import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
 
-
 import { env } from './env'
 import { logger } from './lib/logger'
 import { csrf } from './middleware/csrf'

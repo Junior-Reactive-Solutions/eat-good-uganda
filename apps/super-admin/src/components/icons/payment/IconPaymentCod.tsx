@@ -1,4 +1,4 @@
-import { Money } from '@phosphor-icons/react'
+import { MoneyIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconPaymentCod size="md" />
  * <IconPaymentCod size="lg" color="accent" />
  */
-export const IconPaymentCod = adaptIcon(Money, 'cash on delivery')
+export const IconPaymentCod = adaptIcon(MoneyIcon, 'cash on delivery')
 
 IconPaymentCod.displayName = 'IconPaymentCod'

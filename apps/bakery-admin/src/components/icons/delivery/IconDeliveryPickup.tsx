@@ -1,4 +1,4 @@
-import { Storefront } from '@phosphor-icons/react'
+import { StorefrontIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconDeliveryPickup size="md" />
  * <IconDeliveryPickup size="lg" color="accent" />
  */
-export const IconDeliveryPickup = adaptIcon(Storefront, 'pickup')
+export const IconDeliveryPickup = adaptIcon(StorefrontIcon, 'pickup')
 
 IconDeliveryPickup.displayName = 'IconDeliveryPickup'

@@ -1,4 +1,4 @@
-import { House } from '@phosphor-icons/react'
+import { HouseIcon } from '@phosphor-icons/react'
 
 import { adaptIcon } from '../adapt'
 
@@ -9,6 +9,6 @@ import { adaptIcon } from '../adapt'
  * <IconNavigationHome size="md" />
  * <IconNavigationHome size="lg" color="accent" />
  */
-export const IconNavigationHome = adaptIcon(House, 'home')
+export const IconNavigationHome = adaptIcon(HouseIcon, 'home')
 
 IconNavigationHome.displayName = 'IconNavigationHome'

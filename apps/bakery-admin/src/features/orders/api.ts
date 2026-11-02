@@ -41,25 +41,29 @@ export type PaginatedOrders = {
 
 interface ListOrdersFilters {
   status?: OrderStatus
+  /** Fetch several statuses at once (e.g. the board's active-order set). */
+  statuses?: OrderStatus[]
   date_from?: string
   date_to?: string
   limit?: number
   offset?: number
 }
 
-export function useOrders(filters?: ListOrdersFilters) {
+export function useOrders(filters?: ListOrdersFilters, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['bakery-orders', filters],
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
-      const params = new URLSearchParams()
-      if (filters?.status) params.append('status', filters.status)
-      if (filters?.date_from) params.append('date_from', filters.date_from)
-      if (filters?.date_to) params.append('date_to', filters.date_to)
-      if (filters?.limit) params.append('limit', String(filters.limit))
-      if (filters?.offset) params.append('offset', String(filters.offset))
+      const params: Record<string, string> = {}
+      if (filters?.status) params.status = filters.status
+      if (filters?.statuses?.length) params.statuses = filters.statuses.join(',')
+      if (filters?.date_from) params.date_from = filters.date_from
+      if (filters?.date_to) params.date_to = filters.date_to
+      if (filters?.limit) params.limit = String(filters.limit)
+      if (filters?.offset) params.offset = String(filters.offset)
 
       const res = await api.get<PaginatedOrders>('/v1/bakery/orders', {
-        params: params.toString() ? { ...filters } : undefined,
+        params: Object.keys(params).length > 0 ? params : undefined,
       })
       return res.data
     },

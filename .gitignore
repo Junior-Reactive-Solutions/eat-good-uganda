@@ -230,3 +230,6 @@ progress.md
 
 
 #SKILLS/
+
+# Claude Code local settings — machine-specific, never shared
+.claude/settings.local.json

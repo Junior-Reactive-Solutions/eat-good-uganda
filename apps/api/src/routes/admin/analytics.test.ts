@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   getAdminPlatformMetrics,
   getAdminBakeryAnalytics,
@@ -21,23 +21,19 @@ vi.mock('@eatgood/db', () => ({
 vi.mock('../../middleware/authenticateToken', () => ({
   authenticateToken: (namespace: string) => (req: any, _res: any, next: any) => {
     if (namespace === 'admin') {
-       
       req.auth = { kind: 'super_admin', id: 'admin-123' }
     }
-     
+
     next()
   },
 }))
 
 vi.mock('../../middleware/requireSuperAdminContext', () => ({
-   
   requireSuperAdminContext: (req: any, res: any, next: any) => {
-     
     if (req.auth?.kind !== 'super_admin') {
-       
       return res.status(401).json({ error: 'unauthorized' })
     }
-     
+
     next()
   },
 }))

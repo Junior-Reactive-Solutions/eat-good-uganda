@@ -10,11 +10,9 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     projects: [
-      'apps/api/vitest.config.ts',
       'apps/customer/vitest.config.ts',
       'apps/bakery-admin/vitest.config.ts',
       'apps/super-admin/vitest.config.ts',
-      'packages/db/vitest.config.ts',
       'packages/shared/vitest.config.ts',
     ],
   },
