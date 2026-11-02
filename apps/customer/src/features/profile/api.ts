@@ -35,11 +35,11 @@ export const useCustomerAddresses = () => {
 }
 
 export interface UpdateProfileInput {
-  first_name?: string
-  last_name?: string
-  date_of_birth?: string
-  bio?: string
-  avatar_url?: string | null
+  first_name?: string | undefined
+  last_name?: string | undefined
+  date_of_birth?: string | null | undefined
+  bio?: string | null | undefined
+  avatar_url?: string | null | undefined
 }
 
 export const useUpdateProfile = () => {
